@@ -161,7 +161,7 @@
     <div class="info-grid" id="project-info-grid">
       <div class="info-item">
         <div class="info-label" data-i18n="s2-loc-l">Location</div>
-        <div class="info-value" data-i18n="s2-loc-v">Russia</div>
+        <div class="info-value" id="info-location" data-i18n="s2-loc-v">Russia</div>
       </div>
       <div class="info-item">
         <div class="info-label" data-i18n="s2-area-l">Greenhouse Area</div>
@@ -388,8 +388,12 @@ function renderProjectInfo() {
   const areaEl = document.getElementById('info-area');
   const structEl = document.getElementById('info-struct');
   const infraEl = document.getElementById('info-infra');
+  const locEl = document.getElementById('info-location');
   
   const tbdText = {en:'To be provided',ru:'Предоставить',zh:'待提供'}[currentLang] || 'To be provided';
+  
+  if (projectInfo.location) { locEl.textContent = projectInfo.location; locEl.classList.remove('tbd'); locEl.setAttribute('data-translate',''); locEl.setAttribute('data-original', projectInfo.location); }
+  else { locEl.textContent = {en:'Russia',ru:'Россия',zh:'俄罗斯'}[currentLang] || 'Russia'; }
   
   if (projectInfo.area) { areaEl.textContent = projectInfo.area; areaEl.classList.remove('tbd'); areaEl.setAttribute('data-translate',''); areaEl.setAttribute('data-original', projectInfo.area); }
   else { areaEl.textContent = tbdText; areaEl.classList.add('tbd'); areaEl.removeAttribute('data-translate'); }

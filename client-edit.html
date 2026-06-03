@@ -57,6 +57,11 @@
   <div class="card">
     <div class="card-title">🌿 <span id="lbl-greenhouse">Greenhouse Information</span></div>
     <div class="form-group">
+      <label id="lbl-location">Location</label>
+      <input type="text" id="field-location" placeholder="e.g., Moscow, Russia">
+      <div class="hint" id="hint-location">Where is the greenhouse located</div>
+    </div>
+    <div class="form-group">
       <label id="lbl-area">Greenhouse Area</label>
       <input type="text" id="field-area" placeholder="e.g., 2000 ㎡">
       <div class="hint" id="hint-area">Total area of the greenhouse to be retrofitted</div>
@@ -120,6 +125,7 @@ const labels = {
     pageTitle: "📝 Update Project Details",
     backLink: "← Back to project page",
     greenhouse: "Greenhouse Information",
+    location: "Location", locationHint: "Where is the greenhouse located",
     area: "Greenhouse Area", areaHint: "Total area of the greenhouse to be retrofitted",
     struct: "Structure Type", structHint: "What type of greenhouse structure exists currently",
     infra: "Existing Infrastructure", infraHint: "What pipes, wiring, systems are already in place",
@@ -137,6 +143,7 @@ const labels = {
     pageTitle: "📝 Обновить данные проекта",
     backLink: "← Назад к проекту",
     greenhouse: "Информация о теплице",
+    location: "Расположение", locationHint: "Где находится теплица",
     area: "Площадь теплицы", areaHint: "Общая площадь теплицы для модернизации",
     struct: "Тип конструкции", structHint: "Какой тип конструкции теплицы сейчас",
     infra: "Существующая инфраструктура", infraHint: "Какие трубы, проводка, системы уже есть",
@@ -154,6 +161,7 @@ const labels = {
     pageTitle: "📝 更新项目信息",
     backLink: "← 返回项目页面",
     greenhouse: "温室基本信息",
+    location: "所在地", locationHint: "温室所在的地理位置",
     area: "温室面积", areaHint: "需要改造的温室总面积",
     struct: "结构类型", structHint: "现有温室是什么结构",
     infra: "现有基础设施", infraHint: "已有哪些管道、线路、系统",
@@ -178,6 +186,8 @@ function switchLang(lang) {
   document.getElementById('page-title').textContent = L.pageTitle;
   document.getElementById('back-link').textContent = L.backLink;
   document.getElementById('lbl-greenhouse').textContent = L.greenhouse;
+  document.getElementById('lbl-location').textContent = L.location;
+  document.getElementById('hint-location').textContent = L.locationHint;
   document.getElementById('lbl-area').textContent = L.area;
   document.getElementById('hint-area').textContent = L.areaHint;
   document.getElementById('lbl-struct').textContent = L.struct;
@@ -201,6 +211,7 @@ async function loadData() {
     if (res.ok) {
       cloudData = await res.json();
       const info = cloudData.projectInfo || {};
+      document.getElementById('field-location').value = info.location || '';
       document.getElementById('field-area').value = info.area || '';
       document.getElementById('field-struct').value = info.structureType || '';
       document.getElementById('field-infra').value = info.infrastructure || '';
@@ -220,6 +231,7 @@ async function saveData() {
   statusEl.className = 'save-status';
   
   const newInfo = {
+    location: document.getElementById('field-location').value.trim(),
     area: document.getElementById('field-area').value.trim(),
     structureType: document.getElementById('field-struct').value.trim(),
     infrastructure: document.getElementById('field-infra').value.trim(),
@@ -268,7 +280,7 @@ async function saveData() {
 }
 
 function generateChangeSummary(oldInfo, newInfo) {
-  const fields = {area:'area',structureType:'structure',infrastructure:'infrastructure',crops:'crops',scope:'scope',budget:'budget',timeline:'timeline',notes:'notes'};
+  const fields = {location:'location',area:'area',structureType:'structure',infrastructure:'infrastructure',crops:'crops',scope:'scope',budget:'budget',timeline:'timeline',notes:'notes'};
   const changes = [];
   for (const [k,label] of Object.entries(fields)) {
     if ((newInfo[k]||'') !== (oldInfo[k]||'')) {
