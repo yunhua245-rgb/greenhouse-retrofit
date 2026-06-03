@@ -104,6 +104,19 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 
 .supplier-actions{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0}
 
+.phase-item{background:#f7f8fa;border:1px solid #e8eaed;border-radius:10px;padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.phase-item .phase-drag{cursor:grab;color:#aaa;font-size:16px;flex-shrink:0}
+.phase-item .phase-name{flex:1;min-width:120px}
+.phase-item .phase-name input{width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px}
+.phase-item .phase-days{width:70px}
+.phase-item .phase-days input{width:100%;padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:13px;text-align:center}
+.phase-item .phase-status select{padding:6px 10px;border:1px solid #e0e0e0;border-radius:6px;font-size:12px}
+.phase-item .phase-visible{display:flex;align-items:center;gap:4px;font-size:12px;color:#666}
+.phase-item .phase-visible input{width:16px;height:16px}
+.phase-item .phase-actions{display:flex;gap:4px}
+.phase-item .phase-actions button{background:none;border:none;cursor:pointer;font-size:16px;padding:4px;border-radius:4px}
+.phase-item .phase-actions button:hover{background:#f0f0f0}
+
 @media(max-width:600px){
   .info-grid{grid-template-columns:1fr}
   .toolbar{flex-direction:column;align-items:stretch}
@@ -207,6 +220,28 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
     </div>
     <div class="profile-body" id="edit-history-body">
       <div id="edit-history-list" style="font-size:13px;color:#555">加载中...</div>
+    </div>
+  </div>
+
+  <!-- 实施阶段管理 -->
+  <div class="profile-section" id="phases-section">
+    <div class="profile-header" onclick="togglePhases()">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:42px;height:42px;border-radius:50%;background:#fff3e0;color:#b86e00;display:flex;align-items:center;justify-content:center;font-size:18px">📅</div>
+        <div>
+          <div style="font-size:15px;font-weight:600">实施阶段管理</div>
+          <div style="font-size:12px;color:#888">自定义项目阶段、时间和显示状态</div>
+        </div>
+      </div>
+      <span style="font-size:18px;color:#aaa" id="phases-toggle-icon">▼</span>
+    </div>
+    <div class="profile-body" id="phases-body">
+      <div id="phases-list" style="margin-bottom:16px"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn btn-primary btn-sm" onclick="addPhase()">+ 添加阶段</button>
+        <button class="btn btn-outline btn-sm" onclick="loadDefaultPhases()">加载默认阶段</button>
+      </div>
+      <div id="phases-save-status" style="font-size:12px;margin-top:8px"></div>
     </div>
   </div>
 
@@ -817,6 +852,134 @@ async function restoreClientVersion(idx) {
   }
 }
 
+// Phase management
+let phasesData = [];
+
+function togglePhases() {
+  document.getElementById('phases-body').classList.toggle('open');
+  const icon = document.getElementById('phases-toggle-icon');
+  icon.textContent = document.getElementById('phases-body').classList.contains('open') ? '▲' : '▼';
+}
+
+function loadDefaultPhases() {
+  if (phasesData.length > 0 && !confirm('将覆盖当前阶段，确定？')) return;
+  phasesData = [
+    {id:'search', name:'寻找供应商', days:14, status:'active', visible:true},
+    {id:'negotiate', name:'商谈价格', days:7, status:'pending', visible:true},
+    {id:'survey', name:'场地勘测', days:5, status:'pending', visible:false},
+    {id:'design', name:'方案设计', days:3, status:'pending', visible:false},
+    {id:'production', name:'设备生产', days:30, status:'pending', visible:false},
+    {id:'shipping', name:'运输', days:5, status:'pending', visible:false},
+    {id:'install', name:'安装', days:10, status:'pending', visible:false},
+    {id:'test', name:'调试', days:5, status:'pending', visible:false}
+  ];
+  renderPhasesList();
+  savePhases();
+}
+
+function addPhase() {
+  phasesData.push({
+    id: 'phase_' + Date.now(),
+    name: '',
+    days: 5,
+    status: 'pending',
+    visible: true
+  });
+  renderPhasesList();
+}
+
+function removePhase(idx) {
+  if (!confirm('删除这个阶段？')) return;
+  phasesData.splice(idx, 1);
+  renderPhasesList();
+  savePhases();
+}
+
+function movePhase(idx, dir) {
+  const newIdx = idx + dir;
+  if (newIdx < 0 || newIdx >= phasesData.length) return;
+  [phasesData[idx], phasesData[newIdx]] = [phasesData[newIdx], phasesData[idx]];
+  renderPhasesList();
+  savePhases();
+}
+
+function renderPhasesList() {
+  const container = document.getElementById('phases-list');
+  if (phasesData.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;font-size:13px">还没有阶段。点击"添加阶段"或"加载默认阶段"</div>';
+    return;
+  }
+  container.innerHTML = phasesData.map((p, i) => `
+    <div class="phase-item">
+      <div class="phase-actions">
+        <button onclick="movePhase(${i},-1)" title="上移" ${i===0?'disabled style="opacity:0.3"':''}>↑</button>
+        <button onclick="movePhase(${i},1)" title="下移" ${i===phasesData.length-1?'disabled style="opacity:0.3"':''}>↓</button>
+      </div>
+      <div class="phase-name">
+        <input type="text" value="${escHtml(p.name)}" placeholder="阶段名称" onchange="updatePhase(${i},'name',this.value)">
+      </div>
+      <div class="phase-days">
+        <input type="number" value="${p.days||''}" placeholder="天" min="1" onchange="updatePhase(${i},'days',parseInt(this.value)||0)">
+      </div>
+      <div class="phase-status">
+        <select onchange="updatePhase(${i},'status',this.value)">
+          <option value="pending" ${p.status==='pending'?'selected':''}>待开始</option>
+          <option value="active" ${p.status==='active'?'selected':''}>进行中</option>
+          <option value="done" ${p.status==='done'?'selected':''}>已完成</option>
+        </select>
+      </div>
+      <label class="phase-visible">
+        <input type="checkbox" ${p.visible!==false?'checked':''} onchange="updatePhase(${i},'visible',this.checked)">
+        显示
+      </label>
+      <div class="phase-actions">
+        <button onclick="removePhase(${i})" title="删除" style="color:#e24b4a">🗑</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updatePhase(idx, field, value) {
+  phasesData[idx][field] = value;
+  savePhases();
+}
+
+async function savePhases() {
+  const statusEl = document.getElementById('phases-save-status');
+  statusEl.innerHTML = '<span style="color:#b86e00">⟳ 保存中...</span>';
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    let cloudData = {suppliers: [], lastUpdated: 0};
+    if (res.ok) cloudData = await res.json();
+    cloudData.phases = phasesData;
+    cloudData.lastUpdated = Date.now();
+    const putRes = await fetch(CLOUD_URL, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(cloudData)
+    });
+    if (putRes.ok) {
+      statusEl.innerHTML = '<span style="color:#148a4e">✓ 已保存</span>';
+    } else {
+      statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 保存失败</span>';
+    }
+  } catch(e) {
+    statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 网络错误</span>';
+  }
+  setTimeout(() => { statusEl.innerHTML = ''; }, 3000);
+}
+
+async function loadPhases() {
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    if (res.ok) {
+      const data = await res.json();
+      phasesData = data.phases || [];
+      renderPhasesList();
+    }
+  } catch(e) { console.log('Failed to load phases'); }
+}
+
 // Initialize
 async function init() {
   await loadFromCloud();
@@ -824,6 +987,7 @@ async function init() {
   loadProfile();
   renderList();
   loadEditHistory();
+  loadPhases();
 }
 init();
 </script>

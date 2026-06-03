@@ -208,24 +208,17 @@
     </div>
   </div>
 
-  <!-- IMPLEMENTATION OVERVIEW -->
-  <div class="section">
+  <!-- IMPLEMENTATION OVERVIEW (dynamic phases) -->
+  <div class="section" id="phases-section" style="display:none">
     <div class="section-header">
       <div class="section-icon" style="background:#fff3e0;color:#b86e00">📅</div>
       <div>
         <div class="section-title" data-i18n="s4-title">Implementation Overview</div>
-        <div class="section-subtitle" data-i18n="s4-sub">Standard process for retrofit projects</div>
+        <div class="section-subtitle" data-i18n="s4-sub">Project phases</div>
       </div>
     </div>
-    <div class="timeline-compact">
-      <div class="tl-row"><div class="tl-label" data-i18n="s4-1">Site Survey</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:9%">5d</div></div></div>
-      <div class="tl-row"><div class="tl-label" data-i18n="s4-2">Solution Design</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:5%">3d</div></div></div>
-      <div class="tl-row"><div class="tl-label" data-i18n="s4-3">Production</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:50%">30d</div></div></div>
-      <div class="tl-row"><div class="tl-label" data-i18n="s4-4">Shipping</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:9%">5d</div></div></div>
-      <div class="tl-row"><div class="tl-label" data-i18n="s4-5">Installation</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:17%">10d</div></div></div>
-      <div class="tl-row"><div class="tl-label" data-i18n="s4-6">Testing</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:9%">5d</div></div></div>
-    </div>
-    <p style="font-size:11px;color:#888;margin-top:10px;text-align:center" data-i18n="s4-note">Timeline will be finalized after supplier selection (~60 days total)</p>
+    <div class="timeline-compact" id="phases-timeline"></div>
+    <p style="font-size:11px;color:#888;margin-top:10px;text-align:center" id="phases-note" data-i18n="s4-note"></p>
   </div>
 
   <!-- YOUR COORDINATOR -->
@@ -286,9 +279,8 @@ const i18n = {
     "s3-title": "Supplier Progress", "s3-sub": "Solutions under evaluation",
     "s3-total": "Evaluated", "s3-active": "In Discussion", "s3-quoted": "Quoted",
     "s3-empty": "Searching for suppliers — results will appear here as we progress",
-    "s4-title": "Implementation Overview", "s4-sub": "Standard process for retrofit projects",
-    "s4-1": "Site Survey", "s4-2": "Solution Design", "s4-3": "Production", "s4-4": "Shipping", "s4-5": "Installation", "s4-6": "Testing",
-    "s4-note": "Timeline will be finalized after supplier selection (~60 days total)",
+    "s4-title": "Implementation Overview", "s4-sub": "Project phases",
+    "s4-note": "Timeline will be finalized after supplier selection",
     "s5-title": "Your Coordinator", "s5-sub": "Your Coordinator",
     "s5-r1": "Solution integration", "s5-r2": "Compatibility check", "s5-r3": "Project coordination", "s5-r4": "Quality assurance",
     "edit-link": "📝 Update project details (greenhouse info, requirements, notes)",
@@ -312,9 +304,8 @@ const i18n = {
     "s3-title": "Прогресс по поставщикам", "s3-sub": "Решения на рассмотрении",
     "s3-total": "Оценено", "s3-active": "В обсуждении", "s3-quoted": "Получено КП",
     "s3-empty": "Поиск поставщиков — результаты появятся здесь по мере продвижения",
-    "s4-title": "Обзор реализации", "s4-sub": "Стандартный процесс для проектов модернизации",
-    "s4-1": "Обследование", "s4-2": "Проектирование", "s4-3": "Производство", "s4-4": "Доставка", "s4-5": "Монтаж", "s4-6": "Пусконаладка",
-    "s4-note": "Сроки будут уточнены после выбора поставщика (~60 дней)",
+    "s4-title": "Обзор реализации", "s4-sub": "Этапы проекта",
+    "s4-note": "Сроки будут уточнены после выбора поставщика",
     "s5-title": "Ваш координатор", "s5-sub": "Ваш координатор",
     "s5-r1": "Интеграция решений", "s5-r2": "Проверка совместимости", "s5-r3": "Координация проекта", "s5-r4": "Гарантия качества",
     "edit-link": "📝 Обновить данные проекта (информация о теплице, требования, заметки)",
@@ -338,9 +329,8 @@ const i18n = {
     "s3-title": "供应商进展", "s3-sub": "评估中的方案",
     "s3-total": "已评估", "s3-active": "沟通中", "s3-quoted": "已报价",
     "s3-empty": "正在搜索供应商——有进展会更新在这里",
-    "s4-title": "实施概览", "s4-sub": "改造项目标准流程",
-    "s4-1": "场地勘测", "s4-2": "方案设计", "s4-3": "设备生产", "s4-4": "运输", "s4-5": "安装", "s4-6": "调试",
-    "s4-note": "时间表将在选定供应商后确认（总计约60天）",
+    "s4-title": "实施概览", "s4-sub": "项目阶段",
+    "s4-note": "时间表将在选定供应商后确认",
     "s5-title": "你的协调人", "s5-sub": "你的协调人",
     "s5-r1": "方案整合", "s5-r2": "兼容性检查", "s5-r3": "项目协调", "s5-r4": "质量保障",
     "edit-link": "📝 更新项目信息（温室详情、需求、备注）",
@@ -365,6 +355,7 @@ function switchLang(lang) {
   renderSuppliers();
   renderProjectInfo();
   renderCoordinator();
+  renderPhases();
   translateUserContent(); // Auto-translate user-generated text
 }
 
@@ -373,6 +364,7 @@ const CLOUD_URL = '/api/data';
 let suppliersData = [];
 let projectInfo = {};
 let coordinatorProfile = {};
+let phasesData = [];
 
 async function fetchData() {
   try {
@@ -382,11 +374,13 @@ async function fetchData() {
       suppliersData = data.suppliers || [];
       projectInfo = data.projectInfo || {};
       coordinatorProfile = data.coordinatorProfile || {};
+      phasesData = data.phases || [];
     }
   } catch (e) { console.log('Cloud fetch failed'); }
   renderSuppliers();
   renderProjectInfo();
   renderCoordinator();
+  renderPhases();
   translateUserContent(); // Auto-translate after data loads
 }
 
@@ -544,6 +538,42 @@ function renderCoordinator() {
   } else {
     contactGrid.style.display = 'none';
   }
+}
+
+// Dynamic phases rendering
+function renderPhases() {
+  const section = document.getElementById('phases-section');
+  const timeline = document.getElementById('phases-timeline');
+  const noteEl = document.getElementById('phases-note');
+  
+  // Only show visible phases
+  const visiblePhases = phasesData.filter(p => p.visible !== false);
+  
+  if (visiblePhases.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+  
+  section.style.display = 'block';
+  const maxDays = Math.max(...visiblePhases.map(p => p.days || 5), 30);
+  
+  timeline.innerHTML = visiblePhases.map(p => {
+    const barWidth = Math.max(((p.days || 5) / maxDays) * 100, 8);
+    const statusClass = p.status === 'done' ? 'done' : p.status === 'active' ? 'active' : 'pending';
+    const daysLabel = p.days ? p.days + 'd' : '';
+    // Use translated name if available
+    const nameKey = 'phase_' + (p.id || '');
+    const name = p.name || '';
+    return `<div class="tl-row">
+      <div class="tl-label" data-translate data-original="${escHtml(name)}">${escHtml(name)}</div>
+      <div class="tl-bar-wrap"><div class="tl-bar ${statusClass}" style="width:${barWidth}%">${daysLabel}</div></div>
+    </div>`;
+  }).join('');
+  
+  // Note
+  const noteText = i18n[currentLang]['s4-note'] || '';
+  noteEl.textContent = noteText;
+  noteEl.style.display = noteText ? 'block' : 'none';
 }
 
 fetchData();
