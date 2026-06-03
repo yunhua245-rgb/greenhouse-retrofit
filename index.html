@@ -365,6 +365,7 @@ function switchLang(lang) {
   renderSuppliers();
   renderProjectInfo();
   renderCoordinator();
+  translateUserContent(); // Auto-translate user-generated text
 }
 
 // Cloud data
@@ -386,6 +387,7 @@ async function fetchData() {
   renderSuppliers();
   renderProjectInfo();
   renderCoordinator();
+  translateUserContent(); // Auto-translate after data loads
 }
 
 function renderProjectInfo() {
@@ -395,14 +397,14 @@ function renderProjectInfo() {
   
   const tbdText = {en:'To be provided',ru:'Предоставить',zh:'待提供'}[currentLang] || 'To be provided';
   
-  if (projectInfo.area) { areaEl.textContent = projectInfo.area; areaEl.classList.remove('tbd'); }
-  else { areaEl.textContent = tbdText; areaEl.classList.add('tbd'); }
+  if (projectInfo.area) { areaEl.textContent = projectInfo.area; areaEl.classList.remove('tbd'); areaEl.setAttribute('data-translate',''); areaEl.setAttribute('data-original', projectInfo.area); }
+  else { areaEl.textContent = tbdText; areaEl.classList.add('tbd'); areaEl.removeAttribute('data-translate'); }
   
-  if (projectInfo.structureType) { structEl.textContent = projectInfo.structureType; structEl.classList.remove('tbd'); }
-  else { structEl.textContent = tbdText; structEl.classList.add('tbd'); }
+  if (projectInfo.structureType) { structEl.textContent = projectInfo.structureType; structEl.classList.remove('tbd'); structEl.setAttribute('data-translate',''); structEl.setAttribute('data-original', projectInfo.structureType); }
+  else { structEl.textContent = tbdText; structEl.classList.add('tbd'); structEl.removeAttribute('data-translate'); }
   
-  if (projectInfo.infrastructure) { infraEl.textContent = projectInfo.infrastructure; infraEl.classList.remove('tbd'); }
-  else { infraEl.textContent = tbdText; infraEl.classList.add('tbd'); }
+  if (projectInfo.infrastructure) { infraEl.textContent = projectInfo.infrastructure; infraEl.classList.remove('tbd'); infraEl.setAttribute('data-translate',''); infraEl.setAttribute('data-original', projectInfo.infrastructure); }
+  else { infraEl.textContent = tbdText; infraEl.classList.add('tbd'); infraEl.removeAttribute('data-translate'); }
 }
 
 function renderSuppliers() {
@@ -439,14 +441,65 @@ function renderSuppliers() {
     const lastLog = (s.logs&&s.logs.length>0)?s.logs[s.logs.length-1].text:'';
     return `<div class="scheme-card ${cls}">
       <div class="scheme-tag">${({en:'Solution ',ru:'Вариант ',zh:'方案'}[currentLang]||'Solution ')+code}</div>
-      <div style="font-size:13px;color:#555"><strong>${escHtml(s.specialty||'-')}</strong></div>
+      <div style="font-size:13px;color:#555"><strong data-translate data-original="${escHtml(s.specialty||'')}">${escHtml(s.specialty||'-')}</strong></div>
       <div style="margin-top:6px"><span class="badge ${s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':'badge-amber'}">${stLabel}</span></div>
-      ${lastLog?'<div style="margin-top:6px;font-size:11px;color:#666">'+escHtml(lastLog)+'</div>':''}
+      ${lastLog?'<div style="margin-top:6px;font-size:11px;color:#666" data-translate data-original="'+escHtml(lastLog)+'">'+escHtml(lastLog)+'</div>':''}
     </div>`;
   }).join('');
 }
 
 function escHtml(str) { const d=document.createElement('div'); d.textContent=str||''; return d.innerHTML; }
+
+// --- Auto Translation ---
+const translateCache = {};
+const langMap = {en: 'en-GB', ru: 'ru-RU', zh: 'zh-CN'};
+
+function detectSourceLang(text) {
+  // Simple heuristic: if contains Chinese chars, source is zh; if Cyrillic, source is ru; else en
+  if (/[\u4e00-\u9fff]/.test(text)) return 'zh-CN';
+  if (/[\u0400-\u04FF]/.test(text)) return 'ru-RU';
+  return 'en-GB';
+}
+
+async function translateText(text, targetLang) {
+  if (!text || !text.trim()) return text;
+  const target = langMap[targetLang] || 'en-GB';
+  const source = detectSourceLang(text);
+  if (source === target) return text; // Already in target language
+  
+  const cacheKey = `${text}|${target}`;
+  if (translateCache[cacheKey]) return translateCache[cacheKey];
+  
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.substring(0, 500))}&langpair=${source}|${target}`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.responseData && data.responseData.translatedText) {
+        const translated = data.responseData.translatedText;
+        translateCache[cacheKey] = translated;
+        return translated;
+      }
+    }
+  } catch(e) { console.log('Translation failed:', e); }
+  return text; // Fallback to original
+}
+
+// Translate all user-generated text elements on the page
+async function translateUserContent() {
+  const elements = document.querySelectorAll('[data-translate]');
+  const promises = [];
+  elements.forEach(el => {
+    const originalText = el.getAttribute('data-original') || el.textContent;
+    if (!el.getAttribute('data-original')) el.setAttribute('data-original', originalText);
+    promises.push(
+      translateText(originalText, currentLang).then(translated => {
+        el.textContent = translated;
+      })
+    );
+  });
+  await Promise.all(promises);
+}
 
 function renderCoordinator() {
   const p = coordinatorProfile;
@@ -468,6 +521,10 @@ function renderCoordinator() {
   cityEl.textContent = p.city || 'Beijing, China';
   bioEl.textContent = p.bio || '';
   bioEl.style.display = p.bio ? 'block' : 'none';
+  if (p.bio) {
+    bioEl.setAttribute('data-translate', '');
+    bioEl.setAttribute('data-original', p.bio);
+  }
 
   // Contact chips
   const contacts = [];
