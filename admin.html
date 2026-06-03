@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>供应商管理后台 — 温室自动化改造项目</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.6}
+.header{background:#fff;border-bottom:1px solid #e8eaed;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.header h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
+.header .back-link{font-size:13px;color:#148a4e;text-decoration:none;display:flex;align-items:center;gap:4px}
+.header .back-link:hover{text-decoration:underline}
+.container{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:12px}
+.btn{padding:10px 20px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:#148a4e;color:#fff}
+.btn-primary:hover{background:#0a6e3a}
+.btn-outline{background:#fff;border:1.5px solid #d0d5dd;color:#333}
+.btn-outline:hover{border-color:#148a4e;color:#148a4e}
+.btn-danger{background:#fff;border:1.5px solid #e24b4a;color:#e24b4a}
+.btn-danger:hover{background:#fcebeb}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px}
+
+.stats-bar{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;margin-bottom:24px}
+.stat{background:#fff;border-radius:10px;border:1px solid #e8eaed;padding:14px 16px;text-align:center}
+.stat .num{font-size:24px;font-weight:700;color:#148a4e}
+.stat .lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
+
+.supplier-card{background:#fff;border-radius:14px;border:1px solid #e8eaed;margin-bottom:16px;overflow:hidden;transition:box-shadow 0.2s}
+.supplier-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.supplier-header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.supplier-header:hover{background:#fafbfc}
+.supplier-info{display:flex;align-items:center;gap:14px}
+.supplier-avatar{width:40px;height:40px;border-radius:10px;background:#e8f5ee;color:#148a4e;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.supplier-name{font-size:15px;font-weight:600}
+.supplier-meta{font-size:12px;color:#888;margin-top:2px}
+.status-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.3px}
+.status-pending{background:#f0f0f0;color:#666}
+.status-contacting{background:#fff3e0;color:#b86e00}
+.status-quoted{background:#e3f2fd;color:#1565c0}
+.status-selected{background:#e8f5ee;color:#0a6e3a}
+.status-rejected{background:#fcebeb;color:#a32d2d}
+
+.supplier-body{border-top:1px solid #f0f0f0;padding:20px 24px;display:none}
+.supplier-body.open{display:block}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.info-item{font-size:13px}
+.info-item .lbl{color:#888;font-size:11px;text-transform:uppercase;letter-spacing:0.4px}
+.info-item .val{margin-top:2px;font-weight:500}
+
+.log-section{margin-top:16px}
+.log-title{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.log-list{list-style:none;padding:0}
+.log-item{padding:10px 14px;background:#f7f8fa;border-radius:8px;margin-bottom:8px;font-size:13px;position:relative}
+.log-item .log-date{font-size:11px;color:#888;margin-bottom:2px}
+.log-item .log-text{color:#333}
+.log-item .log-delete{position:absolute;top:8px;right:10px;background:none;border:none;color:#ccc;cursor:pointer;font-size:14px}
+.log-item .log-delete:hover{color:#e24b4a}
+
+.add-log{display:flex;gap:8px;margin-top:10px}
+.add-log input{flex:1;padding:8px 12px;border:1.5px solid #e8eaed;border-radius:8px;font-size:13px;outline:none;transition:border 0.2s}
+.add-log input:focus{border-color:#148a4e}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:28px}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1.5px solid #e8eaed;border-radius:10px;font-size:14px;outline:none;transition:border 0.2s;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#148a4e}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+
+.profile-section{background:#fff;border-radius:14px;border:1px solid #e8eaed;margin-bottom:24px;overflow:hidden}
+.profile-header{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.2s}
+.profile-header:hover{background:#fafbfc}
+.profile-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#148a4e,#0a6e3a);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;overflow:hidden}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-body{border-top:1px solid #f0f0f0;padding:20px 24px;display:none}
+.profile-body.open{display:block}
+.profile-form .pf-row{display:flex;gap:12px}
+@media(max-width:600px){.profile-form .pf-row{flex-direction:column}}
+
+.empty-state{text-align:center;padding:60px 20px;color:#888}
+.empty-state .icon{font-size:48px;margin-bottom:16px}
+.empty-state .title{font-size:16px;font-weight:600;color:#333;margin-bottom:6px}
+.empty-state .desc{font-size:13px}
+
+.supplier-actions{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0}
+
+@media(max-width:600px){
+  .info-grid{grid-template-columns:1fr}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .modal{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🌿 供应商管理后台</h1>
+  <div style="display:flex;align-items:center;gap:16px">
+    <span id="sync-status" style="font-size:12px;color:#888">⟳ 连接中...</span>
+    <a href="index.html" class="back-link">← 查看展示页面</a>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- 个人信息管理 -->
+  <div class="profile-section">
+    <div class="profile-header" onclick="toggleProfile()">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="profile-avatar" id="profile-avatar-preview">H</div>
+        <div>
+          <div style="font-size:15px;font-weight:600" id="profile-name-preview">点击设置个人信息</div>
+          <div style="font-size:12px;color:#888">名片信息将显示在展示页面的"协调人"板块</div>
+        </div>
+      </div>
+      <span style="font-size:18px;color:#aaa" id="profile-toggle-icon">▼</span>
+    </div>
+    <div class="profile-body" id="profile-body">
+      <div class="profile-form">
+        <div class="pf-row">
+          <div class="form-group" style="flex:1">
+            <label>姓名 / Name</label>
+            <input type="text" id="pf-name" placeholder="例：HUA">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>头像 URL（可选）</label>
+            <input type="text" id="pf-avatar" placeholder="https://... 或留空用首字母">
+          </div>
+        </div>
+        <div class="pf-row">
+          <div class="form-group" style="flex:1">
+            <label>📱 手机号 / Phone</label>
+            <input type="text" id="pf-phone" placeholder="+86 138xxxx">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>💬 微信 / WeChat</label>
+            <input type="text" id="pf-wechat" placeholder="微信号">
+          </div>
+        </div>
+        <div class="pf-row">
+          <div class="form-group" style="flex:1">
+            <label>📲 WhatsApp</label>
+            <input type="text" id="pf-whatsapp" placeholder="+86 138xxxx">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>✈️ Telegram</label>
+            <input type="text" id="pf-telegram" placeholder="@username">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>📍 所在城市 / City</label>
+          <input type="text" id="pf-city" placeholder="例：Beijing, China">
+        </div>
+        <div class="form-group">
+          <label>个人简介 / Bio（可选）</label>
+          <textarea id="pf-bio" placeholder="简短自我介绍..." style="min-height:60px"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
+          <button class="btn btn-primary" onclick="saveProfile()">保存个人信息</button>
+        </div>
+        <div id="profile-save-status" style="font-size:12px;margin-top:8px;text-align:right"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="stats-bar">
+    <div class="stat"><div class="num" id="stat-total">0</div><div class="lbl">总供应商</div></div>
+    <div class="stat"><div class="num" id="stat-contacting">0</div><div class="lbl">沟通中</div></div>
+    <div class="stat"><div class="num" id="stat-quoted">0</div><div class="lbl">已报价</div></div>
+    <div class="stat"><div class="num" id="stat-selected">0</div><div class="lbl">已选定</div></div>
+  </div>
+
+  <div class="toolbar">
+    <div style="font-size:14px;color:#555">管理你找到的供应商，记录对接进展</div>
+    <button class="btn btn-primary" onclick="openAddModal()">+ 添加供应商</button>
+  </div>
+
+  <div id="supplier-list"></div>
+
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 id="modal-title">添加供应商</h2>
+    <form id="supplier-form" onsubmit="saveSupplier(event)">
+      <input type="hidden" id="edit-id">
+      <div class="form-group">
+        <label>公司名称 *</label>
+        <input type="text" id="f-name" required placeholder="例：XX智能农业科技有限公司">
+      </div>
+      <div class="form-group">
+        <label>所在地区</label>
+        <input type="text" id="f-location" placeholder="例：山东潍坊">
+      </div>
+      <div class="form-group">
+        <label>专长/主营产品</label>
+        <input type="text" id="f-specialty" placeholder="例：温室自动化控制系统、采摘机器人">
+      </div>
+      <div class="form-group">
+        <label>联系方式</label>
+        <input type="text" id="f-contact" placeholder="例：张经理 138xxxx / sales@example.com">
+      </div>
+      <div class="form-group">
+        <label>出口经验</label>
+        <select id="f-export">
+          <option value="unknown">未知</option>
+          <option value="yes">有出口经验</option>
+          <option value="russia">有对俄出口经验</option>
+          <option value="no">无出口经验</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>当前状态</label>
+        <select id="f-status">
+          <option value="pending">待联系</option>
+          <option value="contacting">沟通中</option>
+          <option value="quoted">已报价</option>
+          <option value="selected">已选定</option>
+          <option value="rejected">已淘汰</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>备注</label>
+        <textarea id="f-notes" placeholder="任何补充信息..."></textarea>
+      </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">取消</button>
+        <button type="submit" class="btn btn-primary">保存</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const STORAGE_KEY = 'greenhouse_suppliers';
+const CLOUD_URL = 'https://jsonblob.com/api/jsonBlob/019e8b83-003f-70df-bed4-7d091e7b1430';
+let syncStatus = 'idle'; // idle | syncing | error
+
+function getSuppliers() {
+  try {
+    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  } catch { return []; }
+}
+
+function saveToStorage(suppliers) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(suppliers));
+  syncToCloud(suppliers);
+}
+
+// Cloud sync functions
+async function syncToCloud(suppliers) {
+  syncStatus = 'syncing';
+  updateSyncIndicator();
+  try {
+    // Read existing cloud data first to preserve other fields (profile, projectInfo)
+    let cloudData = {suppliers: [], lastUpdated: 0};
+    try {
+      const getRes = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+      if (getRes.ok) cloudData = await getRes.json();
+    } catch(e) {}
+    
+    cloudData.suppliers = suppliers;
+    cloudData.lastUpdated = Date.now();
+    
+    const res = await fetch(CLOUD_URL, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(cloudData)
+    });
+    if (res.ok) {
+      syncStatus = 'idle';
+    } else {
+      syncStatus = 'error';
+    }
+  } catch (e) {
+    console.error('Cloud sync failed:', e);
+    syncStatus = 'error';
+  }
+  updateSyncIndicator();
+}
+
+async function loadFromCloud() {
+  try {
+    const res = await fetch(CLOUD_URL, {
+      headers: {'Accept': 'application/json'}
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.suppliers && data.suppliers.length > 0) {
+        const local = getSuppliers();
+        // If cloud has data and local is empty, use cloud data
+        if (local.length === 0) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load from cloud:', e);
+  }
+}
+
+function updateSyncIndicator() {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  if (syncStatus === 'syncing') {
+    el.innerHTML = '<span style="color:#b86e00">⟳ 同步中...</span>';
+  } else if (syncStatus === 'error') {
+    el.innerHTML = '<span style="color:#e24b4a">⚠ 同步失败（数据已本地保存）</span>';
+  } else {
+    el.innerHTML = '<span style="color:#148a4e">✓ 已同步到云端</span>';
+  }
+}
+
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+}
+
+const statusMap = {
+  pending: {label:'待联系', cls:'status-pending'},
+  contacting: {label:'沟通中', cls:'status-contacting'},
+  quoted: {label:'已报价', cls:'status-quoted'},
+  selected: {label:'已选定', cls:'status-selected'},
+  rejected: {label:'已淘汰', cls:'status-rejected'}
+};
+
+const exportMap = {
+  unknown: '未知',
+  yes: '有出口经验',
+  russia: '有对俄经验',
+  no: '无'
+};
+
+function updateStats() {
+  const suppliers = getSuppliers();
+  document.getElementById('stat-total').textContent = suppliers.length;
+  document.getElementById('stat-contacting').textContent = suppliers.filter(s => s.status === 'contacting').length;
+  document.getElementById('stat-quoted').textContent = suppliers.filter(s => s.status === 'quoted').length;
+  document.getElementById('stat-selected').textContent = suppliers.filter(s => s.status === 'selected').length;
+}
+
+function renderList() {
+  const suppliers = getSuppliers();
+  const container = document.getElementById('supplier-list');
+
+  if (suppliers.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🏭</div>
+        <div class="title">还没有供应商</div>
+        <div class="desc">点击上方"添加供应商"按钮开始录入候选供应商信息</div>
+      </div>`;
+    updateStats();
+    return;
+  }
+
+  container.innerHTML = suppliers.map(s => {
+    const st = statusMap[s.status] || statusMap.pending;
+    const logs = (s.logs || []).map((log, i) => `
+      <div class="log-item">
+        <button class="log-delete" onclick="deleteLog('${s.id}', ${i})" title="删除">×</button>
+        <div class="log-date">${formatDate(log.time)}</div>
+        <div class="log-text">${escHtml(log.text)}</div>
+      </div>
+    `).reverse().join('');
+
+    return `
+    <div class="supplier-card" id="card-${s.id}">
+      <div class="supplier-header" onclick="toggleCard('${s.id}')">
+        <div class="supplier-info">
+          <div class="supplier-avatar">${s.name.charAt(0)}</div>
+          <div>
+            <div class="supplier-name">${escHtml(s.name)}</div>
+            <div class="supplier-meta">${escHtml(s.location || '未填写地区')} · ${escHtml(s.specialty || '未填写专长')}</div>
+          </div>
+        </div>
+        <span class="status-badge ${st.cls}">${st.label}</span>
+      </div>
+      <div class="supplier-body" id="body-${s.id}">
+        <div class="info-grid">
+          <div class="info-item"><div class="lbl">联系方式</div><div class="val">${escHtml(s.contact || '未填写')}</div></div>
+          <div class="info-item"><div class="lbl">出口经验</div><div class="val">${exportMap[s.export] || '未知'}</div></div>
+          <div class="info-item"><div class="lbl">添加时间</div><div class="val">${formatDate(s.createdAt)}</div></div>
+          <div class="info-item"><div class="lbl">备注</div><div class="val">${escHtml(s.notes || '无')}</div></div>
+        </div>
+
+        <div class="log-section">
+          <div class="log-title">
+            <span>对接记录 (${(s.logs||[]).length})</span>
+          </div>
+          <div class="log-list">${logs || '<div style="font-size:13px;color:#aaa;padding:8px 0">暂无记录</div>'}</div>
+          <div class="add-log">
+            <input type="text" id="log-input-${s.id}" placeholder="记录最新对接情况..." onkeydown="if(event.key==='Enter')addLog('${s.id}')">
+            <button class="btn btn-outline btn-sm" onclick="addLog('${s.id}')">添加</button>
+          </div>
+        </div>
+
+        <div class="supplier-actions">
+          <button class="btn btn-outline btn-sm" onclick="editSupplier('${s.id}')">编辑信息</button>
+          <button class="btn btn-outline btn-sm" onclick="changeStatus('${s.id}')">更改状态</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')">删除</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  updateStats();
+}
+
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function toggleCard(id) {
+  const body = document.getElementById('body-' + id);
+  body.classList.toggle('open');
+}
+
+function openAddModal() {
+  document.getElementById('modal-title').textContent = '添加供应商';
+  document.getElementById('edit-id').value = '';
+  document.getElementById('supplier-form').reset();
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+function saveSupplier(e) {
+  e.preventDefault();
+  const suppliers = getSuppliers();
+  const editId = document.getElementById('edit-id').value;
+
+  const data = {
+    name: document.getElementById('f-name').value.trim(),
+    location: document.getElementById('f-location').value.trim(),
+    specialty: document.getElementById('f-specialty').value.trim(),
+    contact: document.getElementById('f-contact').value.trim(),
+    export: document.getElementById('f-export').value,
+    status: document.getElementById('f-status').value,
+    notes: document.getElementById('f-notes').value.trim()
+  };
+
+  if (editId) {
+    const idx = suppliers.findIndex(s => s.id === editId);
+    if (idx >= 0) {
+      suppliers[idx] = {...suppliers[idx], ...data, updatedAt: Date.now()};
+    }
+  } else {
+    suppliers.push({
+      id: genId(),
+      ...data,
+      logs: [],
+      createdAt: Date.now(),
+      updatedAt: Date.now()
+    });
+  }
+
+  saveToStorage(suppliers);
+  closeModal();
+  renderList();
+}
+
+function editSupplier(id) {
+  const suppliers = getSuppliers();
+  const s = suppliers.find(x => x.id === id);
+  if (!s) return;
+
+  document.getElementById('modal-title').textContent = '编辑供应商';
+  document.getElementById('edit-id').value = s.id;
+  document.getElementById('f-name').value = s.name || '';
+  document.getElementById('f-location').value = s.location || '';
+  document.getElementById('f-specialty').value = s.specialty || '';
+  document.getElementById('f-contact').value = s.contact || '';
+  document.getElementById('f-export').value = s.export || 'unknown';
+  document.getElementById('f-status').value = s.status || 'pending';
+  document.getElementById('f-notes').value = s.notes || '';
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function changeStatus(id) {
+  const suppliers = getSuppliers();
+  const s = suppliers.find(x => x.id === id);
+  if (!s) return;
+
+  const statuses = ['pending','contacting','quoted','selected','rejected'];
+  const labels = ['待联系','沟通中','已报价','已选定','已淘汰'];
+  const current = statuses.indexOf(s.status);
+  const choice = prompt('选择新状态（输入数字）：\n1. 待联系\n2. 沟通中\n3. 已报价\n4. 已选定\n5. 已淘汰\n\n当前：' + labels[current]);
+
+  const idx = parseInt(choice) - 1;
+  if (idx >= 0 && idx < statuses.length) {
+    s.status = statuses[idx];
+    s.updatedAt = Date.now();
+    s.logs = s.logs || [];
+    s.logs.push({time: Date.now(), text: `状态变更为「${labels[idx]}」`});
+    saveToStorage(suppliers);
+    renderList();
+  }
+}
+
+function deleteSupplier(id) {
+  if (!confirm('确定删除此供应商？')) return;
+  const suppliers = getSuppliers().filter(s => s.id !== id);
+  saveToStorage(suppliers);
+  renderList();
+}
+
+function addLog(id) {
+  const input = document.getElementById('log-input-' + id);
+  const text = input.value.trim();
+  if (!text) return;
+
+  const suppliers = getSuppliers();
+  const s = suppliers.find(x => x.id === id);
+  if (!s) return;
+
+  s.logs = s.logs || [];
+  s.logs.push({time: Date.now(), text});
+  s.updatedAt = Date.now();
+  saveToStorage(suppliers);
+  input.value = '';
+  renderList();
+  // Re-open the card
+  setTimeout(() => {
+    document.getElementById('body-' + id).classList.add('open');
+  }, 50);
+}
+
+function deleteLog(supplierId, logIndex) {
+  if (!confirm('删除这条记录？')) return;
+  const suppliers = getSuppliers();
+  const s = suppliers.find(x => x.id === supplierId);
+  if (!s || !s.logs) return;
+  s.logs.splice(logIndex, 1);
+  saveToStorage(suppliers);
+  renderList();
+  setTimeout(() => {
+    document.getElementById('body-' + supplierId).classList.add('open');
+  }, 50);
+}
+
+// Profile management
+const PROFILE_KEY = 'greenhouse_coordinator_profile';
+
+function getProfile() {
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {}; } catch { return {}; }
+}
+
+function toggleProfile() {
+  document.getElementById('profile-body').classList.toggle('open');
+  const icon = document.getElementById('profile-toggle-icon');
+  icon.textContent = document.getElementById('profile-body').classList.contains('open') ? '▲' : '▼';
+}
+
+function loadProfile() {
+  const p = getProfile();
+  document.getElementById('pf-name').value = p.name || '';
+  document.getElementById('pf-avatar').value = p.avatarUrl || '';
+  document.getElementById('pf-phone').value = p.phone || '';
+  document.getElementById('pf-wechat').value = p.wechat || '';
+  document.getElementById('pf-whatsapp').value = p.whatsapp || '';
+  document.getElementById('pf-telegram').value = p.telegram || '';
+  document.getElementById('pf-city').value = p.city || '';
+  document.getElementById('pf-bio').value = p.bio || '';
+  updateProfilePreview(p);
+}
+
+function updateProfilePreview(p) {
+  const avatarEl = document.getElementById('profile-avatar-preview');
+  const nameEl = document.getElementById('profile-name-preview');
+  if (p.avatarUrl) {
+    avatarEl.innerHTML = '<img src="' + escHtml(p.avatarUrl) + '" alt="">';
+  } else {
+    avatarEl.textContent = (p.name || 'H').charAt(0).toUpperCase();
+  }
+  nameEl.textContent = p.name || '点击设置个人信息';
+}
+
+async function saveProfile() {
+  const profile = {
+    name: document.getElementById('pf-name').value.trim(),
+    avatarUrl: document.getElementById('pf-avatar').value.trim(),
+    phone: document.getElementById('pf-phone').value.trim(),
+    wechat: document.getElementById('pf-wechat').value.trim(),
+    whatsapp: document.getElementById('pf-whatsapp').value.trim(),
+    telegram: document.getElementById('pf-telegram').value.trim(),
+    city: document.getElementById('pf-city').value.trim(),
+    bio: document.getElementById('pf-bio').value.trim(),
+    updatedAt: Date.now()
+  };
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  updateProfilePreview(profile);
+
+  // Sync to cloud
+  const statusEl = document.getElementById('profile-save-status');
+  statusEl.innerHTML = '<span style="color:#b86e00">⟳ 同步个人信息到云端...</span>';
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    let cloudData = {suppliers: [], lastUpdated: 0};
+    if (res.ok) cloudData = await res.json();
+    cloudData.coordinatorProfile = profile;
+    cloudData.lastUpdated = Date.now();
+    const putRes = await fetch(CLOUD_URL, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(cloudData)
+    });
+    if (putRes.ok) {
+      statusEl.innerHTML = '<span style="color:#148a4e">✓ 已保存并同步到云端</span>';
+    } else {
+      statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 云端同步失败，已本地保存</span>';
+    }
+  } catch(e) {
+    statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 网络错误，已本地保存</span>';
+  }
+  setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
+}
+
+async function loadProfileFromCloud() {
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    if (res.ok) {
+      const data = await res.json();
+      if (data.coordinatorProfile) {
+        const local = getProfile();
+        if (!local.name && data.coordinatorProfile.name) {
+          localStorage.setItem(PROFILE_KEY, JSON.stringify(data.coordinatorProfile));
+        }
+      }
+    }
+  } catch(e) {}
+}
+
+// Initialize
+async function init() {
+  await loadFromCloud();
+  await loadProfileFromCloud();
+  loadProfile();
+  renderList();
+}
+init();
+</script>
+
+</body>
+</html>

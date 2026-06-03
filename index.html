@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Greenhouse Automation Retrofit Project</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
+  
+  .hero{background:linear-gradient(135deg,#0a3d1f 0%,#0e5a33 40%,#148a4e 100%);color:#fff;padding:52px 24px 60px;text-align:center;position:relative;overflow:hidden}
+  .hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:40px;background:#f7f8fa;border-radius:50% 50% 0 0/100% 100% 0 0}
+  .hero h1{font-size:28px;font-weight:800;margin-bottom:10px;letter-spacing:-0.5px}
+  .hero-sub{font-size:15px;opacity:0.85;max-width:600px;margin:0 auto 16px}
+  .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;font-size:13px}
+  .hero-badge .dot{width:8px;height:8px;border-radius:50%;background:#ff9800}
+  
+  .container{max-width:840px;margin:0 auto;padding:0 20px 60px}
+  .lang-switch{display:flex;justify-content:flex-end;gap:8px;margin:20px 0 0}
+  .lang-btn{padding:6px 14px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer;transition:all 0.2s}
+  .lang-btn.active{border-color:#148a4e;background:#e8f5ee;color:#0a6e3a;font-weight:600}
+  
+  .section{background:#fff;border-radius:16px;border:1px solid #e8eaed;padding:28px;margin-top:22px}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .section-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .section-title{font-size:17px;font-weight:700}
+  .section-subtitle{font-size:13px;color:#888;margin-top:2px}
+  
+  .status-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .st-card{background:#f7f8fa;border:1px solid #e8eaed;border-radius:10px;padding:16px;text-align:center}
+  .st-card .st-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:4px}
+  .st-card .st-value{font-size:18px;font-weight:700}
+  .st-card .st-value.green{color:#148a4e}
+  .st-card .st-value.amber{color:#b86e00}
+  
+  .req-core{background:#f0faf4;border:1px solid #c8e6c9;border-radius:12px;padding:20px;margin-bottom:16px}
+  .req-core h4{font-size:14px;font-weight:700;margin-bottom:8px;color:#0a6e3a}
+  .req-core p{font-size:14px;color:#333}
+  
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .info-item{background:#f7f8fa;border-radius:8px;padding:12px 14px}
+  .info-item .info-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:3px}
+  .info-item .info-value{font-size:14px;font-weight:500}
+  .info-item .info-value.tbd{color:#aaa;font-style:italic}
+  
+  .eval-summary{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .eval-stat{padding:12px 18px;background:#f7f8fa;border-radius:10px;text-align:center;flex:1;min-width:80px}
+  .eval-stat .es-num{font-size:22px;font-weight:800;color:#148a4e}
+  .eval-stat .es-label{font-size:11px;color:#888;margin-top:2px}
+  
+  .scheme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+  .scheme-card{border:1px solid #e8eaed;border-radius:12px;padding:18px;position:relative;overflow:hidden}
+  .scheme-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .scheme-card.a::before{background:#1565c0}
+  .scheme-card.b::before{background:#148a4e}
+  .scheme-card.c::before{background:#7b1fa2}
+  .scheme-card.d::before{background:#b86e00}
+  .scheme-tag{font-size:12px;font-weight:700;color:#fff;display:inline-block;padding:2px 10px;border-radius:12px;margin-bottom:8px}
+  .scheme-card.a .scheme-tag{background:#1565c0}
+  .scheme-card.b .scheme-tag{background:#148a4e}
+  .scheme-card.c .scheme-tag{background:#7b1fa2}
+  .scheme-card.d .scheme-tag{background:#b86e00}
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge-green{background:#e8f5ee;color:#0a6e3a}
+  .badge-amber{background:#fff3e0;color:#b86e00}
+  .badge-blue{background:#e3f2fd;color:#1565c0}
+  .badge-gray{background:#f0f0f0;color:#666}
+  
+  .timeline-compact{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+  .tl-row{display:flex;align-items:center;gap:10px}
+  .tl-bar-wrap{flex:1;height:24px;background:#f0f0f0;border-radius:5px;overflow:hidden}
+  .tl-bar{height:100%;border-radius:5px;display:flex;align-items:center;padding:0 8px;font-size:10px;font-weight:600;color:#fff}
+  .tl-bar.pending{background:#cfd8dc;color:#555}
+  .tl-bar.active{background:#ff9800}
+  .tl-bar.done{background:#148a4e}
+  .tl-label{width:110px;font-size:12px;text-align:right;flex-shrink:0;color:#555}
+  
+  .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .role-item{display:flex;align-items:flex-start;gap:8px;font-size:13px}
+  .role-item .ri-icon{font-size:15px;flex-shrink:0}
+  .role-item .ri-label{font-weight:600;font-size:12px;color:#555}
+  
+  .coordinator-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#148a4e,#0a6e3a);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;overflow:hidden;flex-shrink:0}
+  .coordinator-avatar img{width:100%;height:100%;object-fit:cover}
+  .contact-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+  .contact-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#f7f8fa;border:1px solid #e8eaed;border-radius:8px;font-size:12px;color:#555;text-decoration:none;transition:all 0.2s}
+  .contact-chip:hover{background:#e8f5ee;border-color:#148a4e;color:#0a6e3a}
+  
+  .client-edit-link{display:block;text-align:center;margin-top:20px;padding:14px;background:#f7f8fa;border:1px dashed #ccc;border-radius:12px;text-decoration:none;color:#555;font-size:14px;transition:all 0.2s}
+  .client-edit-link:hover{background:#e8f5ee;border-color:#148a4e;color:#0a6e3a}
+  
+  .update-bar{background:#fff;border:1px solid #e8eaed;border-radius:10px;padding:12px 18px;margin-top:22px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#888}
+  .update-bar .dot{width:7px;height:7px;background:#4caf50;border-radius:50%;display:inline-block;margin-right:6px}
+  .footer{text-align:center;padding:30px 20px;font-size:11px;color:#bbb}
+  
+  @media(max-width:600px){
+    .hero h1{font-size:22px}
+    .status-strip{grid-template-columns:1fr 1fr}
+    .info-grid{grid-template-columns:1fr}
+    .scheme-grid{grid-template-columns:1fr}
+    .role-grid{grid-template-columns:1fr}
+    .section{padding:20px}
+    .tl-label{width:80px;font-size:11px}
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1 id="hero-title">Greenhouse Automation Retrofit</h1>
+  <p class="hero-sub" id="hero-desc">Sourcing robotic equipment from Chinese suppliers to upgrade an existing greenhouse</p>
+  <span class="hero-badge"><span class="dot"></span><span id="badge-phase">Supplier Research Phase</span></span>
+</div>
+
+<div class="container">
+
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="switchLang('en')">English</button>
+    <button class="lang-btn" onclick="switchLang('ru')">Русский</button>
+    <button class="lang-btn" onclick="switchLang('zh')">中文</button>
+  </div>
+
+  <!-- PROJECT STATUS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#e3f2fd;color:#1565c0">📊</div>
+      <div>
+        <div class="section-title" data-i18n="s1-title">Project Status</div>
+      </div>
+    </div>
+    <div class="status-strip">
+      <div class="st-card">
+        <div class="st-label" data-i18n="s1-type-l">Project Type</div>
+        <div class="st-value green" data-i18n="s1-type-v">Retrofit</div>
+      </div>
+      <div class="st-card">
+        <div class="st-label" data-i18n="s1-phase-l">Current Phase</div>
+        <div class="st-value amber" data-i18n="s1-phase-v">Supplier Research</div>
+      </div>
+      <div class="st-card">
+        <div class="st-label" data-i18n="s1-suppliers-l">Suppliers Found</div>
+        <div class="st-value" id="stat-suppliers">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CORE REQUIREMENT -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#e8f5ee;color:#0a6e3a">🌱</div>
+      <div>
+        <div class="section-title" data-i18n="s2-title">Project Requirement</div>
+      </div>
+    </div>
+    
+    <div class="req-core">
+      <h4 data-i18n="s2-core-t">Core Need</h4>
+      <p data-i18n="s2-core-d">Find a Chinese company that provides robotic equipment to automate and upgrade an existing greenhouse. This is a retrofit project — not building a new smart greenhouse from scratch.</p>
+    </div>
+    
+    <div class="info-grid" id="project-info-grid">
+      <div class="info-item">
+        <div class="info-label" data-i18n="s2-loc-l">Location</div>
+        <div class="info-value" data-i18n="s2-loc-v">Russia</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label" data-i18n="s2-area-l">Greenhouse Area</div>
+        <div class="info-value tbd" id="info-area" data-i18n="s2-area-v">To be provided</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label" data-i18n="s2-struct-l">Structure Type</div>
+        <div class="info-value tbd" id="info-struct" data-i18n="s2-struct-v">To be provided</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label" data-i18n="s2-infra-l">Existing Infrastructure</div>
+        <div class="info-value tbd" id="info-infra" data-i18n="s2-infra-v">To be provided</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUPPLIER PROGRESS -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#f3e5f5;color:#7b1fa2">🏭</div>
+      <div>
+        <div class="section-title" data-i18n="s3-title">Supplier Progress</div>
+        <div class="section-subtitle" data-i18n="s3-sub">Solutions under evaluation</div>
+      </div>
+    </div>
+    
+    <div class="eval-summary">
+      <div class="eval-stat">
+        <div class="es-num" id="eval-total">0</div>
+        <div class="es-label" data-i18n="s3-total">Evaluated</div>
+      </div>
+      <div class="eval-stat">
+        <div class="es-num" id="eval-active">0</div>
+        <div class="es-label" data-i18n="s3-active">In Discussion</div>
+      </div>
+      <div class="eval-stat">
+        <div class="es-num" id="eval-quoted">0</div>
+        <div class="es-label" data-i18n="s3-quoted">Quoted</div>
+      </div>
+    </div>
+    
+    <div class="scheme-grid" id="scheme-grid">
+      <div style="text-align:center;padding:20px;color:#aaa;font-size:13px;grid-column:1/-1" data-i18n="s3-empty">Searching for suppliers — results will appear here as we progress</div>
+    </div>
+  </div>
+
+  <!-- IMPLEMENTATION OVERVIEW -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff3e0;color:#b86e00">📅</div>
+      <div>
+        <div class="section-title" data-i18n="s4-title">Implementation Overview</div>
+        <div class="section-subtitle" data-i18n="s4-sub">Standard process for retrofit projects</div>
+      </div>
+    </div>
+    <div class="timeline-compact">
+      <div class="tl-row"><div class="tl-label" data-i18n="s4-1">Site Survey</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:9%">5d</div></div></div>
+      <div class="tl-row"><div class="tl-label" data-i18n="s4-2">Solution Design</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:5%">3d</div></div></div>
+      <div class="tl-row"><div class="tl-label" data-i18n="s4-3">Production</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:50%">30d</div></div></div>
+      <div class="tl-row"><div class="tl-label" data-i18n="s4-4">Shipping</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:9%">5d</div></div></div>
+      <div class="tl-row"><div class="tl-label" data-i18n="s4-5">Installation</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:17%">10d</div></div></div>
+      <div class="tl-row"><div class="tl-label" data-i18n="s4-6">Testing</div><div class="tl-bar-wrap"><div class="tl-bar pending" style="width:9%">5d</div></div></div>
+    </div>
+    <p style="font-size:11px;color:#888;margin-top:10px;text-align:center" data-i18n="s4-note">Timeline will be finalized after supplier selection (~60 days total)</p>
+  </div>
+
+  <!-- YOUR COORDINATOR -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#e8f5ee;color:#0a6e3a">🤝</div>
+      <div>
+        <div class="section-title" data-i18n="s5-title">Your Coordinator</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px" id="coordinator-card">
+      <div class="coordinator-avatar" id="coord-avatar">H</div>
+      <div>
+        <div style="font-size:16px;font-weight:700" id="coord-name">HUA</div>
+        <div style="font-size:13px;color:#888" id="coord-city">Beijing, China</div>
+        <div style="font-size:12px;color:#666;margin-top:4px" id="coord-bio"></div>
+      </div>
+    </div>
+    <div class="contact-grid" id="contact-grid" style="display:none">
+    </div>
+    <div class="role-grid" style="margin-top:16px">
+      <div class="role-item"><div class="ri-icon">🔧</div><div><div class="ri-label" data-i18n="s5-r1">Solution integration</div></div></div>
+      <div class="role-item"><div class="ri-icon">🔌</div><div><div class="ri-label" data-i18n="s5-r2">Compatibility check</div></div></div>
+      <div class="role-item"><div class="ri-icon">📋</div><div><div class="ri-label" data-i18n="s5-r3">Project coordination</div></div></div>
+      <div class="role-item"><div class="ri-icon">🛡️</div><div><div class="ri-label" data-i18n="s5-r4">Quality assurance</div></div></div>
+    </div>
+  </div>
+
+  <!-- CLIENT EDIT LINK -->
+  <a href="client-edit.html" class="client-edit-link" data-i18n="edit-link">📝 Update project details (greenhouse info, requirements, notes)</a>
+
+  <div class="update-bar">
+    <div><span class="dot"></span><span data-i18n="update-text">Page updated at every milestone</span></div>
+    <div data-i18n="update-time">Jun 3, 2026</div>
+  </div>
+
+</div>
+
+<div class="footer">Greenhouse Automation Retrofit Project © 2026</div>
+
+<script>
+const i18n = {
+  en: {
+    "hero-title": "Greenhouse Automation Retrofit",
+    "hero-desc": "Sourcing robotic equipment from Chinese suppliers to upgrade an existing greenhouse",
+    "badge-phase": "Supplier Research Phase",
+    "s1-title": "Project Status",
+    "s1-type-l": "Project Type", "s1-type-v": "Retrofit",
+    "s1-phase-l": "Current Phase", "s1-phase-v": "Supplier Research",
+    "s1-suppliers-l": "Suppliers Found",
+    "s2-title": "Project Requirement",
+    "s2-core-t": "Core Need",
+    "s2-core-d": "Find a Chinese company that provides robotic equipment to automate and upgrade an existing greenhouse. This is a retrofit project — not building a new smart greenhouse from scratch.",
+    "s2-loc-l": "Location", "s2-loc-v": "Russia",
+    "s2-area-l": "Greenhouse Area", "s2-area-v": "To be provided",
+    "s2-struct-l": "Structure Type", "s2-struct-v": "To be provided",
+    "s2-infra-l": "Existing Infrastructure", "s2-infra-v": "To be provided",
+    "s3-title": "Supplier Progress", "s3-sub": "Solutions under evaluation",
+    "s3-total": "Evaluated", "s3-active": "In Discussion", "s3-quoted": "Quoted",
+    "s3-empty": "Searching for suppliers — results will appear here as we progress",
+    "s4-title": "Implementation Overview", "s4-sub": "Standard process for retrofit projects",
+    "s4-1": "Site Survey", "s4-2": "Solution Design", "s4-3": "Production", "s4-4": "Shipping", "s4-5": "Installation", "s4-6": "Testing",
+    "s4-note": "Timeline will be finalized after supplier selection (~60 days total)",
+    "s5-title": "Your Coordinator", "s5-sub": "Your Coordinator",
+    "s5-r1": "Solution integration", "s5-r2": "Compatibility check", "s5-r3": "Project coordination", "s5-r4": "Quality assurance",
+    "edit-link": "📝 Update project details (greenhouse info, requirements, notes)",
+    "update-text": "Page updated at every milestone", "update-time": "Jun 3, 2026"
+  },
+  ru: {
+    "hero-title": "Автоматизация теплицы",
+    "hero-desc": "Поиск роботизированного оборудования у китайских поставщиков для модернизации существующей теплицы",
+    "badge-phase": "Этап: Поиск поставщиков",
+    "s1-title": "Статус проекта",
+    "s1-type-l": "Тип проекта", "s1-type-v": "Модернизация",
+    "s1-phase-l": "Текущий этап", "s1-phase-v": "Поиск поставщиков",
+    "s1-suppliers-l": "Найдено поставщиков",
+    "s2-title": "Требования проекта",
+    "s2-core-t": "Основная задача",
+    "s2-core-d": "Найти китайскую компанию, которая предоставит роботизированное оборудование для автоматизации и модернизации существующей теплицы. Это проект модернизации — не строительство новой умной теплицы с нуля.",
+    "s2-loc-l": "Расположение", "s2-loc-v": "Россия",
+    "s2-area-l": "Площадь теплицы", "s2-area-v": "Предоставить",
+    "s2-struct-l": "Тип конструкции", "s2-struct-v": "Предоставить",
+    "s2-infra-l": "Существующая инфраструктура", "s2-infra-v": "Предоставить",
+    "s3-title": "Прогресс по поставщикам", "s3-sub": "Решения на рассмотрении",
+    "s3-total": "Оценено", "s3-active": "В обсуждении", "s3-quoted": "Получено КП",
+    "s3-empty": "Поиск поставщиков — результаты появятся здесь по мере продвижения",
+    "s4-title": "Обзор реализации", "s4-sub": "Стандартный процесс для проектов модернизации",
+    "s4-1": "Обследование", "s4-2": "Проектирование", "s4-3": "Производство", "s4-4": "Доставка", "s4-5": "Монтаж", "s4-6": "Пусконаладка",
+    "s4-note": "Сроки будут уточнены после выбора поставщика (~60 дней)",
+    "s5-title": "Ваш координатор", "s5-sub": "Ваш координатор",
+    "s5-r1": "Интеграция решений", "s5-r2": "Проверка совместимости", "s5-r3": "Координация проекта", "s5-r4": "Гарантия качества",
+    "edit-link": "📝 Обновить данные проекта (информация о теплице, требования, заметки)",
+    "update-text": "Обновляется на каждом этапе", "update-time": "3 июня 2026"
+  },
+  zh: {
+    "hero-title": "温室自动化改造",
+    "hero-desc": "从中国供应商采购机器人设备，对现有温室进行自动化升级改造",
+    "badge-phase": "当前：供应商寻源阶段",
+    "s1-title": "项目状态",
+    "s1-type-l": "项目类型", "s1-type-v": "改造升级",
+    "s1-phase-l": "当前阶段", "s1-phase-v": "供应商寻源",
+    "s1-suppliers-l": "已找到供应商",
+    "s2-title": "项目需求",
+    "s2-core-t": "核心需求",
+    "s2-core-d": "寻找能提供机器人设备的中国公司，对现有温室进行自动化改造升级。这是改造项目——不是从零新建智能温室。",
+    "s2-loc-l": "所在地", "s2-loc-v": "俄罗斯",
+    "s2-area-l": "温室面积", "s2-area-v": "待提供",
+    "s2-struct-l": "结构类型", "s2-struct-v": "待提供",
+    "s2-infra-l": "现有基础设施", "s2-infra-v": "待提供",
+    "s3-title": "供应商进展", "s3-sub": "评估中的方案",
+    "s3-total": "已评估", "s3-active": "沟通中", "s3-quoted": "已报价",
+    "s3-empty": "正在搜索供应商——有进展会更新在这里",
+    "s4-title": "实施概览", "s4-sub": "改造项目标准流程",
+    "s4-1": "场地勘测", "s4-2": "方案设计", "s4-3": "设备生产", "s4-4": "运输", "s4-5": "安装", "s4-6": "调试",
+    "s4-note": "时间表将在选定供应商后确认（总计约60天）",
+    "s5-title": "你的协调人", "s5-sub": "你的协调人",
+    "s5-r1": "方案整合", "s5-r2": "兼容性检查", "s5-r3": "项目协调", "s5-r4": "质量保障",
+    "edit-link": "📝 更新项目信息（温室详情、需求、备注）",
+    "update-text": "每个节点更新", "update-time": "2026年6月3日"
+  }
+};
+
+let currentLang = 'en';
+
+function switchLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim() === {en:'English',ru:'Русский',zh:'中文'}[lang]);
+  });
+  document.getElementById('hero-title').textContent = i18n[lang]['hero-title'];
+  document.getElementById('hero-desc').textContent = i18n[lang]['hero-desc'];
+  document.getElementById('badge-phase').textContent = i18n[lang]['badge-phase'];
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (i18n[lang][key]) el.textContent = i18n[lang][key];
+  });
+  renderSuppliers();
+  renderProjectInfo();
+  renderCoordinator();
+}
+
+// Cloud data
+const CLOUD_URL = 'https://jsonblob.com/api/jsonBlob/019e8b83-003f-70df-bed4-7d091e7b1430';
+let suppliersData = [];
+let projectInfo = {};
+let coordinatorProfile = {};
+
+async function fetchData() {
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    if (res.ok) {
+      const data = await res.json();
+      suppliersData = data.suppliers || [];
+      projectInfo = data.projectInfo || {};
+      coordinatorProfile = data.coordinatorProfile || {};
+    }
+  } catch (e) { console.log('Cloud fetch failed'); }
+  renderSuppliers();
+  renderProjectInfo();
+  renderCoordinator();
+}
+
+function renderProjectInfo() {
+  const areaEl = document.getElementById('info-area');
+  const structEl = document.getElementById('info-struct');
+  const infraEl = document.getElementById('info-infra');
+  
+  const tbdText = {en:'To be provided',ru:'Предоставить',zh:'待提供'}[currentLang] || 'To be provided';
+  
+  if (projectInfo.area) { areaEl.textContent = projectInfo.area; areaEl.classList.remove('tbd'); }
+  else { areaEl.textContent = tbdText; areaEl.classList.add('tbd'); }
+  
+  if (projectInfo.structureType) { structEl.textContent = projectInfo.structureType; structEl.classList.remove('tbd'); }
+  else { structEl.textContent = tbdText; structEl.classList.add('tbd'); }
+  
+  if (projectInfo.infrastructure) { infraEl.textContent = projectInfo.infrastructure; infraEl.classList.remove('tbd'); }
+  else { infraEl.textContent = tbdText; infraEl.classList.add('tbd'); }
+}
+
+function renderSuppliers() {
+  const suppliers = suppliersData;
+  const total = suppliers.length;
+  const active = suppliers.filter(s => s.status === 'contacting' || s.status === 'quoted').length;
+  const quoted = suppliers.filter(s => s.status === 'quoted').length;
+  
+  document.getElementById('eval-total').textContent = total;
+  document.getElementById('eval-active').textContent = active;
+  document.getElementById('eval-quoted').textContent = quoted;
+  document.getElementById('stat-suppliers').textContent = suppliers.filter(s=>s.status!=='rejected').length;
+  
+  const grid = document.getElementById('scheme-grid');
+  const activeSuppliers = suppliers.filter(s => s.status !== 'rejected');
+  
+  if (activeSuppliers.length === 0) {
+    grid.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;font-size:13px;grid-column:1/-1" data-i18n="s3-empty">' + (i18n[currentLang]['s3-empty'] || '') + '</div>';
+    return;
+  }
+  
+  const codes = ['A','B','C','D','E','F','G','H'];
+  const colors = ['a','b','c','d','a','b','c','d'];
+  const stLabels = {
+    en: {pending:'Under review',contacting:'In discussion',quoted:'Quoted',selected:'Selected'},
+    ru: {pending:'На рассмотрении',contacting:'В обсуждении',quoted:'КП получено',selected:'Выбран'},
+    zh: {pending:'评估中',contacting:'沟通中',quoted:'已报价',selected:'已选定'}
+  };
+  
+  grid.innerHTML = activeSuppliers.map((s, i) => {
+    const code = codes[i] || String.fromCharCode(65+i);
+    const cls = colors[i%4];
+    const stLabel = (stLabels[currentLang]||stLabels.en)[s.status]||s.status;
+    const lastLog = (s.logs&&s.logs.length>0)?s.logs[s.logs.length-1].text:'';
+    return `<div class="scheme-card ${cls}">
+      <div class="scheme-tag">${({en:'Solution ',ru:'Вариант ',zh:'方案'}[currentLang]||'Solution ')+code}</div>
+      <div style="font-size:13px;color:#555"><strong>${escHtml(s.specialty||'-')}</strong></div>
+      <div style="margin-top:6px"><span class="badge ${s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':'badge-amber'}">${stLabel}</span></div>
+      ${lastLog?'<div style="margin-top:6px;font-size:11px;color:#666">'+escHtml(lastLog)+'</div>':''}
+    </div>`;
+  }).join('');
+}
+
+function escHtml(str) { const d=document.createElement('div'); d.textContent=str||''; return d.innerHTML; }
+
+function renderCoordinator() {
+  const p = coordinatorProfile;
+  const avatarEl = document.getElementById('coord-avatar');
+  const nameEl = document.getElementById('coord-name');
+  const cityEl = document.getElementById('coord-city');
+  const bioEl = document.getElementById('coord-bio');
+  const contactGrid = document.getElementById('contact-grid');
+
+  // Avatar
+  if (p.avatarUrl) {
+    avatarEl.innerHTML = '<img src="' + escHtml(p.avatarUrl) + '" alt="">';
+  } else {
+    avatarEl.textContent = (p.name || 'H').charAt(0).toUpperCase();
+  }
+
+  // Name & city
+  nameEl.textContent = p.name || 'HUA';
+  cityEl.textContent = p.city || 'Beijing, China';
+  bioEl.textContent = p.bio || '';
+  bioEl.style.display = p.bio ? 'block' : 'none';
+
+  // Contact chips
+  const contacts = [];
+  if (p.whatsapp) contacts.push({icon:'📲', label:'WhatsApp', value:p.whatsapp, href:'https://wa.me/'+p.whatsapp.replace(/[^0-9]/g,'')});
+  if (p.telegram) contacts.push({icon:'✈️', label:'Telegram', value:p.telegram, href:'https://t.me/'+p.telegram.replace('@','')});
+  if (p.phone) contacts.push({icon:'📱', label:'Phone', value:p.phone, href:'tel:'+p.phone});
+  if (p.wechat) contacts.push({icon:'💬', label:'WeChat', value:p.wechat, href:null});
+
+  if (contacts.length > 0) {
+    contactGrid.style.display = 'flex';
+    contactGrid.innerHTML = contacts.map(c => {
+      if (c.href) {
+        return '<a href="'+escHtml(c.href)+'" class="contact-chip" target="_blank">'+c.icon+' '+escHtml(c.label)+': '+escHtml(c.value)+'</a>';
+      }
+      return '<span class="contact-chip">'+c.icon+' '+escHtml(c.label)+': '+escHtml(c.value)+'</span>';
+    }).join('');
+  } else {
+    contactGrid.style.display = 'none';
+  }
+}
+
+fetchData();
+</script>
+</body>
+</html>
