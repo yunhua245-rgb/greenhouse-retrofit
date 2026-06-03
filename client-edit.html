@@ -126,16 +126,25 @@ const labels = {
     backLink: "← Back to project page",
     greenhouse: "Greenhouse Information",
     location: "Location", locationHint: "Where is the greenhouse located",
+    locationPh: "e.g., Moscow, Russia",
     area: "Greenhouse Area", areaHint: "Total area of the greenhouse to be retrofitted",
+    areaPh: "e.g., 2000 ㎡",
     struct: "Structure Type", structHint: "What type of greenhouse structure exists currently",
+    structPh: "e.g., glass greenhouse, film greenhouse, polycarbonate",
     infra: "Existing Infrastructure", infraHint: "What pipes, wiring, systems are already in place",
+    infraPh: "e.g., has water pipes, has heating system, no automation currently...",
     crops: "Current Crops",
+    cropsPh: "e.g., tomatoes, cucumbers, flowers",
     requirements: "Requirements & Goals",
     scope: "What needs to be automated?", scopeHint: "Which systems or processes should be automated",
+    scopePh: "e.g., irrigation, climate control, monitoring robots, harvesting...",
     budget: "Budget Range (optional)",
+    budgetPh: "e.g., $50,000 - $100,000",
     timeline: "Preferred Timeline (optional)",
+    timelinePh: "e.g., complete by August 2026",
     notesTitle: "Notes & Questions",
     notes: "Additional notes for HUA",
+    notesPh: "Any other details, questions, or special requirements...",
     save: "Save & Update",
     saving: "Saving...", saved: "✓ Saved successfully", error: "⚠ Save failed — please try again"
   },
@@ -144,16 +153,25 @@ const labels = {
     backLink: "← Назад к проекту",
     greenhouse: "Информация о теплице",
     location: "Расположение", locationHint: "Где находится теплица",
+    locationPh: "напр., Москва, Россия",
     area: "Площадь теплицы", areaHint: "Общая площадь теплицы для модернизации",
+    areaPh: "напр., 2000 ㎡",
     struct: "Тип конструкции", structHint: "Какой тип конструкции теплицы сейчас",
+    structPh: "напр., стеклянная, плёночная, поликарбонат",
     infra: "Существующая инфраструктура", infraHint: "Какие трубы, проводка, системы уже есть",
+    infraPh: "напр., водопровод есть, отопление есть, автоматики нет...",
     crops: "Текущие культуры",
+    cropsPh: "напр., помидоры, огурцы, цветы",
     requirements: "Требования и цели",
     scope: "Что нужно автоматизировать?", scopeHint: "Какие системы или процессы нужно автоматизировать",
+    scopePh: "напр., полив, климат-контроль, мониторинг, сбор урожая...",
     budget: "Бюджет (необязательно)",
+    budgetPh: "напр., $50,000 - $100,000",
     timeline: "Желаемые сроки (необязательно)",
+    timelinePh: "напр., завершить к августу 2026",
     notesTitle: "Заметки и вопросы",
     notes: "Дополнительные заметки для HUA",
+    notesPh: "Любые другие детали, вопросы или особые требования...",
     save: "Сохранить",
     saving: "Сохранение...", saved: "✓ Сохранено", error: "⚠ Ошибка — попробуйте ещё раз"
   },
@@ -162,16 +180,25 @@ const labels = {
     backLink: "← 返回项目页面",
     greenhouse: "温室基本信息",
     location: "所在地", locationHint: "温室所在的地理位置",
+    locationPh: "例如：莫斯科，俄罗斯",
     area: "温室面积", areaHint: "需要改造的温室总面积",
+    areaPh: "例如：2000 ㎡",
     struct: "结构类型", structHint: "现有温室是什么结构",
+    structPh: "例如：玻璃温室、薄膜温室、聚碳酸酯板",
     infra: "现有基础设施", infraHint: "已有哪些管道、线路、系统",
+    infraPh: "例如：有水管、有供暖系统、目前无自动化设备...",
     crops: "当前种植作物",
+    cropsPh: "例如：番茄、黄瓜、花卉",
     requirements: "需求与目标",
     scope: "需要自动化哪些环节？", scopeHint: "希望改造后实现哪些自动化",
+    scopePh: "例如：灌溉、气候控制、监控机器人、采摘...",
     budget: "预算范围（选填）",
+    budgetPh: "例如：$50,000 - $100,000",
     timeline: "期望时间（选填）",
+    timelinePh: "例如：2026年8月前完成",
     notesTitle: "备注与问题",
     notes: "其他想告诉HUA的信息",
+    notesPh: "任何其他细节、问题或特殊要求...",
     save: "保存更新",
     saving: "保存中...", saved: "✓ 已保存", error: "⚠ 保存失败，请重试"
   }
@@ -203,6 +230,16 @@ function switchLang(lang) {
   document.getElementById('lbl-notes-title').textContent = L.notesTitle;
   document.getElementById('lbl-notes').textContent = L.notes;
   document.getElementById('btn-save').textContent = L.save;
+  // Update placeholders
+  document.getElementById('field-location').placeholder = L.locationPh;
+  document.getElementById('field-area').placeholder = L.areaPh;
+  document.getElementById('field-struct').placeholder = L.structPh;
+  document.getElementById('field-infra').placeholder = L.infraPh;
+  document.getElementById('field-crops').placeholder = L.cropsPh;
+  document.getElementById('field-scope').placeholder = L.scopePh;
+  document.getElementById('field-budget').placeholder = L.budgetPh;
+  document.getElementById('field-timeline').placeholder = L.timelinePh;
+  document.getElementById('field-notes').placeholder = L.notesPh;
 }
 
 async function loadData() {
