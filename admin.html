@@ -819,9 +819,10 @@ async function loadEditHistory() {
             <div>
               <div class="eh-summary">${escHtml(h.summary)}</div>
             </div>
-            <div style="display:flex;align-items:center">
+            <div style="display:flex;align-items:center;gap:4px">
               <span class="eh-time">${timeStr}</span>
               <button class="eh-restore" onclick="viewClientVersion(${idx})">查看</button>
+              <button class="eh-restore" onclick="deleteHistoryVersion(${idx})" style="color:#e24b4a">删除</button>
             </div>
           </div>`;
         }).join('');
@@ -847,20 +848,12 @@ function renderProjectInfoCard(info, label) {
     {key:'timeline', label:'时间要求'},
     {key:'notes', label:'其他备注'}
   ];
-  const hasData = fields.some(f => info[f.key]);
-  if (!hasData) {
-    return `<div style="padding:16px;background:#f7f8fa;border-radius:10px;border:1px solid #e8eaed">
-      <div style="font-size:12px;color:#148a4e;font-weight:600;margin-bottom:8px">${escHtml(label)}</div>
-      <div style="font-size:13px;color:#aaa;text-align:center">客户尚未填写信息</div>
-    </div>`;
-  }
   let html = `<div style="padding:16px;background:#f7f8fa;border-radius:10px;border:1px solid #e8eaed">
     <div style="font-size:12px;color:#148a4e;font-weight:600;margin-bottom:10px">${escHtml(label)}</div>
     <div style="display:grid;grid-template-columns:80px 1fr;gap:6px 12px;font-size:13px">`;
   fields.forEach(f => {
-    if (info[f.key]) {
-      html += `<div style="color:#888">${f.label}</div><div style="color:#333">${escHtml(info[f.key])}</div>`;
-    }
+    const val = info[f.key];
+    html += `<div style="color:#888">${f.label}</div><div style="color:${val ? '#333' : '#ccc'}">${val ? escHtml(val) : '未填写'}</div>`;
   });
   html += '</div></div>';
   return html;
@@ -892,6 +885,32 @@ function viewClientVersion(idx) {
       document.body.appendChild(overlay);
     })
     .catch(() => alert('加载失败'));
+}
+
+async function deleteHistoryVersion(idx) {
+  if (!confirm('确定删除这条历史记录？')) return;
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    if (!res.ok) return;
+    const data = await res.json();
+    const history = data.editHistory || [];
+    if (idx < 0 || idx >= history.length) return;
+    history.splice(idx, 1);
+    data.editHistory = history;
+    data.lastUpdated = Date.now();
+    const putRes = await fetch(CLOUD_URL, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(data)
+    });
+    if (putRes.ok) {
+      loadEditHistory();
+    } else {
+      alert('删除失败');
+    }
+  } catch(e) {
+    alert('删除失败');
+  }
 }
 
 // Phase management
