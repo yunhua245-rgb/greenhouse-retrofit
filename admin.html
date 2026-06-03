@@ -86,6 +86,12 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 .profile-form .pf-row{display:flex;gap:12px}
 @media(max-width:600px){.profile-form .pf-row{flex-direction:column}}
 
+.avatar-upload-area{width:80px;height:80px;border:2px dashed #d0d5dd;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;overflow:hidden}
+.avatar-upload-area:hover{border-color:#148a4e;background:#f0faf4}
+.avatar-upload-area.has-image{border-style:solid;border-color:#148a4e}
+.avatar-preview{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.avatar-placeholder{text-align:center;font-size:12px;color:#888;line-height:1.3}
+
 .empty-state{text-align:center;padding:60px 20px;color:#888}
 .edit-history-item{padding:12px 16px;background:#f7f8fa;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .edit-history-item .eh-summary{font-weight:500;font-size:13px;color:#333}
@@ -138,8 +144,17 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
             <input type="text" id="pf-name" placeholder="例：HUA">
           </div>
           <div class="form-group" style="flex:1">
-            <label>头像 URL（可选）</label>
-            <input type="text" id="pf-avatar" placeholder="https://... 或留空用首字母">
+            <label>头像 / Avatar</label>
+            <div class="avatar-upload-area" id="avatar-upload-area" onclick="document.getElementById('pf-avatar-file').click()">
+              <div class="avatar-preview" id="avatar-preview-box">
+                <span class="avatar-placeholder" id="avatar-placeholder-text">点击上传<br><span style="font-size:11px;color:#aaa">支持 JPG/PNG</span></span>
+                <img id="avatar-preview-img" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px">
+              </div>
+            </div>
+            <input type="file" id="pf-avatar-file" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+            <input type="hidden" id="pf-avatar">
+            <div style="margin-top:6px;font-size:11px;color:#aaa" id="avatar-hint">或输入图片URL：</div>
+            <input type="text" id="pf-avatar-url" placeholder="https://..." style="margin-top:4px;padding:6px 10px;font-size:12px;border:1px solid #e8eaed;border-radius:6px;width:100%" oninput="handleAvatarUrl(this.value)">
           </div>
         </div>
         <div class="pf-row">
@@ -598,6 +613,7 @@ function loadProfile() {
   const p = getProfile();
   document.getElementById('pf-name').value = p.name || '';
   document.getElementById('pf-avatar').value = p.avatarUrl || '';
+  document.getElementById('pf-avatar-url').value = (p.avatarUrl && !p.avatarUrl.startsWith('data:')) ? p.avatarUrl : '';
   document.getElementById('pf-phone').value = p.phone || '';
   document.getElementById('pf-wechat').value = p.wechat || '';
   document.getElementById('pf-whatsapp').value = p.whatsapp || '';
@@ -605,6 +621,7 @@ function loadProfile() {
   document.getElementById('pf-city').value = p.city || '';
   document.getElementById('pf-bio').value = p.bio || '';
   updateProfilePreview(p);
+  updateAvatarPreview(p.avatarUrl);
 }
 
 function updateProfilePreview(p) {
@@ -616,6 +633,65 @@ function updateProfilePreview(p) {
     avatarEl.textContent = (p.name || 'H').charAt(0).toUpperCase();
   }
   nameEl.textContent = p.name || '点击设置个人信息';
+}
+
+function updateAvatarPreview(url) {
+  const img = document.getElementById('avatar-preview-img');
+  const placeholder = document.getElementById('avatar-placeholder-text');
+  const area = document.getElementById('avatar-upload-area');
+  if (url) {
+    img.src = url;
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
+    area.classList.add('has-image');
+  } else {
+    img.style.display = 'none';
+    placeholder.style.display = 'block';
+    area.classList.remove('has-image');
+  }
+}
+
+function handleAvatarUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // Limit file size to 500KB for cloud storage
+  if (file.size > 512000) {
+    alert('图片过大（>500KB），将自动压缩');
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    // Compress image if needed
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const maxSize = 200; // 200x200 max for avatar
+      let w = img.width, h = img.height;
+      if (w > h) { h = h * maxSize / w; w = maxSize; }
+      else { w = w * maxSize / h; h = maxSize; }
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+      document.getElementById('pf-avatar').value = dataUrl;
+      document.getElementById('pf-avatar-url').value = '';
+      updateAvatarPreview(dataUrl);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleAvatarUrl(url) {
+  url = url.trim();
+  if (url) {
+    document.getElementById('pf-avatar').value = url;
+    updateAvatarPreview(url);
+  } else if (!document.getElementById('pf-avatar').value.startsWith('data:')) {
+    document.getElementById('pf-avatar').value = '';
+    updateAvatarPreview('');
+  }
 }
 
 async function saveProfile() {
