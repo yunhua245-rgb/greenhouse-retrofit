@@ -1,0 +1,4 @@
+.workbuddy/
+.codebuddy/
+node_modules/
+server.js

@@ -1,0 +1,6 @@
+.codebuddy
+.workbuddy
+.git
+node_modules
+server.js
+data.json
