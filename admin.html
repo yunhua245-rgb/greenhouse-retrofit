@@ -87,6 +87,11 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 @media(max-width:600px){.profile-form .pf-row{flex-direction:column}}
 
 .empty-state{text-align:center;padding:60px 20px;color:#888}
+.edit-history-item{padding:12px 16px;background:#f7f8fa;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.edit-history-item .eh-summary{font-weight:500;font-size:13px;color:#333}
+.edit-history-item .eh-time{font-size:11px;color:#888}
+.edit-history-item .eh-restore{font-size:11px;color:#1565c0;cursor:pointer;text-decoration:underline;background:none;border:none;margin-left:8px}
+.edit-history-empty{text-align:center;padding:20px;color:#aaa;font-size:13px}
 .empty-state .icon{font-size:48px;margin-bottom:16px}
 .empty-state .title{font-size:16px;font-weight:600;color:#333;margin-bottom:6px}
 .empty-state .desc{font-size:13px}
@@ -170,6 +175,23 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
         </div>
         <div id="profile-save-status" style="font-size:12px;margin-top:8px;text-align:right"></div>
       </div>
+    </div>
+  </div>
+
+  <!-- 客户修改历史 -->
+  <div class="profile-section" id="edit-history-section" style="display:none">
+    <div class="profile-header" onclick="toggleEditHistory()">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:42px;height:42px;border-radius:50%;background:#e3f2fd;color:#1565c0;display:flex;align-items:center;justify-content:center;font-size:18px">📝</div>
+        <div>
+          <div style="font-size:15px;font-weight:600">客户修改记录</div>
+          <div style="font-size:12px;color:#888">查看朋友在客户编辑页面的所有修改历史</div>
+        </div>
+      </div>
+      <span style="font-size:18px;color:#aaa" id="history-toggle-icon">▼</span>
+    </div>
+    <div class="profile-body" id="edit-history-body">
+      <div id="edit-history-list" style="font-size:13px;color:#555">加载中...</div>
     </div>
   </div>
 
@@ -651,12 +673,81 @@ async function loadProfileFromCloud() {
   } catch(e) {}
 }
 
+// Edit History management (client edits)
+function toggleEditHistory() {
+  document.getElementById('edit-history-body').classList.toggle('open');
+  const icon = document.getElementById('history-toggle-icon');
+  icon.textContent = document.getElementById('edit-history-body').classList.contains('open') ? '▲' : '▼';
+}
+
+async function loadEditHistory() {
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    if (res.ok) {
+      const data = await res.json();
+      const history = data.editHistory || [];
+      const section = document.getElementById('edit-history-section');
+      const listEl = document.getElementById('edit-history-list');
+      
+      if (history.length > 0) {
+        section.style.display = 'block';
+        listEl.innerHTML = history.slice().reverse().map((h, i) => {
+          const idx = history.length - 1 - i;
+          const d = new Date(h.time);
+          const timeStr = d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
+          return `<div class="edit-history-item">
+            <div>
+              <div class="eh-summary">${escHtml(h.summary)}</div>
+            </div>
+            <div style="display:flex;align-items:center">
+              <span class="eh-time">${timeStr}</span>
+              <button class="eh-restore" onclick="restoreClientVersion(${idx})">恢复此版本</button>
+            </div>
+          </div>`;
+        }).join('');
+      } else {
+        section.style.display = 'none';
+      }
+    }
+  } catch(e) {
+    console.log('Failed to load edit history:', e);
+  }
+}
+
+async function restoreClientVersion(idx) {
+  if (!confirm('确定要恢复到这个版本吗？当前的项目信息将被覆盖。')) return;
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    if (!res.ok) return;
+    const data = await res.json();
+    const history = data.editHistory || [];
+    const entry = history[idx];
+    if (!entry || !entry.previous) return;
+    
+    data.projectInfo = entry.previous;
+    data.lastUpdated = Date.now();
+    
+    const putRes = await fetch(CLOUD_URL, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(data)
+    });
+    if (putRes.ok) {
+      alert('已恢复！展示页面将显示恢复后的内容。');
+      loadEditHistory();
+    }
+  } catch(e) {
+    alert('恢复失败，请重试');
+  }
+}
+
 // Initialize
 async function init() {
   await loadFromCloud();
   await loadProfileFromCloud();
   loadProfile();
   renderList();
+  loadEditHistory();
 }
 init();
 </script>

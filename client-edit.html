@@ -37,15 +37,6 @@
   .save-status.success{color:#148a4e}
   .save-status.error{color:#e24b4a}
   
-  .history-section{margin-top:24px}
-  .history-title{font-size:13px;font-weight:600;color:#888;margin-bottom:10px;text-transform:uppercase;letter-spacing:0.5px}
-  .history-list{list-style:none;padding:0}
-  .history-list li{padding:10px 14px;background:#f7f8fa;border-radius:8px;margin-bottom:6px;font-size:12px;color:#555;display:flex;justify-content:space-between;align-items:center}
-  .history-list li .h-time{color:#888;font-size:11px}
-  .history-list li .h-action{font-weight:500}
-  .h-restore{font-size:11px;color:#1565c0;cursor:pointer;text-decoration:underline;background:none;border:none}
-  
-  .empty-history{text-align:center;padding:20px;color:#aaa;font-size:13px}
 </style>
 </head>
 <body>
@@ -116,13 +107,6 @@
     <span class="save-status" id="save-status"></span>
   </div>
 
-  <!-- Edit History -->
-  <div class="history-section">
-    <div class="history-title" id="lbl-history">Edit History</div>
-    <ul class="history-list" id="history-list">
-      <li class="empty-history" id="no-history">No edits yet</li>
-    </ul>
-  </div>
 
 </div>
 
@@ -147,10 +131,7 @@ const labels = {
     notesTitle: "Notes & Questions",
     notes: "Additional notes for HUA",
     save: "Save & Update",
-    history: "Edit History",
-    noHistory: "No edits yet",
-    saving: "Saving...", saved: "✓ Saved successfully", error: "⚠ Save failed — please try again",
-    restore: "restore"
+    saving: "Saving...", saved: "✓ Saved successfully", error: "⚠ Save failed — please try again"
   },
   ru: {
     pageTitle: "📝 Обновить данные проекта",
@@ -167,10 +148,7 @@ const labels = {
     notesTitle: "Заметки и вопросы",
     notes: "Дополнительные заметки для HUA",
     save: "Сохранить",
-    history: "История изменений",
-    noHistory: "Пока нет изменений",
-    saving: "Сохранение...", saved: "✓ Сохранено", error: "⚠ Ошибка — попробуйте ещё раз",
-    restore: "восстановить"
+    saving: "Сохранение...", saved: "✓ Сохранено", error: "⚠ Ошибка — попробуйте ещё раз"
   },
   zh: {
     pageTitle: "📝 更新项目信息",
@@ -187,10 +165,7 @@ const labels = {
     notesTitle: "备注与问题",
     notes: "其他想告诉HUA的信息",
     save: "保存更新",
-    history: "修改历史",
-    noHistory: "暂无修改记录",
-    saving: "保存中...", saved: "✓ 已保存", error: "⚠ 保存失败，请重试",
-    restore: "恢复"
+    saving: "保存中...", saved: "✓ 已保存", error: "⚠ 保存失败，请重试"
   }
 };
 
@@ -219,8 +194,6 @@ function switchLang(lang) {
   document.getElementById('lbl-notes').textContent = L.notes;
   document.getElementById('btn-save').textContent = L.save;
   document.getElementById('lbl-history').textContent = L.history;
-  document.getElementById('no-history').textContent = L.noHistory;
-  renderHistory();
 }
 
 async function loadData() {
@@ -237,7 +210,6 @@ async function loadData() {
       document.getElementById('field-budget').value = info.budget || '';
       document.getElementById('field-timeline').value = info.timeline || '';
       document.getElementById('field-notes').value = info.notes || '';
-      renderHistory();
     }
   } catch(e) { console.log('Load failed:', e); }
 }
@@ -286,7 +258,6 @@ async function saveData() {
     if (res.ok) {
       statusEl.textContent = L.saved;
       statusEl.className = 'save-status success';
-      renderHistory();
     } else {
       statusEl.textContent = L.error;
       statusEl.className = 'save-status error';
@@ -308,46 +279,6 @@ function generateChangeSummary(oldInfo, newInfo) {
     }
   }
   return changes.join(', ') || 'no changes';
-}
-
-function renderHistory() {
-  const list = document.getElementById('history-list');
-  const history = cloudData.editHistory || [];
-  const L = labels[currentLang];
-  
-  if (history.length === 0) {
-    list.innerHTML = `<li class="empty-history">${L.noHistory}</li>`;
-    return;
-  }
-  
-  list.innerHTML = history.slice().reverse().map((h, i) => {
-    const idx = history.length - 1 - i;
-    const d = new Date(h.time);
-    const timeStr = d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-    return `<li>
-      <div><span class="h-action">${h.summary}</span></div>
-      <div style="display:flex;align-items:center;gap:8px">
-        <span class="h-time">${timeStr}</span>
-        <button class="h-restore" onclick="restoreVersion(${idx})">${L.restore}</button>
-      </div>
-    </li>`;
-  }).join('');
-}
-
-function restoreVersion(idx) {
-  const history = cloudData.editHistory || [];
-  const entry = history[idx];
-  if (!entry || !entry.previous) return;
-  
-  const info = entry.previous;
-  document.getElementById('field-area').value = info.area || '';
-  document.getElementById('field-struct').value = info.structureType || '';
-  document.getElementById('field-infra').value = info.infrastructure || '';
-  document.getElementById('field-crops').value = info.crops || '';
-  document.getElementById('field-scope').value = info.scope || '';
-  document.getElementById('field-budget').value = info.budget || '';
-  document.getElementById('field-timeline').value = info.timeline || '';
-  document.getElementById('field-notes').value = info.notes || '';
 }
 
 loadData();
