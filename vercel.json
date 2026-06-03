@@ -3,6 +3,5 @@
     "api/data.js": {
       "maxDuration": 30
     }
-  },
-  "ignoreCommand": "git diff --quiet HEAD^ HEAD -- . ':!data.json'"
+  }
 }
