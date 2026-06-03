@@ -96,7 +96,8 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 .edit-history-item{padding:12px 16px;background:#f7f8fa;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
 .edit-history-item .eh-summary{font-weight:500;font-size:13px;color:#333}
 .edit-history-item .eh-time{font-size:11px;color:#888}
-.edit-history-item .eh-restore{font-size:11px;color:#1565c0;cursor:pointer;text-decoration:underline;background:none;border:none;margin-left:8px}
+.edit-history-item .eh-restore{font-size:11px;color:#555;cursor:pointer;background:#e8eaed;border:none;margin-left:8px;padding:4px 10px;border-radius:4px}
+.edit-history-item .eh-restore:hover{background:#d0d2d5}
 .edit-history-empty{text-align:center;padding:20px;color:#aaa;font-size:13px}
 .empty-state .icon{font-size:48px;margin-bottom:16px}
 .empty-state .title{font-size:16px;font-weight:600;color:#333;margin-bottom:6px}
@@ -207,13 +208,13 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
   </div>
 
   <!-- 客户修改历史 -->
-  <div class="profile-section" id="edit-history-section" style="display:none">
+  <div class="profile-section" id="edit-history-section">
     <div class="profile-header" onclick="toggleEditHistory()">
       <div style="display:flex;align-items:center;gap:12px">
         <div style="width:42px;height:42px;border-radius:50%;background:#e3f2fd;color:#1565c0;display:flex;align-items:center;justify-content:center;font-size:18px">📝</div>
         <div>
-          <div style="font-size:15px;font-weight:600">客户修改记录</div>
-          <div style="font-size:12px;color:#888">查看朋友在客户编辑页面的所有修改历史</div>
+          <div style="font-size:15px;font-weight:600">客户项目信息</div>
+          <div style="font-size:12px;color:#888">查看朋友填写的最新项目信息及修改历史</div>
         </div>
       </div>
       <span style="font-size:18px;color:#aaa" id="history-toggle-icon">▼</span>
@@ -797,12 +798,20 @@ async function loadEditHistory() {
     if (res.ok) {
       const data = await res.json();
       const history = data.editHistory || [];
+      const currentInfo = data.projectInfo || {};
       const section = document.getElementById('edit-history-section');
       const listEl = document.getElementById('edit-history-list');
       
+      section.style.display = 'block';
+      
+      // Show current version at the top
+      const currentHtml = renderProjectInfoCard(currentInfo, '当前版本（最新）');
+      
+      // Show history below
+      let historyHtml = '';
       if (history.length > 0) {
-        section.style.display = 'block';
-        listEl.innerHTML = history.slice().reverse().map((h, i) => {
+        historyHtml = '<div style="margin-top:16px;padding-top:12px;border-top:1px solid #e8eaed"><div style="font-size:12px;color:#888;margin-bottom:10px;font-weight:500">历史修改记录</div>';
+        historyHtml += history.slice().reverse().map((h, i) => {
           const idx = history.length - 1 - i;
           const d = new Date(h.time);
           const timeStr = d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
@@ -812,44 +821,77 @@ async function loadEditHistory() {
             </div>
             <div style="display:flex;align-items:center">
               <span class="eh-time">${timeStr}</span>
-              <button class="eh-restore" onclick="restoreClientVersion(${idx})">恢复此版本</button>
+              <button class="eh-restore" onclick="viewClientVersion(${idx})">查看</button>
             </div>
           </div>`;
         }).join('');
-      } else {
-        section.style.display = 'none';
+        historyHtml += '</div>';
       }
+      
+      listEl.innerHTML = currentHtml + historyHtml;
     }
   } catch(e) {
     console.log('Failed to load edit history:', e);
   }
 }
 
-async function restoreClientVersion(idx) {
-  if (!confirm('确定要恢复到这个版本吗？当前的项目信息将被覆盖。')) return;
-  try {
-    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
-    if (!res.ok) return;
-    const data = await res.json();
-    const history = data.editHistory || [];
-    const entry = history[idx];
-    if (!entry || !entry.previous) return;
-    
-    data.projectInfo = entry.previous;
-    data.lastUpdated = Date.now();
-    
-    const putRes = await fetch(CLOUD_URL, {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-      body: JSON.stringify(data)
-    });
-    if (putRes.ok) {
-      alert('已恢复！展示页面将显示恢复后的内容。');
-      loadEditHistory();
-    }
-  } catch(e) {
-    alert('恢复失败，请重试');
+function renderProjectInfoCard(info, label) {
+  const fields = [
+    {key:'location', label:'所在地'},
+    {key:'area', label:'温室面积'},
+    {key:'structureType', label:'结构类型'},
+    {key:'infrastructure', label:'现有设施'},
+    {key:'crops', label:'种植作物'},
+    {key:'scope', label:'改造范围'},
+    {key:'budget', label:'预算'},
+    {key:'timeline', label:'时间要求'},
+    {key:'notes', label:'其他备注'}
+  ];
+  const hasData = fields.some(f => info[f.key]);
+  if (!hasData) {
+    return `<div style="padding:16px;background:#f7f8fa;border-radius:10px;border:1px solid #e8eaed">
+      <div style="font-size:12px;color:#148a4e;font-weight:600;margin-bottom:8px">${escHtml(label)}</div>
+      <div style="font-size:13px;color:#aaa;text-align:center">客户尚未填写信息</div>
+    </div>`;
   }
+  let html = `<div style="padding:16px;background:#f7f8fa;border-radius:10px;border:1px solid #e8eaed">
+    <div style="font-size:12px;color:#148a4e;font-weight:600;margin-bottom:10px">${escHtml(label)}</div>
+    <div style="display:grid;grid-template-columns:80px 1fr;gap:6px 12px;font-size:13px">`;
+  fields.forEach(f => {
+    if (info[f.key]) {
+      html += `<div style="color:#888">${f.label}</div><div style="color:#333">${escHtml(info[f.key])}</div>`;
+    }
+  });
+  html += '</div></div>';
+  return html;
+}
+
+function viewClientVersion(idx) {
+  // Show a modal/popup with the historical version details
+  fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}})
+    .then(r => r.json())
+    .then(data => {
+      const history = data.editHistory || [];
+      const entry = history[idx];
+      if (!entry || !entry.previous) { alert('无法加载此版本'); return; }
+      const d = new Date(entry.time);
+      const timeStr = d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
+      const content = renderProjectInfoCard(entry.previous, '历史版本 — ' + timeStr);
+      // Show in a simple overlay
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
+      overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
+      overlay.innerHTML = `<div style="background:#fff;border-radius:16px;padding:24px;max-width:500px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,0.3)">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <div style="font-size:15px;font-weight:600">查看历史版本</div>
+          <button onclick="this.closest('div[style*=fixed]').remove()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>
+        </div>
+        ${content}
+        <div style="margin-top:12px;font-size:11px;color:#888">修改摘要：${escHtml(entry.summary || '')}</div>
+      </div>`;
+      document.body.appendChild(overlay);
+    })
+    .catch(() => alert('加载失败'));
 }
 
 // Phase management
