@@ -95,8 +95,23 @@ module.exports = async function handler(req, res) {
     const homeHtml = homepage.html;
     const homeText = htmlToText(homeHtml);
 
-    // Detect SPA (very little text content + app container)
-    const isSPA = homeText.length < 200 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"'));
+    // Detect SPA (very little text content + app container) or near-empty page
+    const isSPA = homeText.length < 200 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"') || homeHtml.includes('id="__next"'));
+    const isEmptyPage = homeText.length < 50;
+    
+    // If page is essentially empty (SPA with no SSR), use AI inference directly
+    if (isEmptyPage || (isSPA && homeText.length < 80)) {
+      const domain = new URL(url).hostname.replace('www.', '');
+      const inferResult = await inferFromDomain(domain, url);
+      if (inferResult) {
+        return res.status(200).json({
+          success: true,
+          data: inferResult,
+          raw: { title: homeHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '', description: '', keywords: '', textContent: homeText, subpagesCrawled: 0 },
+          note: '⚠️ 该网站为前端框架渲染（SPA），服务端无法读取内容。以下信息基于AI推断，请核实。'
+        });
+      }
+    }
 
     // Step 2: Find important subpage links
     const baseUrl = new URL(effectiveUrl);
@@ -479,19 +494,23 @@ async function inferFromDomain(domain, fullUrl) {
   const apiBase = process.env.AI_BASE_URL || 'https://api.deepseek.com';
   const model = process.env.AI_MODEL || 'deepseek-chat';
   
-  const prompt = `I cannot access the website ${fullUrl} (blocked/timeout). Based on your knowledge of the company behind the domain "${domain}", please provide:
+  const prompt = `I cannot access the website ${fullUrl} (domain: "${domain}"). Based on your knowledge of this company AND reasonable inference from the domain name, please provide:
 
-1. nameCn: Chinese company name (if known)
-2. nameEn: English company name (if known)  
-3. location: Company headquarters location/city
-4. specialty: Main products/services (in Chinese if possible)
+1. nameCn: Chinese company name (if known, or reasonable guess from domain)
+2. nameEn: English company name (derive from domain name if not known — e.g. "aiforcetech.com" → "AIForce Tech" or "AI Force Technology")
+3. location: Company headquarters location/city (if known)
+4. specialty: Main products/services based on domain name keywords (in Chinese if possible — e.g. "aiforcetech" likely relates to AI technology)
 5. phones: Phone numbers (if known)
-6. emails: Contact emails (if known)
+6. emails: Contact emails (try common patterns like info@${domain}, contact@${domain} if unsure)
+
+IMPORTANT RULES:
+- For nameEn: You MUST provide at least a name derived from the domain (split camelCase, remove "tech"/"corp" suffixes if useful). Never leave both nameCn and nameEn empty.
+- For specialty: Make a reasonable inference from domain keywords (e.g. "solar" → solar energy, "agri" → agriculture)
+- For phones/emails: Only provide if you are confident. Common email patterns (info@domain) are acceptable guesses.
+- For location: Only provide if you actually know.
 
 Respond ONLY in valid JSON format:
-{"nameCn":"","nameEn":"","location":"","specialty":"","phones":"","emails":""}
-
-If you don't know a field, leave it empty string. Do NOT invent or guess — only provide information you are confident about.`;
+{"nameCn":"","nameEn":"","location":"","specialty":"","phones":"","emails":""}`;
 
   try {
     const controller = new AbortController();
@@ -525,20 +544,43 @@ If you don't know a field, leave it empty string. Do NOT invent or guess — onl
     
     const info = JSON.parse(jsonMatch[0]);
     
-    // Only return if we got at least a name
-    if (!info.nameCn && !info.nameEn) return null;
+    // If AI couldn't provide any name, derive from domain
+    let nameEn = info.nameEn || '';
+    let nameCn = info.nameCn || '';
+    if (!nameEn && !nameCn) {
+      // Derive English name from domain: "aiforcetech" → "Aiforcetech", "green-house" → "Green House"
+      const domainBase = domain.split('.')[0].replace(/^www\.?/, '');
+      nameEn = domainBase
+        .replace(/[-_]/g, ' ')
+        .replace(/([a-z])([A-Z])/g, '$1 $2')
+        .replace(/\b\w/g, c => c.toUpperCase());
+    }
     
     return {
-      name: info.nameCn || '',
-      nameEn: info.nameEn || '',
+      name: nameCn,
+      nameEn: nameEn,
       location: info.location || '',
       specialty: info.specialty || '',
       contact: info.phones || '',
-      email: info.emails || '',
+      email: info.emails || `info@${domain}`,
       website: fullUrl
     };
   } catch (e) {
-    return null;
+    // Even if AI call fails, return basic info derived from domain name
+    const domainBase = domain.split('.')[0].replace(/^www\.?/, '');
+    const nameEn = domainBase
+      .replace(/[-_]/g, ' ')
+      .replace(/([a-z])([A-Z])/g, '$1 $2')
+      .replace(/\b\w/g, c => c.toUpperCase());
+    return {
+      name: '',
+      nameEn: nameEn,
+      location: '',
+      specialty: '',
+      contact: '',
+      email: `info@${domain}`,
+      website: fullUrl
+    };
   }
 }
 
