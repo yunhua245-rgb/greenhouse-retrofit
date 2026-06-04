@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>项目总览 — HUA Sourcing</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7;min-height:100vh}
+
+.hero{background:linear-gradient(135deg,#1a1a2e 0%,#2d2d5e 50%,#4a3f8a 100%);color:#fff;padding:48px 24px 64px;text-align:center;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:40px;background:#f7f8fa;border-radius:50% 50% 0 0/100% 100% 0 0}
+.hero h1{font-size:26px;font-weight:800;margin-bottom:6px;letter-spacing:-0.5px}
+.hero-sub{font-size:14px;opacity:0.8;max-width:500px;margin:0 auto}
+
+.container{max-width:900px;margin:0 auto;padding:0 20px 60px}
+
+/* Name Card */
+.namecard{background:#fff;border-radius:16px;border:1px solid #e8eaed;padding:28px;margin-top:-30px;position:relative;z-index:10;display:flex;align-items:center;gap:20px;box-shadow:0 4px 20px rgba(0,0,0,0.06)}
+.namecard-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#4a3f8a,#6c5ce7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;flex-shrink:0}
+.namecard-info h2{font-size:18px;font-weight:700;margin-bottom:2px}
+.namecard-info .role{font-size:13px;color:#888;margin-bottom:6px}
+.namecard-chips{display:flex;flex-wrap:wrap;gap:6px}
+.nc-chip{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:#f7f8fa;border:1px solid #e8eaed;border-radius:6px;font-size:12px;color:#555;text-decoration:none;transition:all 0.2s}
+.nc-chip:hover{background:#ede7f6;border-color:#6c5ce7;color:#4a3f8a}
+
+/* Projects Grid */
+.section-header{margin-top:36px;margin-bottom:16px}
+.section-header h3{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px}
+.section-header .count{background:#e8eaed;border-radius:12px;padding:2px 10px;font-size:12px;font-weight:600;color:#666}
+
+.projects-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px}
+.project-card{background:#fff;border-radius:14px;border:1px solid #e8eaed;padding:24px;transition:all 0.2s;cursor:pointer;position:relative;overflow:hidden}
+.project-card:hover{border-color:#6c5ce7;box-shadow:0 4px 16px rgba(106,92,231,0.1);transform:translateY(-2px)}
+.project-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.project-card.greenhouse::before{background:linear-gradient(90deg,#0a3d1f,#148a4e)}
+.project-card.modu::before{background:linear-gradient(90deg,#e65100,#ff9800)}
+
+.pc-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.pc-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.pc-icon.greenhouse{background:#e8f5ee}
+.pc-icon.modu{background:#fff3e0}
+.pc-badge{padding:4px 10px;border-radius:12px;font-size:11px;font-weight:600}
+.pc-badge.active{background:#e8f5ee;color:#0a6e3a}
+.pc-badge.new{background:#fff3e0;color:#e65100}
+
+.pc-title{font-size:16px;font-weight:700;margin-bottom:4px}
+.pc-desc{font-size:13px;color:#666;margin-bottom:14px;line-height:1.5}
+
+.pc-stats{display:flex;gap:16px;margin-bottom:14px}
+.pc-stat{text-align:center}
+.pc-stat .num{font-size:18px;font-weight:700;color:#1a1a2e}
+.pc-stat .lbl{font-size:10px;color:#888;text-transform:uppercase}
+
+.pc-actions{display:flex;gap:8px;flex-wrap:wrap}
+.pc-btn{padding:7px 14px;border-radius:8px;font-size:12px;font-weight:600;text-decoration:none;transition:all 0.2s;border:1.5px solid}
+.pc-btn.primary{background:#148a4e;border-color:#148a4e;color:#fff}
+.pc-btn.primary:hover{background:#0a6e3a}
+.pc-btn.primary.orange{background:#e65100;border-color:#e65100}
+.pc-btn.primary.orange:hover{background:#bf360c}
+.pc-btn.outline{background:#fff;border-color:#d0d5dd;color:#333}
+.pc-btn.outline:hover{border-color:#6c5ce7;color:#6c5ce7}
+
+.pc-client{font-size:12px;color:#888;margin-top:10px;padding-top:10px;border-top:1px solid #f0f0f0}
+.pc-client span{font-weight:600;color:#555}
+
+/* Lang Switch */
+.lang-switch{position:absolute;top:16px;right:20px;display:flex;gap:6px}
+.lang-btn{padding:5px 10px;border:1px solid rgba(255,255,255,0.3);border-radius:6px;background:transparent;color:rgba(255,255,255,0.7);font-size:12px;cursor:pointer;transition:all 0.2s}
+.lang-btn.active{background:rgba(255,255,255,0.15);color:#fff;border-color:rgba(255,255,255,0.5)}
+
+@media(max-width:600px){
+  .namecard{flex-direction:column;text-align:center}
+  .namecard-chips{justify-content:center}
+  .projects-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="switchLang('zh')">中文</button>
+    <button class="lang-btn" onclick="switchLang('en')">EN</button>
+    <button class="lang-btn" onclick="switchLang('ru')">РУ</button>
+  </div>
+  <h1 id="portal-title">项目总览</h1>
+  <p class="hero-sub" id="portal-sub">中国供应商寻源与项目管理</p>
+</div>
+
+<div class="container">
+  <!-- Name Card -->
+  <div class="namecard">
+    <div class="namecard-avatar">H</div>
+    <div class="namecard-info">
+      <h2>HUA</h2>
+      <div class="role" id="nc-role">采购协调人 / Sourcing Coordinator</div>
+      <div class="namecard-chips">
+        <a class="nc-chip" href="mailto:hua@example.com">📧 Email</a>
+        <a class="nc-chip" href="#">💬 WeChat</a>
+        <span class="nc-chip">📍 Beijing, China</span>
+        <span class="nc-chip">🌐 中 / EN / РУ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Projects Section -->
+  <div class="section-header">
+    <h3 id="section-projects">📋 <span data-i18n="projects">进行中的项目</span> <span class="count">2</span></h3>
+  </div>
+
+  <div class="projects-grid">
+    <!-- Project 1: Greenhouse -->
+    <div class="project-card greenhouse">
+      <div class="pc-header">
+        <div class="pc-icon greenhouse">🌿</div>
+        <span class="pc-badge active" data-i18n-badge="active">进行中</span>
+      </div>
+      <div class="pc-title" data-i18n="gh-title">温室自动化改造 — 供应商寻源</div>
+      <div class="pc-desc" data-i18n="gh-desc">为俄罗斯客户寻找中国温室自动化设备供应商，覆盖通风、加热、灌溉、遮阳、控制系统等领域。</div>
+      <div class="pc-stats">
+        <div class="pc-stat"><div class="num" id="gh-suppliers">—</div><div class="lbl" data-i18n="suppliers">供应商</div></div>
+        <div class="pc-stat"><div class="num" id="gh-contacted">—</div><div class="lbl" data-i18n="contacted">已联系</div></div>
+        <div class="pc-stat"><div class="num" id="gh-shortlisted">—</div><div class="lbl" data-i18n="shortlisted">候选</div></div>
+      </div>
+      <div class="pc-actions">
+        <a class="pc-btn primary" href="index.html" data-i18n="view-progress">查看进度</a>
+        <a class="pc-btn outline" href="admin.html" data-i18n="manage">管理后台</a>
+        <a class="pc-btn outline" href="client-edit.html" data-i18n="client-edit">客户编辑</a>
+      </div>
+      <div class="pc-client" data-i18n="gh-client">客户：<span>俄罗斯温室运营商</span></div>
+    </div>
+
+    <!-- Project 2: MODU Toy Manufacturing -->
+    <div class="project-card modu">
+      <div class="pc-header">
+        <div class="pc-icon modu">🧸</div>
+        <span class="pc-badge new" data-i18n-badge="new">新项目</span>
+      </div>
+      <div class="pc-title" data-i18n="modu-title">MODU 模块化玩具 — 中国制造寻源</div>
+      <div class="pc-desc" data-i18n="modu-desc">为丹麦MODU品牌寻找中国代工厂（注塑成型）、注塑机供应商及模具制造商，材料为聚丙烯(PP)及其他塑料。</div>
+      <div class="pc-stats">
+        <div class="pc-stat"><div class="num" id="modu-suppliers">—</div><div class="lbl" data-i18n="suppliers">供应商</div></div>
+        <div class="pc-stat"><div class="num" id="modu-contacted">—</div><div class="lbl" data-i18n="contacted">已联系</div></div>
+        <div class="pc-stat"><div class="num" id="modu-shortlisted">—</div><div class="lbl" data-i18n="shortlisted">候选</div></div>
+      </div>
+      <div class="pc-actions">
+        <a class="pc-btn primary orange" href="modu-index.html" data-i18n="view-progress">查看进度</a>
+        <a class="pc-btn outline" href="modu-admin.html" data-i18n="manage">管理后台</a>
+      </div>
+      <div class="pc-client" data-i18n="modu-client">客户：<span>俄罗斯合作方（MODU品牌代理）</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const i18n = {
+  zh: {
+    'portal-title': '项目总览',
+    'portal-sub': '中国供应商寻源与项目管理',
+    'nc-role': '采购协调人 / Sourcing Coordinator',
+    'projects': '进行中的项目',
+    'active': '进行中',
+    'new': '新项目',
+    'gh-title': '温室自动化改造 — 供应商寻源',
+    'gh-desc': '为俄罗斯客户寻找中国温室自动化设备供应商，覆盖通风、加热、灌溉、遮阳、控制系统等领域。',
+    'modu-title': 'MODU 模块化玩具 — 中国制造寻源',
+    'modu-desc': '为丹麦MODU品牌寻找中国代工厂（注塑成型）、注塑机供应商及模具制造商，材料为聚丙烯(PP)及其他塑料。',
+    'view-progress': '查看进度',
+    'manage': '管理后台',
+    'client-edit': '客户编辑',
+    'suppliers': '供应商',
+    'contacted': '已联系',
+    'shortlisted': '候选',
+    'gh-client': '客户：<span>俄罗斯温室运营商</span>',
+    'modu-client': '客户：<span>俄罗斯合作方（MODU品牌代理）</span>'
+  },
+  en: {
+    'portal-title': 'Project Overview',
+    'portal-sub': 'China Supplier Sourcing & Project Management',
+    'nc-role': 'Sourcing Coordinator',
+    'projects': 'Active Projects',
+    'active': 'Active',
+    'new': 'New',
+    'gh-title': 'Greenhouse Automation Retrofit — Supplier Sourcing',
+    'gh-desc': 'Sourcing Chinese suppliers for greenhouse automation equipment: ventilation, heating, irrigation, shading, and control systems.',
+    'modu-title': 'MODU Modular Toys — China Manufacturing Sourcing',
+    'modu-desc': 'Sourcing Chinese contract manufacturers (injection molding), machine suppliers, and mold makers for MODU toy brand. Materials: polypropylene (PP) and other plastics.',
+    'view-progress': 'View Progress',
+    'manage': 'Admin',
+    'client-edit': 'Client Edit',
+    'suppliers': 'Suppliers',
+    'contacted': 'Contacted',
+    'shortlisted': 'Shortlisted',
+    'gh-client': 'Client: <span>Russian greenhouse operator</span>',
+    'modu-client': 'Client: <span>Russian partner (MODU brand agent)</span>'
+  },
+  ru: {
+    'portal-title': 'Обзор проектов',
+    'portal-sub': 'Поиск поставщиков в Китае и управление проектами',
+    'nc-role': 'Координатор закупок / Sourcing Coordinator',
+    'projects': 'Активные проекты',
+    'active': 'В работе',
+    'new': 'Новый',
+    'gh-title': 'Модернизация теплицы — Поиск поставщиков',
+    'gh-desc': 'Поиск китайских поставщиков оборудования для автоматизации теплиц: вентиляция, отопление, полив, затенение, системы управления.',
+    'modu-title': 'MODU модульные игрушки — Производство в Китае',
+    'modu-desc': 'Поиск контрактного производства (литьё под давлением), поставщиков станков и изготовителей пресс-форм для бренда MODU. Материалы: полипропилен (PP) и другие пластики.',
+    'view-progress': 'Прогресс',
+    'manage': 'Админ',
+    'client-edit': 'Редактировать',
+    'suppliers': 'Поставщики',
+    'contacted': 'Связались',
+    'shortlisted': 'Шорт-лист',
+    'gh-client': 'Клиент: <span>Российский оператор теплиц</span>',
+    'modu-client': 'Клиент: <span>Российский партнёр (агент бренда MODU)</span>'
+  }
+};
+
+let currentLang = 'zh';
+
+function switchLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === (lang==='zh'?'中文':lang==='en'?'EN':'РУ')));
+  
+  const t = i18n[lang];
+  document.getElementById('portal-title').textContent = t['portal-title'];
+  document.getElementById('portal-sub').textContent = t['portal-sub'];
+  document.getElementById('nc-role').textContent = t['nc-role'];
+  
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) {
+      if (key.includes('client')) el.innerHTML = t[key];
+      else el.textContent = t[key];
+    }
+  });
+  document.querySelectorAll('[data-i18n-badge]').forEach(el => {
+    const key = el.getAttribute('data-i18n-badge');
+    if (t[key]) el.textContent = t[key];
+  });
+  
+  // Update links with lang param
+  document.querySelectorAll('.pc-btn').forEach(a => {
+    const href = a.getAttribute('href');
+    if (href && href.includes('.html')) {
+      const base = href.split('?')[0];
+      a.setAttribute('href', base + '?lang=' + lang);
+    }
+  });
+}
+
+// Load greenhouse stats
+async function loadStats() {
+  try {
+    const res = await fetch('/api/data');
+    const data = await res.json();
+    if (data.suppliers) {
+      document.getElementById('gh-suppliers').textContent = data.suppliers.length;
+      document.getElementById('gh-contacted').textContent = data.suppliers.filter(s => s.status === 'contacted' || s.status === 'replied' || s.status === 'shortlisted').length;
+      document.getElementById('gh-shortlisted').textContent = data.suppliers.filter(s => s.status === 'shortlisted').length;
+    }
+  } catch(e) { console.log('Stats load failed', e); }
+  
+  // MODU stats
+  try {
+    const res = await fetch('/api/modu-data');
+    const data = await res.json();
+    if (data.suppliers) {
+      document.getElementById('modu-suppliers').textContent = data.suppliers.length;
+      document.getElementById('modu-contacted').textContent = data.suppliers.filter(s => s.status === 'contacted' || s.status === 'replied' || s.status === 'shortlisted').length;
+      document.getElementById('modu-shortlisted').textContent = data.suppliers.filter(s => s.status === 'shortlisted').length;
+    }
+  } catch(e) {
+    document.getElementById('modu-suppliers').textContent = '0';
+    document.getElementById('modu-contacted').textContent = '0';
+    document.getElementById('modu-shortlisted').textContent = '0';
+  }
+}
+
+// Init
+loadStats();
+
+// Check URL lang param
+const urlLang = new URLSearchParams(window.location.search).get('lang');
+if (urlLang && i18n[urlLang]) switchLang(urlLang);
+</script>
+</body>
+</html>

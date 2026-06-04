@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MODU Toy Manufacturing — China Sourcing Progress</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
+
+.hero{background:linear-gradient(135deg,#e65100 0%,#ff6d00 40%,#ff9800 100%);color:#fff;padding:52px 24px 60px;text-align:center;position:relative;overflow:hidden}
+.hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:40px;background:#f7f8fa;border-radius:50% 50% 0 0/100% 100% 0 0}
+.hero h1{font-size:28px;font-weight:800;margin-bottom:10px;letter-spacing:-0.5px}
+.hero-sub{font-size:15px;opacity:0.9;max-width:600px;margin:0 auto 16px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;font-size:13px}
+.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:#ffeb3b}
+
+.container{max-width:840px;margin:0 auto;padding:0 20px 60px}
+.lang-switch{display:flex;justify-content:flex-end;gap:8px;margin:20px 0 0}
+.lang-btn{padding:6px 14px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer;transition:all 0.2s}
+.lang-btn.active{border-color:#e65100;background:#fff3e0;color:#e65100;font-weight:600}
+
+.section{background:#fff;border-radius:16px;border:1px solid #e8eaed;padding:28px;margin-top:22px}
+.section-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.section-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.section-title{font-size:17px;font-weight:700}
+
+.req-core{background:#fff8f0;border:1px solid #ffe0b2;border-radius:12px;padding:20px;margin-bottom:16px}
+.req-core h4{font-size:14px;font-weight:700;margin-bottom:8px;color:#e65100}
+.req-core p{font-size:14px;color:#333}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.info-item{background:#f7f8fa;border-radius:8px;padding:12px 14px}
+.info-item .info-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:3px}
+.info-item .info-value{font-size:14px;font-weight:500}
+.info-item .info-value.tbd{color:#aaa;font-style:italic}
+
+/* Sourcing Tracks */
+.track-list{display:flex;flex-direction:column;gap:12px;margin-top:14px}
+.track-card{border:1.5px solid #e8eaed;border-radius:12px;padding:18px;position:relative;overflow:hidden}
+.track-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.track-card.track-a::before{background:#1565c0}
+.track-card.track-b::before{background:#e65100}
+.track-card.track-c::before{background:#7b1fa2}
+.track-card .track-title{font-size:15px;font-weight:700;margin-bottom:6px}
+.track-card .track-desc{font-size:13px;color:#555;line-height:1.5}
+.track-items{margin-top:10px;padding-left:18px}
+.track-items li{font-size:13px;color:#444;margin-bottom:4px}
+
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+.badge-amber{background:#fff3e0;color:#e65100}
+.badge-blue{background:#e3f2fd;color:#1565c0}
+.badge-purple{background:#f3e5f5;color:#7b1fa2}
+.badge-green{background:#e8f5ee;color:#0a6e3a}
+.badge-gray{background:#f0f0f0;color:#666}
+
+/* Supplier Cards */
+.supplier-grid{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.sup-card{border:1px solid #e8eaed;border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start;transition:all 0.2s}
+.sup-card:hover{border-color:#ff9800;background:#fffdf8}
+.sup-num{width:30px;height:30px;border-radius:50%;background:#fff3e0;color:#e65100;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
+.sup-info{flex:1}
+.sup-name{font-size:14px;font-weight:700;margin-bottom:2px}
+.sup-detail{font-size:12px;color:#666}
+.sup-status{margin-top:6px}
+
+.coordinator-card{display:flex;align-items:center;gap:14px;margin-top:12px}
+.coordinator-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e65100,#ff6d00);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex-shrink:0}
+.coordinator-info{flex:1}
+.coordinator-info h4{font-size:15px;font-weight:700}
+.coordinator-info p{font-size:12px;color:#666}
+.contact-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.contact-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#f7f8fa;border:1px solid #e8eaed;border-radius:8px;font-size:12px;color:#555;text-decoration:none;transition:all 0.2s}
+.contact-chip:hover{background:#fff3e0;border-color:#ff9800;color:#e65100}
+
+.back-link{display:inline-flex;align-items:center;gap:6px;margin-top:20px;padding:8px 16px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;font-size:13px;color:#555;text-decoration:none;transition:all 0.2s}
+.back-link:hover{border-color:#e65100;color:#e65100}
+
+.empty-state{text-align:center;padding:40px 20px;color:#888}
+.empty-state .emoji{font-size:40px;margin-bottom:12px}
+.empty-state p{font-size:14px}
+
+@media(max-width:600px){
+  .info-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1 id="hero-title">MODU 模块化玩具 — 中国制造寻源</h1>
+  <p class="hero-sub" id="hero-sub">为丹麦 MODU 品牌寻找中国注塑代工厂、设备供应商和模具制造商</p>
+  <div class="hero-badge"><span class="dot"></span> <span id="hero-status">项目启动阶段</span></div>
+</div>
+
+<div class="container">
+  <div class="lang-switch">
+    <button class="lang-btn active" onclick="switchLang('zh')">中文</button>
+    <button class="lang-btn" onclick="switchLang('en')">EN</button>
+    <button class="lang-btn" onclick="switchLang('ru')">РУ</button>
+  </div>
+
+  <!-- Project Overview -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff3e0">📋</div>
+      <div>
+        <div class="section-title" data-i18n="overview-title">项目概述</div>
+      </div>
+    </div>
+    <div class="req-core">
+      <h4 data-i18n="ref-product">参考产品</h4>
+      <p data-i18n="ref-desc">MODU (modutoy.com) — 丹麦品牌，真人尺寸模块化儿童玩具，由泡沫块、连接栓(pegs)和轮子(wheels)组成。目标年龄 6个月~6岁。</p>
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label" data-i18n="material-lbl">主要材料</div><div class="info-value" data-i18n="material-val">聚丙烯 (PP) + 其他塑料</div></div>
+      <div class="info-item"><div class="info-label" data-i18n="parts-lbl">零件类型</div><div class="info-value" data-i18n="parts-val">连接件、轮子、衬套 (втулки)</div></div>
+      <div class="info-item"><div class="info-label" data-i18n="process-lbl">生产工艺</div><div class="info-value" data-i18n="process-val">注塑成型 (Injection Molding)</div></div>
+      <div class="info-item"><div class="info-label" data-i18n="packaging-lbl">包装</div><div class="info-value" data-i18n="packaging-val">纸板包装盒（单独采购）</div></div>
+    </div>
+  </div>
+
+  <!-- Sourcing Tracks -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#e3f2fd">🎯</div>
+      <div>
+        <div class="section-title" data-i18n="tracks-title">寻源方向</div>
+      </div>
+    </div>
+    <div class="track-list">
+      <div class="track-card track-a">
+        <div class="track-title"><span class="badge badge-blue">方向 A</span> <span data-i18n="track-a-title">合同制造（代工）</span></div>
+        <div class="track-desc" data-i18n="track-a-desc">提供3D模型和图纸，中国工厂按要求生产零件。</div>
+        <ul class="track-items">
+          <li data-i18n="track-a-1">聚丙烯(PP)注塑件生产</li>
+          <li data-i18n="track-a-2">其他塑料件（轮子、衬套等）</li>
+          <li data-i18n="track-a-3">纸板包装盒制造</li>
+        </ul>
+      </div>
+      <div class="track-card track-b">
+        <div class="track-title"><span class="badge badge-amber">方向 B</span> <span data-i18n="track-b-title">注塑设备采购</span></div>
+        <div class="track-desc" data-i18n="track-b-desc">购买注塑成型机——投入塑料颗粒原料，按模具形状生产零件。</div>
+        <ul class="track-items">
+          <li data-i18n="track-b-1">注塑成型机选型与采购</li>
+          <li data-i18n="track-b-2">适配聚丙烯(PP)颗粒材料</li>
+        </ul>
+      </div>
+      <div class="track-card track-c">
+        <div class="track-title"><span class="badge badge-purple">方向 C</span> <span data-i18n="track-c-title">模具定制</span></div>
+        <div class="track-desc" data-i18n="track-c-desc">为每个零件设计并制造专用注塑模具（пресс-формы）。</div>
+        <ul class="track-items">
+          <li data-i18n="track-c-1">根据3D模型/图纸制造模具</li>
+          <li data-i18n="track-c-2">每种零件需要独立模具</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suppliers Section -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#e8f5ee">🏭</div>
+      <div>
+        <div class="section-title" data-i18n="suppliers-title">供应商进度</div>
+      </div>
+    </div>
+    <div id="suppliers-container">
+      <div class="empty-state">
+        <div class="emoji">🔍</div>
+        <p data-i18n="no-suppliers">尚未开始供应商寻源，即将启动...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Coordinator -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#ede7f6">👤</div>
+      <div>
+        <div class="section-title" data-i18n="coordinator-title">你的协调人</div>
+      </div>
+    </div>
+    <div class="coordinator-card">
+      <div class="coordinator-avatar">H</div>
+      <div class="coordinator-info">
+        <h4>HUA</h4>
+        <p data-i18n="coord-role">采购协调人 / Sourcing Coordinator</p>
+        <div class="contact-grid">
+          <a class="contact-chip" href="mailto:hua@example.com">📧 Email</a>
+          <a class="contact-chip" href="#">💬 WeChat</a>
+          <span class="contact-chip">📍 Beijing, China</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <a class="back-link" href="portal.html" id="back-link">← <span data-i18n="back">返回项目总览</span></a>
+</div>
+
+<script>
+const i18n = {
+  zh: {
+    'hero-title': 'MODU 模块化玩具 — 中国制造寻源',
+    'hero-sub': '为丹麦 MODU 品牌寻找中国注塑代工厂、设备供应商和模具制造商',
+    'hero-status': '项目启动阶段',
+    'overview-title': '项目概述',
+    'ref-product': '参考产品',
+    'ref-desc': 'MODU (modutoy.com) — 丹麦品牌，真人尺寸模块化儿童玩具，由泡沫块、连接栓(pegs)和轮子(wheels)组成。目标年龄 6个月~6岁。',
+    'material-lbl': '主要材料', 'material-val': '聚丙烯 (PP) + 其他塑料',
+    'parts-lbl': '零件类型', 'parts-val': '连接件、轮子、衬套 (втулки)',
+    'process-lbl': '生产工艺', 'process-val': '注塑成型 (Injection Molding)',
+    'packaging-lbl': '包装', 'packaging-val': '纸板包装盒（单独采购）',
+    'tracks-title': '寻源方向',
+    'track-a-title': '合同制造（代工）', 'track-a-desc': '提供3D模型和图纸，中国工厂按要求生产零件。',
+    'track-a-1': '聚丙烯(PP)注塑件生产', 'track-a-2': '其他塑料件（轮子、衬套等）', 'track-a-3': '纸板包装盒制造',
+    'track-b-title': '注塑设备采购', 'track-b-desc': '购买注塑成型机——投入塑料颗粒原料，按模具形状生产零件。',
+    'track-b-1': '注塑成型机选型与采购', 'track-b-2': '适配聚丙烯(PP)颗粒材料',
+    'track-c-title': '模具定制', 'track-c-desc': '为每个零件设计并制造专用注塑模具（пресс-формы）。',
+    'track-c-1': '根据3D模型/图纸制造模具', 'track-c-2': '每种零件需要独立模具',
+    'suppliers-title': '供应商进度', 'no-suppliers': '尚未开始供应商寻源，即将启动...',
+    'coordinator-title': '你的协调人', 'coord-role': '采购协调人 / Sourcing Coordinator',
+    'back': '返回项目总览'
+  },
+  en: {
+    'hero-title': 'MODU Modular Toys — China Manufacturing Sourcing',
+    'hero-sub': 'Sourcing Chinese injection molding factories, equipment suppliers, and mold makers for MODU brand',
+    'hero-status': 'Project Kickoff Phase',
+    'overview-title': 'Project Overview',
+    'ref-product': 'Reference Product',
+    'ref-desc': 'MODU (modutoy.com) — Danish brand, life-size modular building toys for children, consisting of foam blocks, pegs, and wheels. Target age: 6 months to 6+ years.',
+    'material-lbl': 'Main Material', 'material-val': 'Polypropylene (PP) + Other Plastics',
+    'parts-lbl': 'Part Types', 'parts-val': 'Connectors, Wheels, Bushings',
+    'process-lbl': 'Manufacturing', 'process-val': 'Injection Molding',
+    'packaging-lbl': 'Packaging', 'packaging-val': 'Cardboard boxes (separate sourcing)',
+    'tracks-title': 'Sourcing Tracks',
+    'track-a-title': 'Contract Manufacturing (OEM)', 'track-a-desc': 'Provide 3D models and drawings; Chinese factory produces parts to spec.',
+    'track-a-1': 'PP injection molded parts production', 'track-a-2': 'Other plastic parts (wheels, bushings)', 'track-a-3': 'Cardboard packaging manufacturing',
+    'track-b-title': 'Injection Molding Machine Purchase', 'track-b-desc': 'Buy an injection molding machine — feed plastic granules, produce parts per mold shape.',
+    'track-b-1': 'Machine selection and procurement', 'track-b-2': 'Compatible with PP granules',
+    'track-c-title': 'Custom Mold Making', 'track-c-desc': 'Design and manufacture dedicated injection molds for each part.',
+    'track-c-1': 'Mold making from 3D models/drawings', 'track-c-2': 'Each part requires its own mold',
+    'suppliers-title': 'Supplier Progress', 'no-suppliers': 'Supplier sourcing not yet started. Coming soon...',
+    'coordinator-title': 'Your Coordinator', 'coord-role': 'Sourcing Coordinator',
+    'back': 'Back to Projects'
+  },
+  ru: {
+    'hero-title': 'MODU модульные игрушки — Производство в Китае',
+    'hero-sub': 'Поиск китайских заводов для литья под давлением, поставщиков оборудования и изготовителей пресс-форм',
+    'hero-status': 'Этап запуска проекта',
+    'overview-title': 'Обзор проекта',
+    'ref-product': 'Референсный продукт',
+    'ref-desc': 'MODU (modutoy.com) — датский бренд, модульные строительные игрушки в натуральную величину для детей, состоящие из пенных блоков, штифтов (pegs) и колёс. Целевой возраст: от 6 месяцев до 6+ лет.',
+    'material-lbl': 'Основной материал', 'material-val': 'Полипропилен (PP) + другие пластики',
+    'parts-lbl': 'Типы деталей', 'parts-val': 'Соединители, колёса, втулки',
+    'process-lbl': 'Производство', 'process-val': 'Литьё под давлением (Injection Molding)',
+    'packaging-lbl': 'Упаковка', 'packaging-val': 'Картонные коробки (отдельная закупка)',
+    'tracks-title': 'Направления поиска',
+    'track-a-title': 'Контрактное производство (OEM)', 'track-a-desc': 'Предоставляем 3D-модели и чертежи; китайский завод производит детали по спецификации.',
+    'track-a-1': 'Производство деталей из PP методом литья', 'track-a-2': 'Другие пластиковые детали (колёса, втулки)', 'track-a-3': 'Производство картонной упаковки',
+    'track-b-title': 'Покупка термопластавтомата', 'track-b-desc': 'Купить станок для литья под давлением — засыпать гранулы пластика, производить детали по форме.',
+    'track-b-1': 'Выбор и закупка станка', 'track-b-2': 'Совместимость с гранулами PP',
+    'track-c-title': 'Изготовление пресс-форм', 'track-c-desc': 'Проектирование и изготовление индивидуальных пресс-форм для каждой детали.',
+    'track-c-1': 'Изготовление форм по 3D-моделям/чертежам', 'track-c-2': 'Для каждой детали нужна отдельная форма',
+    'suppliers-title': 'Прогресс поиска поставщиков', 'no-suppliers': 'Поиск поставщиков ещё не начат. Скоро начнём...',
+    'coordinator-title': 'Ваш координатор', 'coord-role': 'Координатор закупок / Sourcing Coordinator',
+    'back': 'К списку проектов'
+  }
+};
+
+let currentLang = 'zh';
+
+function switchLang(lang) {
+  currentLang = lang;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === (lang==='zh'?'中文':lang==='en'?'EN':'РУ')));
+  
+  const t = i18n[lang];
+  document.getElementById('hero-title').textContent = t['hero-title'];
+  document.getElementById('hero-sub').textContent = t['hero-sub'];
+  document.getElementById('hero-status').textContent = t['hero-status'];
+  
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key]) el.textContent = t[key];
+  });
+  
+  // Update back link
+  document.getElementById('back-link').href = 'portal.html?lang=' + lang;
+}
+
+// Load suppliers from API
+async function loadSuppliers() {
+  try {
+    const res = await fetch('/api/modu-data');
+    const data = await res.json();
+    if (data.suppliers && data.suppliers.length > 0) {
+      renderSuppliers(data.suppliers);
+    }
+  } catch(e) { /* No data yet, show empty state */ }
+}
+
+function renderSuppliers(suppliers) {
+  const container = document.getElementById('suppliers-container');
+  container.innerHTML = '<div class="supplier-grid">' + suppliers.map((s, i) => `
+    <div class="sup-card">
+      <div class="sup-num">${i+1}</div>
+      <div class="sup-info">
+        <div class="sup-name">${currentLang === 'zh' ? (s.name || s.nameEn || '') : (s.nameEn || s.name || '')}</div>
+        <div class="sup-detail">${s.location || ''} ${s.specialty ? '· ' + s.specialty : ''}</div>
+        <div class="sup-status">
+          <span class="badge badge-${s.status === 'shortlisted' ? 'green' : s.status === 'contacted' ? 'amber' : 'gray'}">${s.status || 'new'}</span>
+          ${s.track ? '<span class="badge badge-blue">' + s.track + '</span>' : ''}
+        </div>
+      </div>
+    </div>
+  `).join('') + '</div>';
+}
+
+// Init
+loadSuppliers();
+const urlLang = new URLSearchParams(window.location.search).get('lang');
+if (urlLang && i18n[urlLang]) switchLang(urlLang);
+</script>
+</body>
+</html>
