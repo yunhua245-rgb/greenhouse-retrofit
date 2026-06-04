@@ -11,7 +11,7 @@
       "maxDuration": 30
     },
     "api/ai-summary.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     }
   }
 }

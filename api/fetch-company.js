@@ -1,5 +1,6 @@
 // Vercel Serverless Function — Fetch company website (homepage + subpages) and extract info
 // Crawls key subpages (about, contact, products) for more complete data
+// NOTE: Vercel Hobby plan has 10s limit; keep total execution under 9s
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,11 +18,16 @@ module.exports = async function handler(req, res) {
     const urlsToTry = buildChineseUrlPriority(url);
     
     // Step 1: Try URLs in priority order (Chinese versions first)
+    // Limit to 3 URLs max to stay within Vercel 10s timeout
     let homepage = { ok: false, status: 0 };
     let effectiveUrl = url;
+    const startTime = Date.now();
     
-    for (const tryUrl of urlsToTry) {
-      const attempt = await fetchPage(tryUrl);
+    for (const tryUrl of urlsToTry.slice(0, 3)) {
+      // Abort if we've spent >5s already (leave time for subpages + response)
+      if (Date.now() - startTime > 5000) break;
+      
+      const attempt = await fetchPage(tryUrl, 4000);
       if (attempt.ok) {
         const text = htmlToText(attempt.html);
         // Skip 404/error pages (very short content or contains 404 indicators)
@@ -46,16 +52,16 @@ module.exports = async function handler(req, res) {
       }
     }
     
-    // If all priority URLs failed, try common alternative paths
-    if (!homepage.ok) {
+    // If all priority URLs failed, try one common alternative path (keep it fast)
+    if (!homepage.ok && Date.now() - startTime < 6000) {
       const baseUrl = new URL(url);
       const fallbackPaths = [
         baseUrl.origin + '/index.html',
-        baseUrl.origin + '/home',
-        baseUrl.origin + '/' + baseUrl.hostname.replace('www.', '').split('.')[0] + '/index.html'
+        baseUrl.origin + '/home'
       ];
       for (const fallbackUrl of fallbackPaths) {
-        const attempt = await fetchPage(fallbackUrl, 8000);
+        if (Date.now() - startTime > 6000) break;
+        const attempt = await fetchPage(fallbackUrl, 3000);
         if (attempt.ok) {
           homepage = attempt;
           effectiveUrl = fallbackUrl;
@@ -100,9 +106,10 @@ module.exports = async function handler(req, res) {
       subLinks = guessCommonSubpages(baseUrl);
     }
 
-    // Step 3: Fetch subpages in parallel (max 5, 8s timeout each)
+    // Step 3: Fetch subpages in parallel (max 3, 3s timeout each) — stay within Vercel 10s limit
+    const timeLeft = Math.max(2000, 8500 - (Date.now() - startTime));
     const subResults = await Promise.allSettled(
-      subLinks.slice(0, 5).map(link => fetchPage(link, 8000))
+      subLinks.slice(0, 3).map(link => fetchPage(link, Math.min(3000, timeLeft)))
     );
 
     // Step 4: Merge all text content
@@ -192,7 +199,7 @@ function buildChineseUrlPriority(originalUrl) {
 }
 
 // --- Helper: Fetch a single page ---
-async function fetchPage(url, timeoutMs = 12000) {
+async function fetchPage(url, timeoutMs = 8000) {
   try {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), timeoutMs);
@@ -461,5 +468,5 @@ function extractContact(html, text) {
 }
 
 module.exports.config = {
-  maxDuration: 30
+  maxDuration: 10
 };
