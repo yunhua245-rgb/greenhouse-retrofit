@@ -86,8 +86,28 @@ module.exports = async function handler(req, res) {
     const isSPA = homeText.length < 300 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"') || homeHtml.includes('id="__next"'));
     const isEmptyPage = homeText.length < 100;
     
-    // If page is essentially empty (SPA with no SSR or very thin content), report directly
+    // If page is essentially empty (SPA with no SSR or very thin content), try ICP lookup
     if (isEmptyPage || (isSPA && homeText.length < 150)) {
+      const domain = new URL(url).hostname.replace(/^www\./, '');
+      const icpResult = await lookupICP(domain);
+      if (icpResult && icpResult.name) {
+        // Got company name from ICP, return as partial result
+        return res.status(200).json({
+          success: true,
+          data: {
+            name: icpResult.name,
+            nameEn: '',
+            location: '',
+            specialty: '',
+            contact: '',
+            email: '',
+            website: url
+          },
+          raw: { title: homeHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '', description: '', keywords: '', textContent: '', subpagesCrawled: 0 },
+          note: '⚠️ 该网站为SPA框架，仅通过备案信息获取到公司名称，其余信息请手动补充。'
+        });
+      }
+      // ICP also failed
       return res.status(502).json({
         error: '该网站为前端框架渲染（SPA），服务端无法读取内容。请手动填写供应商信息。'
       });
@@ -468,6 +488,43 @@ function extractContact(html, text) {
   };
 }
 
+// --- Helper: Lookup ICP registration info for a domain ---
+async function lookupICP(domain) {
+  try {
+    // Use a public ICP query page to get company name
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    
+    const res = await fetch(`https://icp.365jz.com/${domain}/`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+      },
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    
+    const html = await res.text();
+    
+    // Extract company name from ICP page
+    // Pattern: 主办单位名称 followed by the company name
+    const nameMatch = html.match(/主办单位名称[\s\S]*?<td[^>]*>([\s\S]*?)<\/td>/i) ||
+                      html.match(/主办单位名称[^<]*?[：:]\s*([\u4e00-\u9fa5][\u4e00-\u9fa5\w（）()]+)/);
+    
+    if (nameMatch) {
+      const name = nameMatch[1].replace(/<[^>]+>/g, '').trim();
+      if (name && name.length >= 4 && name.length <= 40) {
+        return { name };
+      }
+    }
+    
+    return null;
+  } catch (e) {
+    return null;
+  }
+}
 
 module.exports.config = {
   maxDuration: 30
