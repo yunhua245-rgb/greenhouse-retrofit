@@ -20,17 +20,9 @@ module.exports = async function handler(req, res) {
   }
 
   // AI API Configuration — SiliconFlow Free Tier
-  // Get your free API key at: https://cloud.siliconflow.cn/
   const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.siliconflow.cn/v1';
-  const AI_API_KEY = process.env.AI_API_KEY || '';
+  const AI_API_KEY = process.env.AI_API_KEY || 'sk-msvgpfvdpvesylsljvgfcblqopekyabniowyhivfzwzhoolg';
   const AI_MODEL = process.env.AI_MODEL || 'Qwen/Qwen2.5-72B-Instruct';
-
-  if (!AI_API_KEY) {
-    return res.status(500).json({
-      error: 'AI API key not configured',
-      detail: 'Please set AI_API_KEY environment variable in Vercel project settings'
-    });
-  }
 
   const contextText = [
     title ? `网页标题: ${title}` : '',
