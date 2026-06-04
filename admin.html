@@ -598,7 +598,7 @@ async function fetchCompanyInfo() {
     statusEl.innerHTML = '<span style="color:#b86e00">② AI正在分析网页内容，生成总结...</span>';
     
     try {
-      const aiResult = await callAISummary(result.raw);
+      const aiResult = await callAISummary({...result.raw, url});
       
       // Auto-fill from AI (always overwrite existing values on re-fetch)
       if (aiResult.nameCn) {
@@ -667,7 +667,8 @@ async function callAISummary(rawData) {
       textContent: (rawData.textContent || '').substring(0, 5000),
       title: rawData.title || '',
       description: rawData.description || '',
-      keywords: rawData.keywords || ''
+      keywords: rawData.keywords || '',
+      url: rawData.url || ''
     })
   });
 

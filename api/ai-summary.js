@@ -14,7 +14,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { textContent, title, description, keywords } = req.body || {};
+  const { textContent, title, description, keywords, url } = req.body || {};
   if (!textContent) {
     return res.status(400).json({ error: 'textContent is required' });
   }
@@ -33,6 +33,7 @@ module.exports = async function handler(req, res) {
   }
 
   const contextText = [
+    url ? `公司网址: ${url}` : '',
     title ? `网页标题: ${title}` : '',
     description ? `网页描述: ${description}` : '',
     keywords ? `关键词: ${keywords}` : '',
@@ -59,15 +60,16 @@ module.exports = async function handler(req, res) {
   - 如果没有英文品牌名但有英文全称，用英文全称
   - 如果完全没有英文信息，将中文名做合理的英文翻译
 - nameCn：公司中文全称，如"广州极飞科技股份有限公司"、"大禹节水集团股份有限公司"
-  - 如果是非中国公司或纯英文网站，用英文名填入nameCn（保持跟nameEn一致）
-  - 不要编造中文名
+  - 重要：即使网页内容是英文版，如果你能从品牌名/域名确认这是一家中国公司，请用你的知识补充正确的中文全称
+  - 如果是非中国公司或确实无法确认中文名，用英文名填入nameCn（保持跟nameEn一致）
+  - 不要编造不确定的中文名
 
 ## location 的要求：
 - 尽量精确到：国家 + 省/州 + 城市
 - 中国公司用中文（如"中国山东省潍坊市"、"中国广东省深圳市"）
 - 非中国公司用英文（如"Netherlands, South Holland, Westland"）
-- 如果网页中没有明确的地址信息，输出空字符串 ""
-- 不要编造地址，只提取网页中明确提到的
+- 如果网页是英文版但你能确认这是中国公司，请根据你的知识补充公司总部所在地
+- 如果确实无法确认地址信息，输出空字符串 ""
 
 ## notes 的要求（给采购经理自己看，管理用）：
 - 用中文
@@ -91,12 +93,14 @@ module.exports = async function handler(req, res) {
 - 提取网页中出现的所有电话号码（座机、手机、400热线等）
 - 多个号码用换行符 \\n 分隔
 - 保留原始格式（如 400-780-3131、020-39218499、17558864609）
-- 如果网页中没有找到任何电话号码，输出空字符串 ""
+- 重要：如果网页内容是英文版（可能是境外服务器访问导致），但你能从公司名称/品牌名/域名确认这是一家中国公司，请根据你的知识补充该公司的中国区官方客服电话（如400热线、总机等）
+- 如果确实无法确认任何电话号码，输出空字符串 ""
 
 ## emails 的要求：
 - 提取网页中出现的所有邮箱地址
 - 多个邮箱用换行符 \\n 分隔
-- 如果网页中没有找到任何邮箱，输出空字符串 ""
+- 重要：如果网页是英文版但你能确认公司身份，可以根据域名推断常见的业务邮箱格式（如 info@域名、sales@域名、contact@域名），但需要用你确信的官方邮箱
+- 如果确实无法确认任何邮箱，输出空字符串 ""
 
 只输出JSON，不要输出其他内容。`;
 
