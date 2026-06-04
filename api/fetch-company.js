@@ -269,15 +269,22 @@ function extractCompanyName(title, text) {
 
 function extractLocation(text) {
   // Try to find explicit address first
-  const addrMatch = text.match(/(?:地址|地点|位于|总部|Address|address|公司地址)[：:\s]*([^。，,\n]{5,80})/i);
+  const addrMatch = text.match(/(?:地址|地点|位于|总部|坐落于|Address|address|公司地址)[：:\s在于]*([^。，,\n]{3,80})/i);
   if (addrMatch) {
-    const addr = addrMatch[1].trim();
+    let addr = addrMatch[1].trim();
+    // Clean up leading prepositions
+    addr = addr.replace(/^[在于的]+/, '');
     // Try to extract province+city from address
-    const provCityMatch = addr.match(/([\u4e00-\u9fa5]{2,5}(?:省|自治区|市))([\u4e00-\u9fa5]{2,6}(?:市|区|县))?/);
+    const provCityMatch = addr.match(/([\u4e00-\u9fa5]{2,5}(?:省|自治区))?[省]?([\u4e00-\u9fa5]{2,6}(?:市))/);
     if (provCityMatch) {
-      return '中国' + (provCityMatch[1] || '') + (provCityMatch[2] || '');
+      const prov = provCityMatch[1] || '';
+      const city = provCityMatch[2] || '';
+      return '中国' + prov + city;
     }
-    return addr;
+    // Direct city match
+    const directCity = addr.match(/(北京|上海|天津|重庆|[\u4e00-\u9fa5]{2,4}市)/);
+    if (directCity) return '中国' + directCity[1];
+    if (addr.length > 3 && addr.length < 40) return addr;
   }
 
   // Try country + international patterns
