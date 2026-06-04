@@ -65,7 +65,8 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 .sup-status{margin-top:6px}
 
 .coordinator-card{display:flex;align-items:center;gap:14px;margin-top:12px}
-.coordinator-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e65100,#ff6d00);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex-shrink:0}
+.coordinator-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e65100,#ff6d00);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex-shrink:0;overflow:hidden}
+.coordinator-avatar img{width:100%;height:100%;object-fit:cover}
 .coordinator-info{flex:1}
 .coordinator-info h4{font-size:15px;font-weight:700}
 .coordinator-info p{font-size:12px;color:#666}
@@ -181,16 +182,12 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
         <div class="section-title" data-i18n="coordinator-title">你的协调人</div>
       </div>
     </div>
-    <div class="coordinator-card">
-      <div class="coordinator-avatar">H</div>
+    <div class="coordinator-card" id="coord-card">
+      <div class="coordinator-avatar" id="coord-avatar">A</div>
       <div class="coordinator-info">
-        <h4>HUA</h4>
+        <h4 id="coord-name">Amalia HOU</h4>
         <p data-i18n="coord-role">采购协调人 / Sourcing Coordinator</p>
-        <div class="contact-grid">
-          <a class="contact-chip" href="mailto:hua@example.com">📧 Email</a>
-          <a class="contact-chip" href="#">💬 WeChat</a>
-          <span class="contact-chip">📍 Beijing, China</span>
-        </div>
+        <div class="contact-grid" id="contact-grid"></div>
       </div>
     </div>
   </div>
@@ -316,7 +313,40 @@ function renderSuppliers(suppliers) {
   `).join('') + '</div>';
 }
 
+// Load coordinator profile from main data source
+async function loadCoordinator() {
+  try {
+    const res = await fetch('/api/data');
+    const data = await res.json();
+    const p = data.coordinatorProfile || {};
+    
+    const avatarEl = document.getElementById('coord-avatar');
+    const nameEl = document.getElementById('coord-name');
+    const contactGrid = document.getElementById('contact-grid');
+    
+    // Avatar
+    if (p.avatarUrl) {
+      avatarEl.innerHTML = '<img src="' + p.avatarUrl + '" alt="">';
+    } else {
+      avatarEl.textContent = (p.name || 'A').charAt(0).toUpperCase();
+    }
+    
+    // Name
+    nameEl.textContent = p.name || 'Amalia HOU';
+    
+    // Contact chips
+    let contacts = '';
+    if (p.phone) contacts += '<a class="contact-chip" href="tel:' + p.phone + '">📱 ' + p.phone + '</a>';
+    if (p.whatsapp) contacts += '<a class="contact-chip" href="https://wa.me/' + p.whatsapp.replace(/[^0-9]/g,'') + '" target="_blank">📲 WhatsApp</a>';
+    if (p.wechat) contacts += '<span class="contact-chip">💬 WeChat: ' + p.wechat + '</span>';
+    if (p.telegram) contacts += '<a class="contact-chip" href="https://t.me/' + p.telegram.replace('@','') + '" target="_blank">✈️ Telegram</a>';
+    if (p.city) contacts += '<span class="contact-chip">📍 ' + p.city + '</span>';
+    contactGrid.innerHTML = contacts;
+  } catch(e) { console.log('Failed to load coordinator profile', e); }
+}
+
 // Init
+loadCoordinator();
 loadSuppliers();
 const urlLang = new URLSearchParams(window.location.search).get('lang');
 if (urlLang && i18n[urlLang]) switchLang(urlLang);
