@@ -573,6 +573,9 @@ async function fetchCompanyInfo() {
     const result = await res.json();
     if (!result.success) throw new Error('抓取失败');
     
+    // Show note if info was inferred (not directly scraped)
+    const inferNote = result.note || '';
+    
     const d = result.data;
     let filled = [];
     
@@ -601,6 +604,14 @@ async function fetchCompanyInfo() {
     }
     
     // Step 2: Call AI for summary (from browser - avoids IP restrictions)
+    // Skip if data was already inferred by AI (no webpage content available)
+    if (inferNote) {
+      let statusMsg = filled.length > 0
+        ? '<span style="color:#148a4e">✓ 已填入：' + filled.join('、') + '</span>'
+        : '<span style="color:#888">ℹ 未提取到有效信息</span>';
+      statusMsg += '<br><span style="font-size:11px;color:#b86e00">' + escHtml(inferNote) + '</span>';
+      statusEl.innerHTML = statusMsg;
+    } else {
     statusEl.innerHTML = '<span style="color:#b86e00">② AI正在分析网页内容，生成总结...</span>';
     
     try {
@@ -639,7 +650,11 @@ async function fetchCompanyInfo() {
       let statusMsg = filled.length > 0
         ? '<span style="color:#148a4e">✓ 已重新抓取并覆盖：' + filled.join('、') + '</span>'
         : '<span style="color:#888">ℹ 网页未提取到有效信息</span>';
-      statusMsg += '<br><span style="font-size:11px;color:#6b21a8">🤖 AI已分析网页内容并生成总结</span>';
+      if (inferNote) {
+        statusMsg += '<br><span style="font-size:11px;color:#b86e00">' + escHtml(inferNote) + '</span>';
+      } else {
+        statusMsg += '<br><span style="font-size:11px;color:#6b21a8">🤖 AI已分析网页内容并生成总结</span>';
+      }
       statusEl.innerHTML = statusMsg;
       
     } catch(aiErr) {
@@ -655,6 +670,7 @@ async function fetchCompanyInfo() {
     if (result.raw && result.raw.textContent) {
       statusEl.innerHTML += '<br><details style="margin-top:6px;font-size:11px;color:#666"><summary style="cursor:pointer">查看网页原文摘要</summary><div style="max-height:120px;overflow-y:auto;background:#f7f8fa;padding:8px;border-radius:6px;margin-top:4px;white-space:pre-wrap;word-break:break-all;font-size:11px">' + escHtml(result.raw.textContent.substring(0, 800)) + '...</div></details>';
     }
+    } // end of else (non-infer path)
     
   } catch(e) {
     statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 抓取失败：' + escHtml(e.message) + '</span>';

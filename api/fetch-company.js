@@ -71,6 +71,18 @@ module.exports = async function handler(req, res) {
     }
     
     if (!homepage.ok) {
+      // Website unreachable — try AI knowledge-based inference from domain name
+      const domain = new URL(url).hostname.replace('www.', '');
+      const inferResult = await inferFromDomain(domain, url);
+      if (inferResult) {
+        return res.status(200).json({
+          success: true,
+          data: inferResult,
+          raw: { title: '', description: '', keywords: '', textContent: '', subpagesCrawled: 0 },
+          note: '⚠️ 网站无法直接访问，以下信息基于AI知识库推断，请核实后确认。'
+        });
+      }
+      // AI inference also failed — return error
       const reason = homepage.error || '';
       let userMsg = `无法访问该网站 (HTTP ${homepage.status || '超时'})`;
       if (reason.includes('abort') || reason.includes('timeout') || homepage.status === 0) {
@@ -467,6 +479,78 @@ function extractContact(html, text) {
   };
 }
 
+// --- Helper: Infer company info from domain name using AI knowledge ---
+async function inferFromDomain(domain, fullUrl) {
+  const apiKey = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
+  if (!apiKey) return null;
+  
+  const isDeepseek = !!process.env.DEEPSEEK_API_KEY;
+  const apiBase = isDeepseek ? 'https://api.deepseek.com' : 'https://api.openai.com';
+  const model = isDeepseek ? 'deepseek-chat' : 'gpt-4o-mini';
+  
+  const prompt = `I cannot access the website ${fullUrl} (blocked/timeout). Based on your knowledge of the company behind the domain "${domain}", please provide:
+
+1. nameCn: Chinese company name (if known)
+2. nameEn: English company name (if known)  
+3. location: Company headquarters location/city
+4. specialty: Main products/services (in Chinese if possible)
+5. phones: Phone numbers (if known)
+6. emails: Contact emails (if known)
+
+Respond ONLY in valid JSON format:
+{"nameCn":"","nameEn":"","location":"","specialty":"","phones":"","emails":""}
+
+If you don't know a field, leave it empty string. Do NOT invent or guess — only provide information you are confident about.`;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    
+    const res = await fetch(`${apiBase}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 300
+      }),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeout);
+    
+    if (!res.ok) return null;
+    
+    const data = await res.json();
+    const content = (data.choices?.[0]?.message?.content || '').trim();
+    
+    // Parse JSON from response
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+    
+    const info = JSON.parse(jsonMatch[0]);
+    
+    // Only return if we got at least a name
+    if (!info.nameCn && !info.nameEn) return null;
+    
+    return {
+      name: info.nameCn || '',
+      nameEn: info.nameEn || '',
+      location: info.location || '',
+      specialty: info.specialty || '',
+      contact: info.phones || '',
+      email: info.emails || '',
+      website: fullUrl
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
 module.exports.config = {
-  maxDuration: 10
+  maxDuration: 30
 };
