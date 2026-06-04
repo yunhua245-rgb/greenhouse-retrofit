@@ -63,32 +63,20 @@ module.exports = async function handler(req, res) {
     }
     
     if (!homepage.ok) {
-      // Website unreachable — try AI knowledge-based inference from domain name
-      const domain = new URL(url).hostname.replace('www.', '');
-      const inferResult = await inferFromDomain(domain, url);
-      if (inferResult) {
-        return res.status(200).json({
-          success: true,
-          data: inferResult,
-          raw: { title: '', description: '', keywords: '', textContent: '', subpagesCrawled: 0 },
-          note: '⚠️ 网站无法直接访问，以下信息基于AI知识库推断，请核实后确认。'
-        });
-      }
-      // AI inference also failed — return error with more context
+      // Website unreachable — report error directly, no AI guessing
       const reason = homepage.error || '';
-      const elapsed = Date.now() - startTime;
       let userMsg = `无法访问该网站 (HTTP ${homepage.status || '超时'})`;
       if (reason.includes('abort') || reason.includes('timeout') || homepage.status === 0) {
-        userMsg = '网站连接超时，可能是该网站屏蔽了境外访问或服务器暂时不可用。';
+        userMsg = '网站连接超时，可能是该网站屏蔽了境外访问或服务器暂时不可用。请手动填写信息。';
       } else if (homepage.status === 403) {
-        userMsg = '网站拒绝访问 (403)，可能开启了防爬策略。';
+        userMsg = '网站拒绝访问 (403)，可能开启了防爬策略。请手动填写信息。';
       } else if (homepage.status === 404) {
         userMsg = '页面未找到 (404)，请检查URL是否正确。';
       } else if (homepage.status >= 500) {
         userMsg = '网站服务器错误，请稍后重试。';
+      } else {
+        userMsg += '，请手动填写信息。';
       }
-      // Add hint about AI fallback failure
-      userMsg += '\nAI知识库也未能识别该公司，建议手动填写信息。';
       return res.status(502).json({ error: userMsg });
     }
 
@@ -99,18 +87,11 @@ module.exports = async function handler(req, res) {
     const isSPA = homeText.length < 300 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"') || homeHtml.includes('id="__next"'));
     const isEmptyPage = homeText.length < 100;
     
-    // If page is essentially empty (SPA with no SSR or very thin content), use AI inference directly
+    // If page is essentially empty (SPA with no SSR or very thin content), report directly
     if (isEmptyPage || (isSPA && homeText.length < 150)) {
-      const domain = new URL(url).hostname.replace('www.', '');
-      const inferResult = await inferFromDomain(domain, url);
-      if (inferResult) {
-        return res.status(200).json({
-          success: true,
-          data: inferResult,
-          raw: { title: homeHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '', description: '', keywords: '', textContent: homeText, subpagesCrawled: 0 },
-          note: '⚠️ 该网站为前端框架渲染（SPA），服务端无法读取内容。以下信息基于AI推断，请核实。'
-        });
-      }
+      return res.status(502).json({
+        error: '该网站为前端框架渲染（SPA），服务端无法读取内容。请手动填写供应商信息。'
+      });
     }
 
     // Step 2: Find important subpage links
@@ -488,102 +469,6 @@ function extractContact(html, text) {
   };
 }
 
-// --- Helper: Infer company info from domain name using AI knowledge ---
-async function inferFromDomain(domain, fullUrl) {
-  // Use same env vars as ai-summary.js for consistency
-  const apiKey = process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY || 'sk-f2a6af8a39d848a5ade70105fb27c208';
-  const apiBase = (process.env.AI_BASE_URL || 'https://api.deepseek.com').replace(/\/v1\/?$/, '').replace(/\/$/, '');
-  const model = process.env.AI_MODEL || 'deepseek-chat';
-  
-  const prompt = `I cannot access the website ${fullUrl} (domain: "${domain}"). Based on your knowledge of this company AND reasonable inference from the domain name, please provide:
-
-1. nameCn: Chinese company name (if known, or reasonable guess from domain)
-2. nameEn: English company name (derive from domain name if not known — e.g. "aiforcetech.com" → "AIForce Tech" or "AI Force Technology")
-3. location: Company headquarters location/city (if known)
-4. specialty: Main products/services based on domain name keywords (in Chinese if possible — e.g. "aiforcetech" likely relates to AI technology)
-5. phones: Phone numbers (if known)
-6. emails: Contact emails (try common patterns like info@${domain}, contact@${domain} if unsure)
-
-IMPORTANT RULES:
-- For nameEn: You MUST provide at least a name derived from the domain (split camelCase, remove "tech"/"corp" suffixes if useful). Never leave both nameCn and nameEn empty.
-- For specialty: Make a reasonable inference from domain keywords (e.g. "solar" → solar energy, "agri" → agriculture)
-- For phones/emails: Only provide if you are confident. Common email patterns (info@domain) are acceptable guesses.
-- For location: Only provide if you actually know.
-
-Respond ONLY in valid JSON format:
-{"nameCn":"","nameEn":"","location":"","specialty":"","phones":"","emails":""}`;
-
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 20000);
-    
-    const res = await fetch(`${apiBase}/v1/chat/completions`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${apiKey}`
-      },
-      body: JSON.stringify({
-        model,
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.1,
-        max_tokens: 300
-      }),
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeout);
-    
-    if (!res.ok) return null;
-    
-    const data = await res.json();
-    const content = (data.choices?.[0]?.message?.content || '').trim();
-    
-    // Parse JSON from response
-    const jsonMatch = content.match(/\{[\s\S]*\}/);
-    if (!jsonMatch) return null;
-    
-    const info = JSON.parse(jsonMatch[0]);
-    
-    // If AI couldn't provide any name, derive from domain
-    let nameEn = info.nameEn || '';
-    let nameCn = info.nameCn || '';
-    if (!nameEn && !nameCn) {
-      // Derive English name from domain: "aiforcetech" → "Aiforcetech", "green-house" → "Green House"
-      const domainBase = domain.split('.')[0].replace(/^www\.?/, '');
-      nameEn = domainBase
-        .replace(/[-_]/g, ' ')
-        .replace(/([a-z])([A-Z])/g, '$1 $2')
-        .replace(/\b\w/g, c => c.toUpperCase());
-    }
-    
-    return {
-      name: nameCn,
-      nameEn: nameEn,
-      location: info.location || '',
-      specialty: info.specialty || '',
-      contact: info.phones || '',
-      email: info.emails || `info@${domain}`,
-      website: fullUrl
-    };
-  } catch (e) {
-    // Even if AI call fails, return basic info derived from domain name
-    const domainBase = domain.split('.')[0].replace(/^www\.?/, '');
-    const nameEn = domainBase
-      .replace(/[-_]/g, ' ')
-      .replace(/([a-z])([A-Z])/g, '$1 $2')
-      .replace(/\b\w/g, c => c.toUpperCase());
-    return {
-      name: '',
-      nameEn: nameEn,
-      location: '',
-      specialty: '',
-      contact: '',
-      email: `info@${domain}`,
-      website: fullUrl
-    };
-  }
-}
 
 module.exports.config = {
   maxDuration: 30
