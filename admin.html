@@ -572,7 +572,12 @@ async function fetchCompanyInfo() {
     
     // Fill basic fields from heuristics (always overwrite)
     if (d.name) {
-      document.getElementById('f-name').value = d.name;
+      // Smart fill: if name contains Chinese chars → fill Chinese name field
+      // If name is English only → fill English name field only
+      const hasChinese = /[\u4e00-\u9fa5]/.test(d.name);
+      if (hasChinese) {
+        document.getElementById('f-name').value = d.name;
+      }
       document.getElementById('f-nameEn').value = d.name;
       filled.push('公司名称');
     }

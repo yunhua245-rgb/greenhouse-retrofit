@@ -316,8 +316,8 @@ function extractLocation(text) {
     if (addr.length > 3 && addr.length < 40) return addr;
   }
 
-  // Try country + international patterns
-  const intlMatch = text.match(/(?:headquarter|based in|located in|location)[:\s]*([A-Za-z, ]{3,40})/i);
+  // Try country + international patterns (require word boundary to avoid partial matches like "locations")
+  const intlMatch = text.match(/(?:headquartered?|based) in[:\s]+([A-Za-z, ]{3,40})/i);
   if (intlMatch) return intlMatch[1].trim();
 
   const provinces = ['北京','上海','天津','重庆','河北','山西','辽宁','吉林','黑龙江','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','海南','四川','贵州','云南','陕西','甘肃','青海','内蒙古','广西','西藏','宁夏','新疆'];
@@ -359,8 +359,13 @@ function extractContact(html, text) {
   const phoneMatches = text.match(/(?:电话|Tel|Phone|联系电话|手机|Mobile|热线|咨询|询价|商务|媒体)[：:\s]*([0-9\-+() ]{7,20})/gi);
   if (phoneMatches) {
     phoneMatches.slice(0, 5).forEach(m => {
-      const num = m.replace(/.*[：:\s]/, '').trim();
-      if (num.length >= 7 && !phones.includes(num)) phones.push(num);
+      let num = m.replace(/.*[：:\s]/, '').trim();
+      // Clean up formatting
+      const cleanNum = num.replace(/[\s()\-]/g, '');
+      // Accept numbers starting with valid phone prefixes
+      if (cleanNum.length >= 7 && cleanNum.length <= 15 && !phones.includes(num) && /^[\+0-9]/.test(cleanNum)) {
+        phones.push(num);
+      }
     });
   }
   // Match standalone phone patterns
