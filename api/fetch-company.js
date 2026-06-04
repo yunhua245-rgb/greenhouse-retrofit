@@ -24,18 +24,17 @@ module.exports = async function handler(req, res) {
     const startTime = Date.now();
     
     for (const tryUrl of urlsToTry.slice(0, 3)) {
-      // Abort if we've spent >8s already (leave time for subpages + AI inference within 30s budget)
+      // Abort if we've spent >8s already (leave time for subpages within 30s budget)
       if (Date.now() - startTime > 8000) break;
       
       const attempt = await fetchPage(tryUrl, 6000);
       if (attempt.ok) {
         const text = htmlToText(attempt.html);
-        // Skip 404/error pages (very short content or contains 404 indicators)
-        const is404 = text.length < 100 || 
-          /404|page\s*not\s*found|页面.*不存在|页面.*找不到/i.test(text) ||
+        // Check if this is a real 404 page (explicit 404 indicators in content)
+        const has404Indicator = /404|page\s*not\s*found|页面.*不存在|页面.*找不到/i.test(text) ||
           attempt.html.includes('/404/') || attempt.html.includes('404.png') || attempt.html.includes('404.jpg');
-        if (is404 && tryUrl !== urlsToTry[urlsToTry.length - 1]) {
-          continue; // Skip 404 pages, try next URL
+        if (has404Indicator && tryUrl !== urlsToTry[urlsToTry.length - 1]) {
+          continue; // Skip explicit 404 pages, try next URL
         }
         // Check if this page has meaningful Chinese content (min 200 chars total)
         const chineseRatio = (text.match(/[\u4e00-\u9fa5]/g) || []).length / Math.max(text.length, 1);
@@ -44,7 +43,7 @@ module.exports = async function handler(req, res) {
           effectiveUrl = tryUrl;
           break;
         }
-        // Store as fallback if no Chinese version found
+        // Store first successful response as fallback (even if content is thin — could be SPA)
         if (!homepage.ok) {
           homepage = attempt;
           effectiveUrl = tryUrl;
