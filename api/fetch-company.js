@@ -22,23 +22,43 @@ module.exports = async function handler(req, res) {
     const homeHtml = homepage.html;
     const homeText = htmlToText(homeHtml);
 
+    // Detect SPA (very little text content + app container)
+    const isSPA = homeText.length < 200 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"'));
+
     // Step 2: Find important subpage links
     const baseUrl = new URL(url);
-    const subLinks = findKeySubpages(homeHtml, baseUrl);
+    let subLinks = findKeySubpages(homeHtml, baseUrl);
 
-    // Step 3: Fetch subpages in parallel (max 4, 8s timeout each)
+    // Step 2b: If SPA, try extracting content from JS bundles instead
+    let jsContent = '';
+    if (isSPA) {
+      jsContent = await extractSPAContent(homeHtml, baseUrl);
+    }
+
+    // Step 2c: If still no links and not SPA (or SPA with no JS content), try common paths
+    if (subLinks.length === 0 && !isSPA) {
+      subLinks = guessCommonSubpages(baseUrl);
+    }
+
+    // Step 3: Fetch subpages in parallel (max 5, 8s timeout each)
     const subResults = await Promise.allSettled(
-      subLinks.slice(0, 4).map(link => fetchPage(link, 8000))
+      subLinks.slice(0, 5).map(link => fetchPage(link, 8000))
     );
 
     // Step 4: Merge all text content
     let allText = homeText;
-    const subTexts = [];
+    if (jsContent) allText += '\n\n' + jsContent;
+    let allHtml = homeHtml;
+    let crawledCount = 0;
     for (const r of subResults) {
       if (r.status === 'fulfilled' && r.value.ok) {
-        const t = htmlToText(r.value.html);
-        subTexts.push(t);
-        allText += '\n\n' + t;
+        const subText = htmlToText(r.value.html);
+        // Only count pages with meaningful content (>100 chars that differ from home)
+        if (subText.length > 100 && subText !== homeText.substring(0, subText.length)) {
+          allText += '\n\n' + subText;
+          allHtml += '\n' + r.value.html;
+          crawledCount++;
+        }
       }
     }
 
@@ -54,7 +74,7 @@ module.exports = async function handler(req, res) {
     const metaKw = kwMatch ? kwMatch[1].trim() : '';
 
     // Heuristic extraction using ALL text
-    const contactInfo = extractContact(homeHtml + subResults.map(r => r.status === 'fulfilled' && r.value.ok ? r.value.html : '').join(''), combinedText);
+    const contactInfo = extractContact(allHtml, combinedText);
     const result = {
       name: extractCompanyName(pageTitle, combinedText),
       location: extractLocation(combinedText),
@@ -71,7 +91,7 @@ module.exports = async function handler(req, res) {
         description: metaDesc,
         keywords: metaKw,
         textContent: combinedText,
-        subpagesCrawled: subLinks.slice(0, 4).length
+        subpagesCrawled: crawledCount
       }
     });
 
@@ -156,6 +176,62 @@ function findKeySubpages(html, baseUrl) {
   }
 
   return links;
+}
+
+// --- Helper: Guess common subpages when no links found (SPA fallback) ---
+function guessCommonSubpages(baseUrl) {
+  // Prioritized: most company sites use these paths
+  const commonPaths = [
+    '/about', '/about.html', '/aboutus', '/about-us',
+    '/contact', '/contact.html', '/contactus', '/contact-us',
+    '/products', '/product', '/products.html',
+    '/company', '/introduction'
+  ];
+  
+  return commonPaths.map(p => baseUrl.origin + p);
+}
+
+// --- Helper: Extract content from SPA JS bundles ---
+async function extractSPAContent(html, baseUrl) {
+  // Find JS bundle URLs (app.js, main chunk files - skip vendor/lib chunks)
+  const jsMatches = html.matchAll(/(?:src|href)=["']([^"']*(?:app|main|index|chunk-[a-f0-9]{6,})[^"']*\.js)["']/gi);
+  const jsUrls = [];
+  for (const m of jsMatches) {
+    let jsUrl = m[1];
+    // Skip obviously vendor/library chunks
+    if (/chunk-(?:elementUI|libs|vendor|runtime)/i.test(jsUrl)) continue;
+    try {
+      jsUrl = new URL(jsUrl, baseUrl.origin).href;
+      jsUrls.push(jsUrl);
+    } catch {}
+  }
+
+  if (jsUrls.length === 0) return '';
+
+  // Fetch up to 3 JS files
+  const results = await Promise.allSettled(
+    jsUrls.slice(0, 3).map(u => fetchPage(u, 6000))
+  );
+
+  let extracted = '';
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value.ok) {
+      const js = r.value.html; // it's JS code but stored as text
+      // Extract Chinese text strings from JS (between quotes)
+      const chineseStrings = js.match(/["'`]([\u4e00-\u9fa5][\u4e00-\u9fa5\w\s，。、：；！？（）\-—·""''《》【】\d.%]{4,200})["'`]/g);
+      if (chineseStrings) {
+        const uniqueTexts = [...new Set(chineseStrings.map(s => s.slice(1, -1)))];
+        extracted += uniqueTexts.join(' ');
+      }
+      // Also extract phone numbers and emails from JS
+      const phones = js.match(/["'](1[3-9]\d{9}|0\d{2,3}[-]?\d{7,8}|400[-]?\d{3,4}[-]?\d{3,4})["']/g);
+      if (phones) extracted += ' ' + phones.map(p => p.slice(1, -1)).join(' ');
+      const emails = js.match(/["']([\w.+-]+@[\w-]+\.[\w.-]+)["']/g);
+      if (emails) extracted += ' ' + emails.map(e => e.slice(1, -1)).join(' ');
+    }
+  }
+
+  return extracted.substring(0, 5000);
 }
 
 // --- Helper: HTML to plain text ---
