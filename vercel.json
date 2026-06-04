@@ -8,10 +8,14 @@
       "maxDuration": 30
     },
     "api/fetch-company.js": {
-      "maxDuration": 30
+      "maxDuration": 60
     },
     "api/ai-summary.js": {
       "maxDuration": 60
+    },
+    "api/render-spa.js": {
+      "maxDuration": 60,
+      "memory": 1024
     }
   }
 }

@@ -1,7 +1,7 @@
 // Vercel Serverless Function — Render SPA page with headless Chrome
-// Separate function to isolate Puppeteer/Chromium bundle from main fetch-company
+// Uses @sparticuz/chromium-min with remote binary to stay under 50MB function limit
 
-const chromium = require('@sparticuz/chromium');
+const chromium = require('@sparticuz/chromium-min');
 const puppeteer = require('puppeteer-core');
 
 module.exports = async function handler(req, res) {
@@ -19,9 +19,11 @@ module.exports = async function handler(req, res) {
   try {
     browser = await puppeteer.launch({
       args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless
+      defaultViewport: { width: 1280, height: 720 },
+      executablePath: await chromium.executablePath(
+        'https://github.com/Sparticuz/chromium/releases/download/v149.0.0/chromium-v149.0.0-pack.x64.tar'
+      ),
+      headless: 'shell'
     });
 
     const page = await browser.newPage();
@@ -34,7 +36,7 @@ module.exports = async function handler(req, res) {
     // Navigate and wait for JS to render
     await page.goto(url, {
       waitUntil: 'networkidle2',
-      timeout: 20000
+      timeout: 25000
     });
 
     // Wait for late-rendering content
@@ -48,6 +50,10 @@ module.exports = async function handler(req, res) {
       };
     });
 
+    // Close all pages then browser (recommended pattern)
+    for (const p of await browser.pages()) {
+      await p.close();
+    }
     await browser.close();
 
     return res.status(200).json({
