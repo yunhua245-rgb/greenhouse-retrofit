@@ -378,6 +378,15 @@ const i18n = {
 
 let currentLang = 'en';
 
+// Read language from URL parameter (e.g., when returning from client-edit)
+(function initLangFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const urlLang = params.get('lang');
+  if (urlLang && ['en', 'ru', 'zh'].includes(urlLang)) {
+    currentLang = urlLang;
+  }
+})();
+
 function switchLang(lang) {
   currentLang = lang;
   document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -396,6 +405,9 @@ function switchLang(lang) {
   renderPhases();
   translateUserContent(); // Auto-translate user-generated text
   refreshQuizLang(); // Re-render quiz in new language
+  // Update client-edit link with current language
+  const editLink = document.querySelector('.client-edit-link');
+  if (editLink) editLink.href = 'client-edit.html?lang=' + lang;
 }
 
 // Cloud data
@@ -421,6 +433,11 @@ async function fetchData() {
   renderCoordinator();
   renderPhases();
   translateUserContent(); // Auto-translate after data loads
+  // Apply URL language param after initial render
+  if (currentLang !== 'en') switchLang(currentLang);
+  // Update edit link
+  const editLink = document.querySelector('.client-edit-link');
+  if (editLink) editLink.href = 'client-edit.html?lang=' + currentLang;
 }
 
 function renderProjectInfo() {
@@ -620,6 +637,7 @@ function renderPhases() {
 }
 
 fetchData();
+
 
 // ===================== SMART QUIZ SYSTEM =====================
 const QUIZ_API = '/api/generate-questions';

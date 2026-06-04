@@ -213,6 +213,7 @@ function switchLang(lang) {
   const L = labels[lang];
   document.getElementById('page-title').textContent = L.pageTitle;
   document.getElementById('back-link').textContent = L.backLink;
+  document.getElementById('back-link').href = 'index.html?lang=' + lang;
   document.getElementById('lbl-greenhouse').textContent = L.greenhouse;
   document.getElementById('lbl-location').textContent = L.location;
   document.getElementById('hint-location').textContent = L.locationHint;
@@ -336,6 +337,15 @@ function generateChangeSummary(oldInfo, newInfo) {
   }
   return changes.join(', ') || 'no changes';
 }
+
+// Read language from URL parameter (passed from index.html)
+(function initLangFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const urlLang = params.get('lang');
+  if (urlLang && ['en', 'ru', 'zh'].includes(urlLang)) {
+    switchLang(urlLang);
+  }
+})();
 
 loadData();
 </script>
