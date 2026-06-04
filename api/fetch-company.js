@@ -1,6 +1,9 @@
 // Vercel Serverless Function — Fetch company website (homepage + subpages) and extract info
 // Crawls key subpages (about, contact, products) for more complete data
-// NOTE: Vercel Hobby plan has 10s limit; keep total execution under 9s
+// Uses headless Chrome (Puppeteer) for SPA sites that require JS rendering
+
+const chromium = require('@sparticuz/chromium');
+const puppeteer = require('puppeteer-core');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -86,12 +89,44 @@ module.exports = async function handler(req, res) {
     const isSPA = homeText.length < 300 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"') || homeHtml.includes('id="__next"'));
     const isEmptyPage = homeText.length < 100;
     
-    // If page is essentially empty (SPA with no SSR or very thin content), try ICP lookup
+    // If page is essentially empty (SPA with no SSR or very thin content), use headless Chrome to render
     if (isEmptyPage || (isSPA && homeText.length < 150)) {
+      const rendered = await renderWithBrowser(effectiveUrl);
+      if (rendered && rendered.text && rendered.text.length > 100) {
+        // Successfully rendered! Use the rendered content for extraction
+        const renderedText = rendered.text.substring(0, 12000);
+        const renderedHtml = rendered.html || '';
+        
+        const titleMatch = renderedHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+        const pageTitle = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+        
+        const contactInfo = extractContact(renderedHtml, renderedText);
+        const result = {
+          name: extractCompanyName(pageTitle, renderedText),
+          location: extractLocation(renderedText),
+          contact: contactInfo.phones,
+          email: contactInfo.emails,
+          website: url
+        };
+
+        return res.status(200).json({
+          success: true,
+          data: result,
+          raw: {
+            title: pageTitle,
+            description: '',
+            keywords: '',
+            textContent: renderedText,
+            subpagesCrawled: 0
+          },
+          note: 'ℹ️ 该网站通过浏览器渲染获取内容（SPA框架）'
+        });
+      }
+      
+      // Browser render failed or got no content — try ICP as last resort
       const domain = new URL(url).hostname.replace(/^www\./, '');
       const icpResult = await lookupICP(domain);
       if (icpResult && icpResult.name) {
-        // Got company name from ICP, return as partial result
         return res.status(200).json({
           success: true,
           data: {
@@ -104,12 +139,12 @@ module.exports = async function handler(req, res) {
             website: url
           },
           raw: { title: homeHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '', description: '', keywords: '', textContent: '', subpagesCrawled: 0 },
-          note: '⚠️ 该网站为SPA框架，仅通过备案信息获取到公司名称，其余信息请手动补充。'
+          note: '⚠️ 该网站为SPA框架，浏览器渲染超时，仅通过备案信息获取到公司名称，其余信息请手动补充。'
         });
       }
-      // ICP also failed
+      // Everything failed
       return res.status(502).json({
-        error: '该网站为前端框架渲染（SPA），服务端无法读取内容。请手动填写供应商信息。'
+        error: '该网站为前端框架渲染（SPA），浏览器渲染超时且无法获取备案信息。请手动填写供应商信息。'
       });
     }
 
@@ -488,6 +523,51 @@ function extractContact(html, text) {
   };
 }
 
+// --- Helper: Render SPA page with headless Chrome (Puppeteer) ---
+async function renderWithBrowser(url) {
+  let browser = null;
+  try {
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless
+    });
+    
+    const page = await browser.newPage();
+    
+    // Set Chinese locale headers
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8'
+    });
+    
+    // Navigate and wait for JS to render (networkidle2 = no more than 2 connections for 500ms)
+    await page.goto(url, {
+      waitUntil: 'networkidle2',
+      timeout: 15000
+    });
+    
+    // Wait a bit more for late-rendering content
+    await new Promise(r => setTimeout(r, 2000));
+    
+    // Extract text content and full HTML
+    const result = await page.evaluate(() => {
+      return {
+        text: document.body ? document.body.innerText : '',
+        html: document.documentElement ? document.documentElement.outerHTML : ''
+      };
+    });
+    
+    await browser.close();
+    return result;
+  } catch (e) {
+    if (browser) {
+      try { await browser.close(); } catch {}
+    }
+    return null;
+  }
+}
+
 // --- Helper: Lookup ICP registration info for a domain ---
 async function lookupICP(domain) {
   try {
@@ -527,5 +607,5 @@ async function lookupICP(domain) {
 }
 
 module.exports.config = {
-  maxDuration: 30
+  maxDuration: 60
 };
