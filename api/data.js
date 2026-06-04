@@ -8,7 +8,7 @@ const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 module.exports = async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
   
   if (req.method === 'OPTIONS') {
@@ -72,6 +72,47 @@ module.exports = async function handler(req, res) {
       }
     } catch (e) {
       return res.status(500).json({ error: 'Failed to write data', detail: e.message });
+    }
+  }
+
+  if (req.method === 'POST') {
+    // Partial update actions
+    try {
+      const { action, profile } = req.body || {};
+      
+      // Get current data
+      const getRes = await fetch(apiBase, { headers });
+      if (!getRes.ok) return res.status(500).json({ error: 'Failed to read current data' });
+      const fileData = await getRes.json();
+      const sha = fileData.sha;
+      const currentData = JSON.parse(Buffer.from(fileData.content, 'base64').toString('utf8'));
+      
+      if (action === 'updateProfile' && profile) {
+        currentData.coordinatorProfile = profile;
+      } else {
+        return res.status(400).json({ error: 'Unknown action' });
+      }
+      
+      // Save back
+      const content = Buffer.from(JSON.stringify(currentData, null, 2)).toString('base64');
+      const putRes = await fetch(apiBase, {
+        method: 'PUT',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'Update profile ' + new Date().toISOString(),
+          content,
+          sha
+        })
+      });
+      
+      if (putRes.ok) {
+        return res.status(200).json({ success: true });
+      } else {
+        const errData = await putRes.json();
+        return res.status(500).json({ error: 'Failed to save', detail: errData });
+      }
+    } catch (e) {
+      return res.status(500).json({ error: 'Failed to update', detail: e.message });
     }
   }
 

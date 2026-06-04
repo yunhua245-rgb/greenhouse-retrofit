@@ -17,7 +17,8 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 
 /* Name Card */
 .namecard{background:#fff;border-radius:16px;border:1px solid #e8eaed;padding:28px;margin-top:-30px;position:relative;z-index:10;display:flex;align-items:center;gap:20px;box-shadow:0 4px 20px rgba(0,0,0,0.06)}
-.namecard-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#4a3f8a,#6c5ce7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;flex-shrink:0}
+.namecard-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,#4a3f8a,#6c5ce7);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:24px;flex-shrink:0;overflow:hidden}
+.namecard-avatar img{width:100%;height:100%;object-fit:cover}
 .namecard-info h2{font-size:18px;font-weight:700;margin-bottom:2px}
 .namecard-info .role{font-size:13px;color:#888;margin-bottom:6px}
 .namecard-chips{display:flex;flex-wrap:wrap;gap:6px}
@@ -91,17 +92,66 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 <div class="container">
   <!-- Name Card -->
   <div class="namecard">
-    <div class="namecard-avatar">H</div>
+    <div class="namecard-avatar" id="nc-avatar">A</div>
     <div class="namecard-info">
-      <h2>HUA</h2>
+      <h2 id="nc-name">Amalia HOU</h2>
       <div class="role" id="nc-role">采购协调人 / Sourcing Coordinator</div>
-      <div class="namecard-chips">
-        <a class="nc-chip" href="mailto:hua@example.com">📧 Email</a>
-        <a class="nc-chip" href="#">💬 WeChat</a>
+      <div class="namecard-chips" id="nc-chips">
         <span class="nc-chip">📍 Beijing, China</span>
         <span class="nc-chip">🌐 中 / EN / РУ</span>
       </div>
+      <div class="namecard-chips" id="nc-contacts" style="margin-top:6px">
+      </div>
     </div>
+  </div>
+  
+  <!-- Edit Profile Button -->
+  <div style="text-align:right;margin-top:10px">
+    <button id="edit-profile-btn" onclick="toggleProfileEdit()" style="padding:6px 14px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:12px;cursor:pointer;transition:all 0.2s">✏️ <span data-i18n="edit-profile">编辑名片</span></button>
+  </div>
+  
+  <!-- Profile Edit Form (hidden by default) -->
+  <div id="profile-form" style="display:none;background:#fff;border-radius:14px;border:1px solid #e8eaed;padding:24px;margin-top:12px">
+    <div style="font-size:15px;font-weight:700;margin-bottom:16px" data-i18n="profile-title">编辑个人信息</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px">姓名 / Name</label>
+        <input id="pf-name" type="text" style="width:100%;padding:8px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px" placeholder="Amalia HOU">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px">城市 / City</label>
+        <input id="pf-city" type="text" style="width:100%;padding:8px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px" placeholder="Beijing, China">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px">📱 Phone</label>
+        <input id="pf-phone" type="text" style="width:100%;padding:8px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px" placeholder="+86 ...">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px">💬 WeChat</label>
+        <input id="pf-wechat" type="text" style="width:100%;padding:8px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px" placeholder="微信号">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px">📲 WhatsApp</label>
+        <input id="pf-whatsapp" type="text" style="width:100%;padding:8px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px" placeholder="+86 ...">
+      </div>
+      <div>
+        <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px">✈️ Telegram</label>
+        <input id="pf-telegram" type="text" style="width:100%;padding:8px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px" placeholder="@username">
+      </div>
+      <div style="grid-column:span 2">
+        <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px">简介 / Bio</label>
+        <input id="pf-bio" type="text" style="width:100%;padding:8px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px" placeholder="一句话介绍自己">
+      </div>
+      <div style="grid-column:span 2">
+        <label style="font-size:12px;font-weight:600;color:#555;display:block;margin-bottom:4px">头像URL / Avatar URL</label>
+        <input id="pf-avatar" type="text" style="width:100%;padding:8px 12px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px" placeholder="https://... 或留空使用首字母">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;justify-content:flex-end">
+      <button onclick="toggleProfileEdit()" style="padding:8px 16px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer">取消</button>
+      <button onclick="saveProfile()" style="padding:8px 16px;border:none;border-radius:8px;background:#4a3f8a;color:#fff;font-size:13px;font-weight:600;cursor:pointer">保存</button>
+    </div>
+    <div id="pf-status" style="font-size:12px;margin-top:8px;text-align:right"></div>
   </div>
 
   <!-- Projects Section -->
@@ -173,7 +223,9 @@ const i18n = {
     'contacted': '已联系',
     'shortlisted': '候选',
     'gh-client': '客户：<span>俄罗斯温室运营商</span>',
-    'modu-client': '客户：<span>俄罗斯合作方（MODU品牌代理）</span>'
+    'modu-client': '客户：<span>俄罗斯合作方（MODU品牌代理）</span>',
+    'edit-profile': '编辑名片',
+    'profile-title': '编辑个人信息'
   },
   en: {
     'portal-title': 'Project Overview',
@@ -193,7 +245,9 @@ const i18n = {
     'contacted': 'Contacted',
     'shortlisted': 'Shortlisted',
     'gh-client': 'Client: <span>Russian greenhouse operator</span>',
-    'modu-client': 'Client: <span>Russian partner (MODU brand agent)</span>'
+    'modu-client': 'Client: <span>Russian partner (MODU brand agent)</span>',
+    'edit-profile': 'Edit Profile',
+    'profile-title': 'Edit Profile'
   },
   ru: {
     'portal-title': 'Обзор проектов',
@@ -213,11 +267,14 @@ const i18n = {
     'contacted': 'Связались',
     'shortlisted': 'Шорт-лист',
     'gh-client': 'Клиент: <span>Российский оператор теплиц</span>',
-    'modu-client': 'Клиент: <span>Российский партнёр (агент бренда MODU)</span>'
+    'modu-client': 'Клиент: <span>Российский партнёр (агент бренда MODU)</span>',
+    'edit-profile': 'Редакт. профиль',
+    'profile-title': 'Редактировать профиль'
   }
 };
 
 let currentLang = 'zh';
+let profileData = {};
 
 function switchLang(lang) {
   currentLang = lang;
@@ -250,6 +307,91 @@ function switchLang(lang) {
   });
 }
 
+// --- Profile management ---
+function renderProfile(p) {
+  const avatarEl = document.getElementById('nc-avatar');
+  const nameEl = document.getElementById('nc-name');
+  const chipsEl = document.getElementById('nc-chips');
+  const contactsEl = document.getElementById('nc-contacts');
+  
+  // Avatar
+  if (p.avatarUrl) {
+    avatarEl.innerHTML = '<img src="' + p.avatarUrl + '" alt="">';
+  } else {
+    avatarEl.textContent = (p.name || 'A').charAt(0).toUpperCase();
+  }
+  
+  // Name
+  nameEl.textContent = p.name || 'Amalia HOU';
+  
+  // Info chips
+  let chips = '';
+  if (p.city) chips += '<span class="nc-chip">📍 ' + p.city + '</span>';
+  chips += '<span class="nc-chip">🌐 中 / EN / РУ</span>';
+  if (p.bio) chips += '<span class="nc-chip">' + p.bio + '</span>';
+  chipsEl.innerHTML = chips;
+  
+  // Contact chips
+  let contacts = '';
+  if (p.phone) contacts += '<a class="nc-chip" href="tel:' + p.phone + '">📱 ' + p.phone + '</a>';
+  if (p.whatsapp) contacts += '<a class="nc-chip" href="https://wa.me/' + p.whatsapp.replace(/[^0-9]/g,'') + '" target="_blank">📲 WhatsApp</a>';
+  if (p.wechat) contacts += '<span class="nc-chip">💬 WeChat: ' + p.wechat + '</span>';
+  if (p.telegram) contacts += '<a class="nc-chip" href="https://t.me/' + p.telegram.replace('@','') + '" target="_blank">✈️ Telegram</a>';
+  contactsEl.innerHTML = contacts;
+}
+
+function toggleProfileEdit() {
+  const form = document.getElementById('profile-form');
+  const isVisible = form.style.display !== 'none';
+  form.style.display = isVisible ? 'none' : 'block';
+  
+  if (!isVisible) {
+    // Populate form with current data
+    document.getElementById('pf-name').value = profileData.name || '';
+    document.getElementById('pf-city').value = profileData.city || '';
+    document.getElementById('pf-phone').value = profileData.phone || '';
+    document.getElementById('pf-wechat').value = profileData.wechat || '';
+    document.getElementById('pf-whatsapp').value = profileData.whatsapp || '';
+    document.getElementById('pf-telegram').value = profileData.telegram || '';
+    document.getElementById('pf-bio').value = profileData.bio || '';
+    document.getElementById('pf-avatar').value = (profileData.avatarUrl && !profileData.avatarUrl.startsWith('data:')) ? profileData.avatarUrl : '';
+  }
+}
+
+async function saveProfile() {
+  const statusEl = document.getElementById('pf-status');
+  statusEl.innerHTML = '<span style="color:#888">保存中...</span>';
+  
+  const newProfile = {
+    name: document.getElementById('pf-name').value.trim() || 'Amalia HOU',
+    city: document.getElementById('pf-city').value.trim() || 'Beijing, China',
+    phone: document.getElementById('pf-phone').value.trim(),
+    wechat: document.getElementById('pf-wechat').value.trim(),
+    whatsapp: document.getElementById('pf-whatsapp').value.trim(),
+    telegram: document.getElementById('pf-telegram').value.trim(),
+    bio: document.getElementById('pf-bio').value.trim(),
+    avatarUrl: document.getElementById('pf-avatar').value.trim() || profileData.avatarUrl || '',
+    updatedAt: Date.now()
+  };
+  
+  try {
+    // Save to greenhouse project data (primary storage)
+    const res = await fetch('/api/data', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({action: 'updateProfile', profile: newProfile})
+    });
+    if (!res.ok) throw new Error('Save failed');
+    
+    profileData = newProfile;
+    renderProfile(profileData);
+    statusEl.innerHTML = '<span style="color:#148a4e">✓ 已保存</span>';
+    setTimeout(() => { toggleProfileEdit(); statusEl.innerHTML = ''; }, 1500);
+  } catch(e) {
+    statusEl.innerHTML = '<span style="color:#d32f2f">保存失败: ' + e.message + '</span>';
+  }
+}
+
 // Load greenhouse stats
 async function loadStats() {
   try {
@@ -259,6 +401,11 @@ async function loadStats() {
       document.getElementById('gh-suppliers').textContent = data.suppliers.length;
       document.getElementById('gh-contacted').textContent = data.suppliers.filter(s => s.status === 'contacted' || s.status === 'replied' || s.status === 'shortlisted').length;
       document.getElementById('gh-shortlisted').textContent = data.suppliers.filter(s => s.status === 'shortlisted').length;
+    }
+    // Load coordinator profile
+    if (data.coordinatorProfile) {
+      profileData = data.coordinatorProfile;
+      renderProfile(profileData);
     }
   } catch(e) { console.log('Stats load failed', e); }
   
