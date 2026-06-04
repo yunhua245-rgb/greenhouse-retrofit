@@ -1,13 +1,5 @@
-// Vercel Serverless Function — Fetch company website + AI summary
-// 1. Fetches webpage HTML and extracts text
-// 2. Uses heuristics for basic field extraction (name, location, contact)
-// 3. Calls AI (OpenAI-compatible API) for intelligent summary:
-//    - notes: for admin (company overview, products, factual)
-//    - specialty: for buyer (relevant services & advantages, no company name)
-
-const AI_BASE_URL = 'https://aigw.netease.com/v1';
-const AI_API_KEY = 'xwr0fg2y3yc6b4y3.kjqqwez7e1hqn86mr45ew3vvcvrui0l2';
-const AI_MODEL = 'claude-opus-4-6';
+// Vercel Serverless Function — Fetch company website and extract basic info
+// AI summary is done client-side to avoid IP restrictions on AI gateway
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -28,7 +20,7 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Step 1: Fetch the webpage
+    // Fetch the webpage
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
 
@@ -50,7 +42,7 @@ module.exports = async function handler(req, res) {
 
     const html = await response.text();
 
-    // Step 2: Extract text content
+    // Extract text content
     let text = html
       .replace(/<script[\s\S]*?<\/script>/gi, '')
       .replace(/<style[\s\S]*?<\/style>/gi, '')
@@ -74,145 +66,34 @@ module.exports = async function handler(req, res) {
     const kwMatch = html.match(/<meta[^>]*name=["']keywords["'][^>]*content=["']([\s\S]*?)["']/i);
     const metaKw = kwMatch ? kwMatch[1].trim() : '';
 
-    // Step 3: Heuristic extraction for basic fields
-    const basicResult = {
+    // Heuristic extraction for basic fields
+    const result = {
       name: extractCompanyName(pageTitle, pageText),
       location: extractLocation(pageText),
       contact: extractContact(html, pageText),
       website: url
     };
 
-    // Step 4: AI summary (parallel: notes for admin + specialty for buyer)
-    let aiNotes = '';
-    let aiSpecialty = '';
-    let aiError = null;
-
-    try {
-      const aiResult = await callAISummary(pageText, pageTitle, metaDesc, metaKw, url);
-      aiNotes = aiResult.notes || '';
-      aiSpecialty = aiResult.specialty || '';
-    } catch (e) {
-      aiError = e.message || 'AI summary failed';
-      // Fallback to heuristic specialty
-      aiSpecialty = extractSpecialty(pageText, metaDesc, metaKw);
-    }
-
     return res.status(200).json({
       success: true,
-      data: {
-        ...basicResult,
-        specialty: aiSpecialty,
-        notes: aiNotes
-      },
-      aiUsed: !aiError,
-      aiError: aiError,
+      data: result,
       raw: {
         title: pageTitle,
         description: metaDesc,
         keywords: metaKw,
-        textPreview: pageText.substring(0, 1500)
+        textContent: pageText
       }
     });
 
   } catch (e) {
     return res.status(500).json({
-      error: 'Failed to fetch and parse website',
+      error: 'Failed to fetch website',
       detail: e.message || String(e),
-      code: e.code || '',
-      cause: e.cause ? String(e.cause) : ''
+      code: e.code || ''
     });
   }
 };
 
-// AI Summary — calls OpenAI-compatible API
-async function callAISummary(pageText, title, desc, keywords, url) {
-  const contextText = [
-    title ? `网页标题: ${title}` : '',
-    desc ? `网页描述: ${desc}` : '',
-    keywords ? `关键词: ${keywords}` : '',
-    `网页正文摘要:\n${pageText}`
-  ].filter(Boolean).join('\n\n');
-
-  const systemPrompt = `你是一个专业的供应商信息分析助手。用户正在为俄罗斯客户寻找中国的温室自动化改造设备供应商。
-
-你需要根据提供的公司网页内容，生成两段总结，严格按照JSON格式输出：
-
-{
-  "notes": "（给采购经理看的备注）",
-  "specialty": "（给买家看的产品介绍）"
-}
-
-## notes 的要求（给我自己看，管理用）：
-- 用中文
-- 尽量保留原文信息，整理清楚
-- 内容包括：公司全称、成立时间、所在地、主要业务领域、核心产品列表、公司规模/资质（如有）
-- 必须真实准确，不要编造
-- 格式简洁清晰，分条列出
-
-## specialty 的要求（给买家看，展示在供应商评估页面）：
-- 用中文
-- 围绕"温室自动化改造"这个需求，查找并总结该公司能提供的相关服务和产品
-- 总结这个公司在温室/农业自动化方面的优势项
-- 不要泄露公司具体名称（用"该供应商"代替）
-- 不要泄露联系方式
-- 必须基于网页真实内容，不要编造
-- 如果该公司与温室/农业自动化无关，如实说明"该供应商主营业务与温室自动化改造无直接关联"
-- 控制在150字以内
-
-只输出JSON，不要输出其他内容。`;
-
-  const userPrompt = `请分析以下公司网页内容：\n\n${contextText}`;
-
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
-
-  const aiRes = await fetch(`${AI_BASE_URL}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${AI_API_KEY}`
-    },
-    body: JSON.stringify({
-      model: AI_MODEL,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      max_tokens: 1000,
-      temperature: 0.3
-    }),
-    signal: controller.signal
-  });
-
-  clearTimeout(timeout);
-
-  if (!aiRes.ok) {
-    const errBody = await aiRes.text().catch(() => '');
-    throw new Error(`AI API error: HTTP ${aiRes.status} - ${errBody.substring(0, 200)}`);
-  }
-
-  const aiData = await aiRes.json();
-  const content = aiData.choices?.[0]?.message?.content || '';
-
-  // Parse JSON from response
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return {
-        notes: parsed.notes || '',
-        specialty: parsed.specialty || ''
-      };
-    } catch (e) {
-      // If JSON parsing fails, try to extract manually
-      return { notes: content, specialty: '' };
-    }
-  }
-
-  return { notes: content, specialty: '' };
-}
-
-// Heuristic extraction functions (fallback)
 function extractCompanyName(title, text) {
   if (title) {
     const cleaned = title.replace(/[-_|–—].*?(官网|首页|home|index|welcome).*/i, '').trim();
@@ -245,29 +126,6 @@ function extractLocation(text) {
   return '';
 }
 
-function extractSpecialty(text, desc, keywords) {
-  const products = [];
-  if (keywords) {
-    const kws = keywords.split(/[,，;；、]/).map(k => k.trim()).filter(k => k.length > 1 && k.length < 20);
-    products.push(...kws.slice(0, 5));
-  }
-  const productPatterns = [
-    /(?:主营|主要产品|产品|业务)[：:\s]*([\s\S]{5,100}?)(?:[。\n])/,
-    /(?:专业|专注)[从于]*([\s\S]{5,80}?)(?:[。，,\n])/,
-    /(?:提供|生产|制造|研发)([\s\S]{5,80}?)(?:等|[。\n])/
-  ];
-  for (const pat of productPatterns) {
-    const m = text.match(pat);
-    if (m) {
-      const items = m[1].split(/[,，、;；]/).map(s => s.trim()).filter(s => s.length > 1 && s.length < 30);
-      products.push(...items.slice(0, 5));
-      break;
-    }
-  }
-  const unique = [...new Set(products)].slice(0, 8);
-  return unique.join('\n');
-}
-
 function extractContact(html, text) {
   const contacts = [];
   const phoneMatches = text.match(/(?:电话|Tel|Phone|联系)[：:\s]*([0-9\-+() ]{7,20})/gi);
@@ -293,5 +151,5 @@ function extractContact(html, text) {
 }
 
 module.exports.config = {
-  maxDuration: 30
+  maxDuration: 20
 };
