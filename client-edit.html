@@ -119,6 +119,7 @@
 const CLOUD_URL = '/api/data';
 let cloudData = {};
 let currentLang = 'en';
+let coordName = 'HUA';
 
 const labels = {
   en: {
@@ -143,7 +144,7 @@ const labels = {
     timeline: "Preferred Timeline (optional)",
     timelinePh: "e.g., complete by August 2026",
     notesTitle: "Notes & Questions",
-    notes: "Additional notes for HUA",
+    notes: "Additional notes for {name}",
     notesPh: "Any other details, questions, or special requirements...",
     save: "Save & Update",
     saving: "Saving...", saved: "✓ Saved successfully", error: "⚠ Save failed — please try again"
@@ -170,7 +171,7 @@ const labels = {
     timeline: "Желаемые сроки (необязательно)",
     timelinePh: "напр., завершить к августу 2026",
     notesTitle: "Заметки и вопросы",
-    notes: "Дополнительные заметки для HUA",
+    notes: "Дополнительные заметки для {name}",
     notesPh: "Любые другие детали, вопросы или особые требования...",
     save: "Сохранить",
     saving: "Сохранение...", saved: "✓ Сохранено", error: "⚠ Ошибка — попробуйте ещё раз"
@@ -197,7 +198,7 @@ const labels = {
     timeline: "期望时间（选填）",
     timelinePh: "例如：2026年8月前完成",
     notesTitle: "备注与问题",
-    notes: "其他想告诉HUA的信息",
+    notes: "其他想告诉{name}的信息",
     notesPh: "任何其他细节、问题或特殊要求...",
     save: "保存更新",
     saving: "保存中...", saved: "✓ 已保存", error: "⚠ 保存失败，请重试"
@@ -228,7 +229,7 @@ function switchLang(lang) {
   document.getElementById('lbl-budget').textContent = L.budget;
   document.getElementById('lbl-timeline').textContent = L.timeline;
   document.getElementById('lbl-notes-title').textContent = L.notesTitle;
-  document.getElementById('lbl-notes').textContent = L.notes;
+  document.getElementById('lbl-notes').textContent = L.notes.replace('{name}', coordName || 'HUA');
   document.getElementById('btn-save').textContent = L.save;
   // Update placeholders
   document.getElementById('field-location').placeholder = L.locationPh;
@@ -248,6 +249,13 @@ async function loadData() {
     if (res.ok) {
       cloudData = await res.json();
       const info = cloudData.projectInfo || {};
+      // Read coordinator name
+      const cp = cloudData.coordinatorProfile || {};
+      coordName = cp.name || 'HUA';
+      // Update notes label with actual coordinator name
+      const L = labels[currentLang];
+      document.getElementById('lbl-notes').textContent = L.notes.replace('{name}', coordName);
+      // Fill form fields
       document.getElementById('field-location').value = info.location || '';
       document.getElementById('field-area').value = info.area || '';
       document.getElementById('field-struct').value = info.structureType || '';
