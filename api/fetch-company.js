@@ -13,10 +13,39 @@ module.exports = async function handler(req, res) {
   if (!url) return res.status(400).json({ error: 'URL is required' });
 
   try {
-    // Step 1: Fetch homepage
-    const homepage = await fetchPage(url);
+    // Step 1: Fetch homepage (try multiple URL variations)
+    let homepage = await fetchPage(url);
+    
+    // If root URL fails, try common alternative paths
     if (!homepage.ok) {
-      return res.status(502).json({ error: `Failed to fetch: HTTP ${homepage.status}` });
+      const baseUrl = new URL(url);
+      const fallbackPaths = [
+        baseUrl.origin + '/index.html',
+        baseUrl.origin + '/home',
+        baseUrl.origin + '/' + baseUrl.hostname.replace('www.', '').split('.')[0] + '/index.html'
+      ];
+      for (const fallbackUrl of fallbackPaths) {
+        const attempt = await fetchPage(fallbackUrl, 8000);
+        if (attempt.ok) {
+          homepage = attempt;
+          break;
+        }
+      }
+    }
+    
+    if (!homepage.ok) {
+      const reason = homepage.error || '';
+      let userMsg = `无法访问该网站 (HTTP ${homepage.status || '超时'})`;
+      if (reason.includes('abort') || reason.includes('timeout') || homepage.status === 0) {
+        userMsg = '网站连接超时，可能是该网站屏蔽了境外访问或服务器暂时不可用。建议稍后重试，或手动填写信息。';
+      } else if (homepage.status === 403) {
+        userMsg = '网站拒绝访问 (403)，可能开启了防爬策略。建议手动访问网站复制信息。';
+      } else if (homepage.status === 404) {
+        userMsg = '页面未找到 (404)，请检查URL是否正确。';
+      } else if (homepage.status >= 500) {
+        userMsg = '网站服务器错误，请稍后重试。';
+      }
+      return res.status(502).json({ error: userMsg });
     }
 
     const homeHtml = homepage.html;
