@@ -23,11 +23,17 @@ module.exports = async function handler(req, res) {
     for (const tryUrl of urlsToTry) {
       const attempt = await fetchPage(tryUrl);
       if (attempt.ok) {
-        // Check if this page has meaningful Chinese content
         const text = htmlToText(attempt.html);
+        // Skip 404/error pages (very short content or contains 404 indicators)
+        const is404 = text.length < 100 || 
+          /404|page\s*not\s*found|页面.*不存在|页面.*找不到/i.test(text) ||
+          attempt.html.includes('/404/') || attempt.html.includes('404.png') || attempt.html.includes('404.jpg');
+        if (is404 && tryUrl !== urlsToTry[urlsToTry.length - 1]) {
+          continue; // Skip 404 pages, try next URL
+        }
+        // Check if this page has meaningful Chinese content (min 200 chars total)
         const chineseRatio = (text.match(/[\u4e00-\u9fa5]/g) || []).length / Math.max(text.length, 1);
-        if (chineseRatio > 0.1 || tryUrl === urlsToTry[urlsToTry.length - 1]) {
-          // Has Chinese content or it's the last resort (original URL)
+        if ((chineseRatio > 0.1 && text.length > 200) || tryUrl === urlsToTry[urlsToTry.length - 1]) {
           homepage = attempt;
           effectiveUrl = tryUrl;
           break;
@@ -164,7 +170,10 @@ function buildChineseUrlPriority(originalUrl) {
   const parsed = new URL(originalUrl);
   const hostname = parsed.hostname;
   
-  // Strategy 1: If it's a .com domain, try .cn / .com.cn first
+  // Strategy 1: Try original URL FIRST (fastest path — many sites are already Chinese)
+  urls.push(originalUrl);
+  
+  // Strategy 2: If it's a .com domain, also try .cn / .com.cn
   if (hostname.endsWith('.com') && !hostname.endsWith('.com.cn')) {
     const cnDomain = hostname.replace(/\.com$/, '.cn');
     const comCnDomain = hostname.replace(/\.com$/, '.com.cn');
@@ -172,14 +181,11 @@ function buildChineseUrlPriority(originalUrl) {
     urls.push(parsed.protocol + '//' + comCnDomain + parsed.pathname);
   }
   
-  // Strategy 2: Try Chinese language paths on the original domain
-  const chinesePaths = ['/zh', '/zh-cn', '/cn', '/zh-CN', '/chinese'];
+  // Strategy 3: Try Chinese language paths on the original domain
+  const chinesePaths = ['/zh', '/zh-cn', '/cn'];
   for (const p of chinesePaths) {
     urls.push(parsed.origin + p + '/');
   }
-  
-  // Strategy 3: Original URL as final fallback
-  urls.push(originalUrl);
   
   // Deduplicate
   return [...new Set(urls)];
