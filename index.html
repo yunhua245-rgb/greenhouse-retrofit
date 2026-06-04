@@ -86,24 +86,29 @@
   .contact-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#f7f8fa;border:1px solid #e8eaed;border-radius:8px;font-size:12px;color:#555;text-decoration:none;transition:all 0.2s}
   .contact-chip:hover{background:#e8f5ee;border-color:#148a4e;color:#0a6e3a}
   
-  /* Smart Quiz Card */
+  /* Smart Quiz — Single Question Mode */
   .quiz-section{margin-top:0}
   .quiz-card{background:#fff;border:1px solid #e8eaed;border-radius:14px;padding:20px;margin-bottom:12px;transition:all 0.3s}
   .quiz-card.answered{opacity:0.6;transform:scale(0.98)}
   .quiz-card.answered .quiz-options{pointer-events:none}
-  .quiz-q{font-size:15px;font-weight:600;color:#1a1a2e;margin-bottom:12px;line-height:1.5}
-  .quiz-q .q-icon{display:inline-block;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#148a4e,#0a6e3a);color:#fff;text-align:center;line-height:26px;font-size:13px;font-weight:700;margin-right:8px;vertical-align:middle}
+  .quiz-progress{font-size:11px;color:#888;margin-bottom:8px;font-weight:500}
+  .quiz-q{font-size:15px;font-weight:600;color:#1a1a2e;margin-bottom:14px;line-height:1.5}
   .quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
   .quiz-opt{padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fafafa;font-size:13px;cursor:pointer;transition:all 0.2s;text-align:center;color:#333;line-height:1.4}
   .quiz-opt:hover{border-color:#148a4e;background:#e8f5ee;color:#0a6e3a}
   .quiz-opt.selected{border-color:#148a4e;background:#148a4e;color:#fff;font-weight:600}
-  .quiz-opt.selected::before{content:'✓ '}
+  .quiz-opt.selected::before{content:''}
   .quiz-status{text-align:center;padding:14px;font-size:13px;color:#888}
   .quiz-loading{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;color:#888;font-size:13px}
   .quiz-loading .spinner{width:18px;height:18px;border:2px solid #e0e0e0;border-top-color:#148a4e;border-radius:50%;animation:spin 0.8s linear infinite}
   .quiz-done{text-align:center;padding:16px;background:#e8f5ee;border-radius:12px;color:#0a6e3a;font-size:14px;font-weight:600}
-  .quiz-more-btn{display:block;width:100%;padding:10px;border:1.5px dashed #ccc;border-radius:10px;background:transparent;font-size:13px;color:#888;cursor:pointer;transition:all 0.2s;margin-top:8px}
-  .quiz-more-btn:hover{border-color:#148a4e;color:#0a6e3a;background:#f0faf4}
+  .quiz-skip-btn{display:block;width:100%;padding:10px;border:1.5px dashed #ccc;border-radius:10px;background:transparent;font-size:13px;color:#888;cursor:pointer;transition:all 0.2s;margin-top:4px}
+  .quiz-skip-btn:hover{border-color:#148a4e;color:#0a6e3a;background:#f0faf4}
+  .quiz-freeform-wrap{display:flex;flex-direction:column;gap:10px}
+  .quiz-freeform-wrap textarea{width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:12px;font-size:14px;font-family:inherit;resize:vertical;transition:border-color 0.2s;line-height:1.5}
+  .quiz-freeform-wrap textarea:focus{outline:none;border-color:#148a4e}
+  .quiz-submit-btn{align-self:flex-end;padding:8px 20px;border:none;border-radius:8px;background:#148a4e;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s}
+  .quiz-submit-btn:hover{background:#0a6e3a}
   @media(max-width:480px){.quiz-options{grid-template-columns:1fr}}
   
   .client-edit-link{display:block;text-align:center;margin-top:20px;padding:14px;background:#f7f8fa;border:1px dashed #ccc;border-radius:12px;text-decoration:none;color:#555;font-size:14px;transition:all 0.2s}
@@ -267,7 +272,7 @@
     </div>
   </div>
 
-  <!-- SMART QUIZ SECTION -->
+  <!-- SMART QUIZ SECTION — Single Question Mode -->
   <div class="section quiz-section" id="quiz-section" style="display:none">
     <div class="section-header">
       <div class="section-icon" style="background:#fff3e0;color:#b86e00">❓</div>
@@ -281,8 +286,34 @@
         <div class="spinner"></div>
         <span id="quiz-loading-text">Generating questions...</span>
       </div>
+      <!-- Single question card -->
+      <div id="quiz-single" style="display:none">
+        <div class="quiz-card" id="quiz-active-card">
+          <div class="quiz-progress"><span id="quiz-progress-text">1 / 3</span></div>
+          <div class="quiz-q" id="quiz-q-text"></div>
+          <div class="quiz-options" id="quiz-q-options"></div>
+          <div class="quiz-feedback" id="quiz-q-feedback" style="display:none"></div>
+        </div>
+        <button class="quiz-skip-btn" id="quiz-skip-btn" onclick="skipQuestion()">
+          <span id="quiz-skip-text">Skip this one</span>
+        </button>
+      </div>
+      <!-- Free-form input after all answered -->
+      <div id="quiz-freeform" style="display:none">
+        <div class="quiz-card">
+          <div class="quiz-q" id="quiz-freeform-label">Anything else you'd like to tell your coordinator?</div>
+          <div class="quiz-freeform-wrap">
+            <textarea id="quiz-freeform-input" rows="3" placeholder=""></textarea>
+            <button class="quiz-submit-btn" id="quiz-freeform-submit" onclick="submitFreeform()">Send</button>
+          </div>
+          <div class="quiz-feedback" id="quiz-freeform-feedback" style="display:none"></div>
+        </div>
+      </div>
+      <!-- All done -->
+      <div id="quiz-alldone" style="display:none">
+        <div class="quiz-done" id="quiz-done-text"></div>
+      </div>
     </div>
-    <button class="quiz-more-btn" id="quiz-more-btn" style="display:none" onclick="loadMoreQuestions()">🔄 More questions</button>
   </div>
 
   <!-- CLIENT EDIT LINK -->
@@ -642,15 +673,17 @@ function renderPhases() {
 fetchData();
 
 
-// ===================== SMART QUIZ SYSTEM =====================
+// ===================== SMART QUIZ SYSTEM — Single Question Mode =====================
 const QUIZ_API = '/api/generate-questions';
 const SAVE_ANSWER_API = '/api/save-quiz-answer';
-let quizAnswered = {}; // track answered slots
+let quizAnswered = {};
+let quizQuestions = []; // all loaded questions
+let quizIndex = 0; // current question index
 
 const quizI18n = {
-  en: { title: 'Help us understand your project', subtitle: 'Answer a few quick questions to get more accurate results', loading: 'Generating questions...', done: '✓ All info collected — thank you!', more: '🔄 More questions', saving: 'Saving...', saved: '✓ Saved!', errGenerate: '⚠️ Could not generate questions', errNetwork: '⚠️ Connection error', errSave: '⚠️ Save failed' },
-  ru: { title: 'Помогите нам понять ваш проект', subtitle: 'Ответьте на несколько вопросов для более точных результатов', loading: 'Генерация вопросов...', done: '✓ Вся информация собрана — спасибо!', more: '🔄 Ещё вопросы', saving: 'Сохранение...', saved: '✓ Сохранено!', errGenerate: '⚠️ Не удалось сгенерировать вопросы', errNetwork: '⚠️ Ошибка соединения', errSave: '⚠️ Ошибка сохранения' },
-  zh: { title: '帮助我们了解您的项目', subtitle: '回答几个简单问题，获得更精准的方案', loading: '正在生成问题...', done: '✓ 所有信息已收集完成，感谢！', more: '🔄 更多问题', saving: '保存中...', saved: '✓ 已保存！', errGenerate: '⚠️ 问题生成失败', errNetwork: '⚠️ 网络连接错误', errSave: '⚠️ 保存失败' }
+  en: { title: 'Help us understand your project', subtitle: 'Answer a few quick questions to get more accurate results', loading: 'Generating questions...', done: 'All info collected — thank you!', skip: 'Skip this one', saving: 'Saving...', saved: 'Saved!', errGenerate: 'Could not generate questions', errNetwork: 'Connection error', errSave: 'Save failed', freeform: "Anything else you'd like to tell your coordinator?", freeformPlaceholder: 'Type here...', send: 'Send', freeformSaved: 'Sent — thank you!' },
+  ru: { title: 'Помогите нам понять ваш проект', subtitle: 'Ответьте на несколько вопросов для более точных результатов', loading: 'Генерация вопросов...', done: 'Вся информация собрана — спасибо!', skip: 'Пропустить', saving: 'Сохранение...', saved: 'Сохранено!', errGenerate: 'Не удалось сгенерировать вопросы', errNetwork: 'Ошибка соединения', errSave: 'Ошибка сохранения', freeform: 'Что-нибудь ещё хотите сообщить координатору?', freeformPlaceholder: 'Напишите здесь...', send: 'Отправить', freeformSaved: 'Отправлено — спасибо!' },
+  zh: { title: '帮助我们了解您的项目', subtitle: '回答几个简单问题，获得更精准的方案', loading: '正在生成问题...', done: '所有信息已收集完成，感谢！', skip: '换一个', saving: '保存中...', saved: '已保存！', errGenerate: '问题生成失败', errNetwork: '网络连接错误', errSave: '保存失败', freeform: '还有什么想对你的协调人补充的？', freeformPlaceholder: '请输入...', send: '发送', freeformSaved: '已发送，感谢！' }
 };
 
 function getMissingSlots() {
@@ -661,38 +694,33 @@ function getMissingSlots() {
 async function initQuiz() {
   const missing = getMissingSlots();
   if (missing.length === 0) {
-    document.getElementById('quiz-section').style.display = 'none';
+    // No questions needed but still show freeform
+    showFreeformOnly();
     return;
   }
 
-  // Show quiz section
   const section = document.getElementById('quiz-section');
   section.style.display = 'block';
 
-  // Update i18n
   const t = quizI18n[currentLang] || quizI18n.en;
   document.getElementById('quiz-title').textContent = t.title;
   document.getElementById('quiz-subtitle').textContent = t.subtitle;
   document.getElementById('quiz-loading-text').textContent = t.loading;
-  document.getElementById('quiz-more-btn').textContent = t.more;
 
   await loadQuestions(missing);
 }
 
 async function loadQuestions(missingSlots) {
-  const container = document.getElementById('quiz-container');
   const loadingEl = document.getElementById('quiz-loading');
-  const moreBtn = document.getElementById('quiz-more-btn');
-  
   loadingEl.style.display = 'flex';
-  moreBtn.style.display = 'none';
+  document.getElementById('quiz-single').style.display = 'none';
 
   try {
     const res = await fetch(QUIZ_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        missingSlots: missingSlots.slice(0, 3),
+        missingSlots: missingSlots.slice(0, 5),
         existingInfo: projectInfo,
         lang: currentLang
       })
@@ -702,51 +730,69 @@ async function loadQuestions(missingSlots) {
     loadingEl.style.display = 'none';
 
     if (data.success && data.questions && data.questions.length > 0) {
-      renderQuizCards(data.questions);
-      // Show "more" button if there are still more missing slots
-      if (getMissingSlots().length > data.questions.length) {
-        moreBtn.style.display = 'block';
-      }
+      quizQuestions = data.questions;
+      quizIndex = 0;
+      showCurrentQuestion();
     } else {
       const t = quizI18n[currentLang] || quizI18n.en;
-      container.innerHTML = `<div class="quiz-status">${t.errGenerate}</div>`;
+      document.getElementById('quiz-single').style.display = 'none';
+      showFreeformOnly();
     }
   } catch (e) {
     loadingEl.style.display = 'none';
     const t = quizI18n[currentLang] || quizI18n.en;
-    container.innerHTML = `<div class="quiz-status">${t.errNetwork}</div>`;
+    document.getElementById('quiz-container').innerHTML = `<div class="quiz-status">${t.errNetwork}</div>`;
   }
 }
 
-function renderQuizCards(questions) {
-  const container = document.getElementById('quiz-container');
-  container.innerHTML = questions.map((q, idx) => {
-    const optionsHtml = (q.options || []).map((opt, oi) => 
-      `<div class="quiz-opt" data-slot="${escHtml(q.slot)}" data-value="${escHtml(opt)}" onclick="selectQuizOption(this)">${escHtml(opt)}</div>`
-    ).join('');
-    return `<div class="quiz-card" id="quiz-card-${idx}">
-      <div class="quiz-q"><span class="q-icon">${idx + 1}</span>${escHtml(q.question)}</div>
-      <div class="quiz-options">${optionsHtml}</div>
-      <div class="quiz-feedback" style="display:none;margin-top:8px;font-size:12px;color:#148a4e;font-weight:600"></div>
-    </div>`;
-  }).join('');
+function showCurrentQuestion() {
+  const t = quizI18n[currentLang] || quizI18n.en;
+  const singleEl = document.getElementById('quiz-single');
+  singleEl.style.display = 'block';
+  document.getElementById('quiz-freeform').style.display = 'none';
+  document.getElementById('quiz-alldone').style.display = 'none';
+
+  const q = quizQuestions[quizIndex];
+  if (!q) { showFreeform(); return; }
+
+  // Progress
+  document.getElementById('quiz-progress-text').textContent = (quizIndex + 1) + ' / ' + quizQuestions.length;
+  // Question text
+  document.getElementById('quiz-q-text').textContent = q.question;
+  // Options
+  const optionsEl = document.getElementById('quiz-q-options');
+  optionsEl.innerHTML = (q.options || []).map(opt =>
+    `<div class="quiz-opt" data-slot="${escHtml(q.slot)}" data-value="${escHtml(opt)}" onclick="selectQuizOption(this)">${escHtml(opt)}</div>`
+  ).join('');
+  // Reset feedback
+  document.getElementById('quiz-q-feedback').style.display = 'none';
+  // Skip button text
+  document.getElementById('quiz-skip-text').textContent = t.skip;
+}
+
+function skipQuestion() {
+  quizIndex++;
+  if (quizIndex >= quizQuestions.length) {
+    showFreeform();
+  } else {
+    showCurrentQuestion();
+  }
 }
 
 async function selectQuizOption(el) {
   const slot = el.dataset.slot;
   const value = el.dataset.value;
-  const card = el.closest('.quiz-card');
-  
-  // Visual feedback - mark as selected
-  card.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('selected'));
-  el.classList.add('selected');
-  
-  const feedback = card.querySelector('.quiz-feedback');
   const t = quizI18n[currentLang] || quizI18n.en;
+
+  // Visual: mark selected
+  document.querySelectorAll('#quiz-q-options .quiz-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+
+  const feedback = document.getElementById('quiz-q-feedback');
   feedback.style.display = 'block';
+  feedback.style.color = '#148a4e';
   feedback.textContent = t.saving;
 
-  // Save to backend
   try {
     const res = await fetch(SAVE_ANSWER_API, {
       method: 'POST',
@@ -754,25 +800,24 @@ async function selectQuizOption(el) {
       body: JSON.stringify({ slot, value })
     });
     const data = await res.json();
-    
+
     if (data.success) {
       feedback.textContent = t.saved;
-      card.classList.add('answered');
       quizAnswered[slot] = value;
-      // Update local projectInfo
       projectInfo[slot] = value;
       renderProjectInfo();
-      
-      // Check if all done
+
+      // Move to next question after a brief pause
       setTimeout(() => {
-        const remaining = getMissingSlots();
-        if (remaining.length === 0) {
-          document.getElementById('quiz-container').innerHTML = `<div class="quiz-done">${t.done}</div>`;
-          document.getElementById('quiz-more-btn').style.display = 'none';
+        quizIndex++;
+        if (quizIndex >= quizQuestions.length) {
+          showFreeform();
+        } else {
+          showCurrentQuestion();
         }
-      }, 800);
+      }, 600);
     } else {
-      feedback.textContent = t.errSave + (data.error ? ': ' + data.error : '');
+      feedback.textContent = t.errSave;
       feedback.style.color = '#b86e00';
     }
   } catch (e) {
@@ -781,10 +826,63 @@ async function selectQuizOption(el) {
   }
 }
 
-function loadMoreQuestions() {
-  const missing = getMissingSlots();
-  if (missing.length > 0) {
-    loadQuestions(missing);
+function showFreeform() {
+  document.getElementById('quiz-single').style.display = 'none';
+  document.getElementById('quiz-freeform').style.display = 'block';
+  document.getElementById('quiz-alldone').style.display = 'none';
+
+  const t = quizI18n[currentLang] || quizI18n.en;
+  document.getElementById('quiz-freeform-label').textContent = t.freeform;
+  document.getElementById('quiz-freeform-input').placeholder = t.freeformPlaceholder;
+  document.getElementById('quiz-freeform-submit').textContent = t.send;
+  document.getElementById('quiz-freeform-feedback').style.display = 'none';
+}
+
+function showFreeformOnly() {
+  const section = document.getElementById('quiz-section');
+  section.style.display = 'block';
+  const t = quizI18n[currentLang] || quizI18n.en;
+  document.getElementById('quiz-title').textContent = t.title;
+  document.getElementById('quiz-subtitle').textContent = t.subtitle;
+  document.getElementById('quiz-loading').style.display = 'none';
+  showFreeform();
+}
+
+async function submitFreeform() {
+  const input = document.getElementById('quiz-freeform-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const t = quizI18n[currentLang] || quizI18n.en;
+  const feedback = document.getElementById('quiz-freeform-feedback');
+  feedback.style.display = 'block';
+  feedback.style.color = '#148a4e';
+  feedback.textContent = t.saving;
+
+  try {
+    const res = await fetch(SAVE_ANSWER_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slot: 'freeformNote', value: text })
+    });
+    const data = await res.json();
+
+    if (data.success) {
+      feedback.textContent = t.freeformSaved;
+      input.value = '';
+      // Show done state after a pause
+      setTimeout(() => {
+        document.getElementById('quiz-freeform').style.display = 'none';
+        document.getElementById('quiz-alldone').style.display = 'block';
+        document.getElementById('quiz-done-text').textContent = t.done;
+      }, 1000);
+    } else {
+      feedback.textContent = t.errSave;
+      feedback.style.color = '#b86e00';
+    }
+  } catch(e) {
+    feedback.textContent = t.errNetwork;
+    feedback.style.color = '#b86e00';
   }
 }
 
@@ -794,23 +892,27 @@ setTimeout(initQuiz, 500);
 // Re-initialize quiz when language changes
 function refreshQuizLang() {
   const section = document.getElementById('quiz-section');
-  if (section.style.display === 'none') return; // quiz not active
-  
-  const missing = getMissingSlots();
-  if (missing.length === 0) return;
-  
-  // Update static text immediately
+  if (section.style.display === 'none') return;
+
   const t = quizI18n[currentLang] || quizI18n.en;
   document.getElementById('quiz-title').textContent = t.title;
   document.getElementById('quiz-subtitle').textContent = t.subtitle;
-  document.getElementById('quiz-more-btn').textContent = t.more;
-  
-  // Re-generate questions in new language
-  const container = document.getElementById('quiz-container');
-  // Only re-fetch if there are unanswered questions visible
-  const unanswered = container.querySelectorAll('.quiz-card:not(.answered)');
-  if (unanswered.length > 0 || container.querySelector('.quiz-loading')) {
-    loadQuestions(missing);
+
+  // If currently showing a question, re-render it (options keep same data)
+  const singleEl = document.getElementById('quiz-single');
+  if (singleEl.style.display !== 'none' && quizQuestions.length > 0) {
+    document.getElementById('quiz-skip-text').textContent = t.skip;
+    // Re-fetch questions in new language
+    const missing = getMissingSlots();
+    if (missing.length > 0) loadQuestions(missing);
+  }
+
+  // If freeform visible, update labels
+  const freeformEl = document.getElementById('quiz-freeform');
+  if (freeformEl.style.display !== 'none') {
+    document.getElementById('quiz-freeform-label').textContent = t.freeform;
+    document.getElementById('quiz-freeform-input').placeholder = t.freeformPlaceholder;
+    document.getElementById('quiz-freeform-submit').textContent = t.send;
   }
 }
 </script>
