@@ -18,16 +18,16 @@ module.exports = async function handler(req, res) {
     const urlsToTry = buildChineseUrlPriority(url);
     
     // Step 1: Try URLs in priority order (Chinese versions first)
-    // Limit to 3 URLs max to stay within Vercel 10s timeout
+    // Time budget: 6s for URL tries, then leave 20s+ for subpages/AI/inference
     let homepage = { ok: false, status: 0 };
     let effectiveUrl = url;
     const startTime = Date.now();
     
     for (const tryUrl of urlsToTry.slice(0, 3)) {
-      // Abort if we've spent >5s already (leave time for subpages + response)
-      if (Date.now() - startTime > 5000) break;
+      // Abort if we've spent >3s already (leave plenty of time for AI inference)
+      if (Date.now() - startTime > 3000) break;
       
-      const attempt = await fetchPage(tryUrl, 4000);
+      const attempt = await fetchPage(tryUrl, 3000);
       if (attempt.ok) {
         const text = htmlToText(attempt.html);
         // Skip 404/error pages (very short content or contains 404 indicators)
@@ -52,21 +52,13 @@ module.exports = async function handler(req, res) {
       }
     }
     
-    // If all priority URLs failed, try one common alternative path (keep it fast)
-    if (!homepage.ok && Date.now() - startTime < 6000) {
+    // If all priority URLs failed, try ONE fallback path (keep it fast)
+    if (!homepage.ok && Date.now() - startTime < 5000) {
       const baseUrl = new URL(url);
-      const fallbackPaths = [
-        baseUrl.origin + '/index.html',
-        baseUrl.origin + '/home'
-      ];
-      for (const fallbackUrl of fallbackPaths) {
-        if (Date.now() - startTime > 6000) break;
-        const attempt = await fetchPage(fallbackUrl, 3000);
-        if (attempt.ok) {
-          homepage = attempt;
-          effectiveUrl = fallbackUrl;
-          break;
-        }
+      const attempt = await fetchPage(baseUrl.origin + '/index.html', 2000);
+      if (attempt.ok) {
+        homepage = attempt;
+        effectiveUrl = baseUrl.origin + '/index.html';
       }
     }
     
@@ -82,18 +74,21 @@ module.exports = async function handler(req, res) {
           note: '⚠️ 网站无法直接访问，以下信息基于AI知识库推断，请核实后确认。'
         });
       }
-      // AI inference also failed — return error
+      // AI inference also failed — return error with more context
       const reason = homepage.error || '';
+      const elapsed = Date.now() - startTime;
       let userMsg = `无法访问该网站 (HTTP ${homepage.status || '超时'})`;
       if (reason.includes('abort') || reason.includes('timeout') || homepage.status === 0) {
-        userMsg = '网站连接超时，可能是该网站屏蔽了境外访问或服务器暂时不可用。建议稍后重试，或手动填写信息。';
+        userMsg = '网站连接超时，可能是该网站屏蔽了境外访问或服务器暂时不可用。';
       } else if (homepage.status === 403) {
-        userMsg = '网站拒绝访问 (403)，可能开启了防爬策略。建议手动访问网站复制信息。';
+        userMsg = '网站拒绝访问 (403)，可能开启了防爬策略。';
       } else if (homepage.status === 404) {
         userMsg = '页面未找到 (404)，请检查URL是否正确。';
       } else if (homepage.status >= 500) {
         userMsg = '网站服务器错误，请稍后重试。';
       }
+      // Add hint about AI fallback failure
+      userMsg += '\nAI知识库也未能识别该公司，建议手动填写信息。';
       return res.status(502).json({ error: userMsg });
     }
 
@@ -192,18 +187,16 @@ function buildChineseUrlPriority(originalUrl) {
   // Strategy 1: Try original URL FIRST (fastest path — many sites are already Chinese)
   urls.push(originalUrl);
   
-  // Strategy 2: If it's a .com domain, also try .cn / .com.cn
-  if (hostname.endsWith('.com') && !hostname.endsWith('.com.cn')) {
-    const cnDomain = hostname.replace(/\.com$/, '.cn');
-    const comCnDomain = hostname.replace(/\.com$/, '.com.cn');
-    urls.push(parsed.protocol + '//' + cnDomain + parsed.pathname);
-    urls.push(parsed.protocol + '//' + comCnDomain + parsed.pathname);
+  // Strategy 2: Try Chinese language paths on the SAME domain (fast — same server)
+  // Only add /zh if original path is just /
+  if (parsed.pathname === '/' || parsed.pathname === '') {
+    urls.push(parsed.origin + '/zh/');
   }
   
-  // Strategy 3: Try Chinese language paths on the original domain
-  const chinesePaths = ['/zh', '/zh-cn', '/cn'];
-  for (const p of chinesePaths) {
-    urls.push(parsed.origin + p + '/');
+  // Strategy 3: If it's a .com domain, try .cn (only ONE alternate domain to save time)
+  if (hostname.endsWith('.com') && !hostname.endsWith('.com.cn')) {
+    const cnDomain = hostname.replace(/\.com$/, '.cn');
+    urls.push(parsed.protocol + '//' + cnDomain + '/');
   }
   
   // Deduplicate
@@ -481,12 +474,10 @@ function extractContact(html, text) {
 
 // --- Helper: Infer company info from domain name using AI knowledge ---
 async function inferFromDomain(domain, fullUrl) {
-  const apiKey = process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY;
-  if (!apiKey) return null;
-  
-  const isDeepseek = !!process.env.DEEPSEEK_API_KEY;
-  const apiBase = isDeepseek ? 'https://api.deepseek.com' : 'https://api.openai.com';
-  const model = isDeepseek ? 'deepseek-chat' : 'gpt-4o-mini';
+  // Use same env vars as ai-summary.js for consistency
+  const apiKey = process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY || 'sk-f2a6af8a39d848a5ade70105fb27c208';
+  const apiBase = process.env.AI_BASE_URL || 'https://api.deepseek.com';
+  const model = process.env.AI_MODEL || 'deepseek-chat';
   
   const prompt = `I cannot access the website ${fullUrl} (blocked/timeout). Based on your knowledge of the company behind the domain "${domain}", please provide:
 
@@ -504,7 +495,7 @@ If you don't know a field, leave it empty string. Do NOT invent or guess — onl
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 20000);
     
     const res = await fetch(`${apiBase}/v1/chat/completions`, {
       method: 'POST',
