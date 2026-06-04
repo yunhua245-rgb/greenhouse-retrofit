@@ -1,9 +1,6 @@
 // Vercel Serverless Function — Fetch company website (homepage + subpages) and extract info
 // Crawls key subpages (about, contact, products) for more complete data
-// Uses headless Chrome (Puppeteer) for SPA sites that require JS rendering
-
-const chromium = require('@sparticuz/chromium');
-const puppeteer = require('puppeteer-core');
+// SPA rendering delegated to separate /api/render-spa function
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -523,47 +520,34 @@ function extractContact(html, text) {
   };
 }
 
-// --- Helper: Render SPA page with headless Chrome (Puppeteer) ---
+// --- Helper: Render SPA page via internal /api/render-spa endpoint ---
 async function renderWithBrowser(url) {
-  let browser = null;
   try {
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
-      headless: chromium.headless
+    // Determine base URL for internal API call
+    // In Vercel, use VERCEL_URL env var; locally use localhost
+    const baseUrl = process.env.VERCEL_URL 
+      ? `https://${process.env.VERCEL_URL}` 
+      : 'http://localhost:3000';
+    
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    
+    const response = await fetch(`${baseUrl}/api/render-spa`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url }),
+      signal: controller.signal
     });
     
-    const page = await browser.newPage();
+    clearTimeout(timeout);
     
-    // Set Chinese locale headers
-    await page.setExtraHTTPHeaders({
-      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8'
-    });
+    if (!response.ok) return null;
     
-    // Navigate and wait for JS to render (networkidle2 = no more than 2 connections for 500ms)
-    await page.goto(url, {
-      waitUntil: 'networkidle2',
-      timeout: 15000
-    });
+    const data = await response.json();
+    if (!data.success) return null;
     
-    // Wait a bit more for late-rendering content
-    await new Promise(r => setTimeout(r, 2000));
-    
-    // Extract text content and full HTML
-    const result = await page.evaluate(() => {
-      return {
-        text: document.body ? document.body.innerText : '',
-        html: document.documentElement ? document.documentElement.outerHTML : ''
-      };
-    });
-    
-    await browser.close();
-    return result;
+    return { text: data.text, html: data.html };
   } catch (e) {
-    if (browser) {
-      try { await browser.close(); } catch {}
-    }
     return null;
   }
 }
