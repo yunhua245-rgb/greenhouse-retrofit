@@ -193,45 +193,48 @@ function guessCommonSubpages(baseUrl) {
 
 // --- Helper: Extract content from SPA JS bundles ---
 async function extractSPAContent(html, baseUrl) {
-  // Find JS bundle URLs (app.js, main chunk files - skip vendor/lib chunks)
-  const jsMatches = html.matchAll(/(?:src|href)=["']([^"']*(?:app|main|index|chunk-[a-f0-9]{6,})[^"']*\.js)["']/gi);
+  // Find JS bundle URLs — include app chunks, named chunks, exclude vendor/lib
+  const jsMatches = html.matchAll(/(?:src|href)=["']([^"']*\.js)["']/gi);
   const jsUrls = [];
+  const seen = new Set();
   for (const m of jsMatches) {
     let jsUrl = m[1];
-    // Skip obviously vendor/library chunks
-    if (/chunk-(?:elementUI|libs|vendor|runtime)/i.test(jsUrl)) continue;
+    // Skip vendor/library/runtime chunks
+    if (/chunk-(?:elementUI|libs|vendor|runtime)|runtime\.|jweixin/i.test(jsUrl)) continue;
     try {
       jsUrl = new URL(jsUrl, baseUrl.origin).href;
+      if (seen.has(jsUrl)) continue;
+      seen.add(jsUrl);
       jsUrls.push(jsUrl);
     } catch {}
   }
 
   if (jsUrls.length === 0) return '';
 
-  // Fetch up to 3 JS files
+  // Fetch up to 5 JS files (app + page chunks likely contain content)
   const results = await Promise.allSettled(
-    jsUrls.slice(0, 3).map(u => fetchPage(u, 6000))
+    jsUrls.slice(0, 5).map(u => fetchPage(u, 6000))
   );
 
   let extracted = '';
   for (const r of results) {
     if (r.status === 'fulfilled' && r.value.ok) {
       const js = r.value.html; // it's JS code but stored as text
-      // Extract Chinese text strings from JS (between quotes)
-      const chineseStrings = js.match(/["'`]([\u4e00-\u9fa5][\u4e00-\u9fa5\w\s，。、：；！？（）\-—·""''《》【】\d.%]{4,200})["'`]/g);
+      // Extract Chinese text strings from JS (between quotes, min 4 chars)
+      const chineseStrings = js.match(/["'`]([\u4e00-\u9fa5][\u4e00-\u9fa5\w\s，。、：；！？（）\-—·""''《》【】\d.%/]{3,300})["'`]/g);
       if (chineseStrings) {
         const uniqueTexts = [...new Set(chineseStrings.map(s => s.slice(1, -1)))];
-        extracted += uniqueTexts.join(' ');
+        extracted += uniqueTexts.join(' ') + ' ';
       }
       // Also extract phone numbers and emails from JS
       const phones = js.match(/["'](1[3-9]\d{9}|0\d{2,3}[-]?\d{7,8}|400[-]?\d{3,4}[-]?\d{3,4})["']/g);
-      if (phones) extracted += ' ' + phones.map(p => p.slice(1, -1)).join(' ');
+      if (phones) extracted += phones.map(p => p.slice(1, -1)).join(' ') + ' ';
       const emails = js.match(/["']([\w.+-]+@[\w-]+\.[\w.-]+)["']/g);
-      if (emails) extracted += ' ' + emails.map(e => e.slice(1, -1)).join(' ');
+      if (emails) extracted += emails.map(e => e.slice(1, -1)).join(' ') + ' ';
     }
   }
 
-  return extracted.substring(0, 5000);
+  return extracted.substring(0, 8000);
 }
 
 // --- Helper: HTML to plain text ---
