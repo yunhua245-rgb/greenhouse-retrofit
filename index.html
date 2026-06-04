@@ -395,6 +395,7 @@ function switchLang(lang) {
   renderCoordinator();
   renderPhases();
   translateUserContent(); // Auto-translate user-generated text
+  refreshQuizLang(); // Re-render quiz in new language
 }
 
 // Cloud data
@@ -626,9 +627,9 @@ const SAVE_ANSWER_API = '/api/save-quiz-answer';
 let quizAnswered = {}; // track answered slots
 
 const quizI18n = {
-  en: { title: 'Help us understand your project', subtitle: 'Answer a few quick questions to get more accurate results', loading: 'Generating questions...', done: '✓ All info collected — thank you!', more: '🔄 More questions', saving: 'Saving...', saved: '✓ Saved!' },
-  ru: { title: 'Помогите нам понять ваш проект', subtitle: 'Ответьте на несколько вопросов для более точных результатов', loading: 'Генерация вопросов...', done: '✓ Вся информация собрана — спасибо!', more: '🔄 Ещё вопросы', saving: 'Сохранение...', saved: '✓ Сохранено!' },
-  zh: { title: '帮助我们了解您的项目', subtitle: '回答几个简单问题，获得更精准的方案', loading: '正在生成问题...', done: '✓ 所有信息已收集完成，感谢！', more: '🔄 更多问题', saving: '保存中...', saved: '✓ 已保存！' }
+  en: { title: 'Help us understand your project', subtitle: 'Answer a few quick questions to get more accurate results', loading: 'Generating questions...', done: '✓ All info collected — thank you!', more: '🔄 More questions', saving: 'Saving...', saved: '✓ Saved!', errGenerate: '⚠️ Could not generate questions', errNetwork: '⚠️ Connection error', errSave: '⚠️ Save failed' },
+  ru: { title: 'Помогите нам понять ваш проект', subtitle: 'Ответьте на несколько вопросов для более точных результатов', loading: 'Генерация вопросов...', done: '✓ Вся информация собрана — спасибо!', more: '🔄 Ещё вопросы', saving: 'Сохранение...', saved: '✓ Сохранено!', errGenerate: '⚠️ Не удалось сгенерировать вопросы', errNetwork: '⚠️ Ошибка соединения', errSave: '⚠️ Ошибка сохранения' },
+  zh: { title: '帮助我们了解您的项目', subtitle: '回答几个简单问题，获得更精准的方案', loading: '正在生成问题...', done: '✓ 所有信息已收集完成，感谢！', more: '🔄 更多问题', saving: '保存中...', saved: '✓ 已保存！', errGenerate: '⚠️ 问题生成失败', errNetwork: '⚠️ 网络连接错误', errSave: '⚠️ 保存失败' }
 };
 
 function getMissingSlots() {
@@ -686,11 +687,13 @@ async function loadQuestions(missingSlots) {
         moreBtn.style.display = 'block';
       }
     } else {
-      container.innerHTML = '<div class="quiz-status">⚠️ Could not generate questions</div>';
+      const t = quizI18n[currentLang] || quizI18n.en;
+      container.innerHTML = `<div class="quiz-status">${t.errGenerate}</div>`;
     }
   } catch (e) {
     loadingEl.style.display = 'none';
-    container.innerHTML = '<div class="quiz-status">⚠️ Connection error</div>';
+    const t = quizI18n[currentLang] || quizI18n.en;
+    container.innerHTML = `<div class="quiz-status">${t.errNetwork}</div>`;
   }
 }
 
@@ -748,11 +751,11 @@ async function selectQuizOption(el) {
         }
       }, 800);
     } else {
-      feedback.textContent = '⚠️ ' + (data.error || 'Save failed');
+      feedback.textContent = t.errSave + (data.error ? ': ' + data.error : '');
       feedback.style.color = '#b86e00';
     }
   } catch (e) {
-    feedback.textContent = '⚠️ Network error';
+    feedback.textContent = t.errNetwork;
     feedback.style.color = '#b86e00';
   }
 }
@@ -766,6 +769,29 @@ function loadMoreQuestions() {
 
 // Initialize quiz after data loads
 setTimeout(initQuiz, 500);
+
+// Re-initialize quiz when language changes
+function refreshQuizLang() {
+  const section = document.getElementById('quiz-section');
+  if (section.style.display === 'none') return; // quiz not active
+  
+  const missing = getMissingSlots();
+  if (missing.length === 0) return;
+  
+  // Update static text immediately
+  const t = quizI18n[currentLang] || quizI18n.en;
+  document.getElementById('quiz-title').textContent = t.title;
+  document.getElementById('quiz-subtitle').textContent = t.subtitle;
+  document.getElementById('quiz-more-btn').textContent = t.more;
+  
+  // Re-generate questions in new language
+  const container = document.getElementById('quiz-container');
+  // Only re-fetch if there are unanswered questions visible
+  const unanswered = container.querySelectorAll('.quiz-card:not(.answered)');
+  if (unanswered.length > 0 || container.querySelector('.quiz-loading')) {
+    loadQuestions(missing);
+  }
+}
 </script>
 </body>
 </html>
