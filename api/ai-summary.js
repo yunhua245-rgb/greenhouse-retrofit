@@ -1,4 +1,4 @@
-// Vercel Serverless Function — AI Summary via NetEase AI Gateway
+// Vercel Serverless Function — AI Summary via SiliconFlow (Free API)
 // Proxies AI calls from frontend to avoid CORS issues
 
 module.exports = async function handler(req, res) {
@@ -19,10 +19,18 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'textContent is required' });
   }
 
-  // AI API Configuration
-  const AI_BASE_URL = 'https://aigw.netease.com/v1';
-  const AI_API_KEY = 'xwr0fg2y3yc6b4y3.kjqqwez7e1hqn86mr45ew3vvcvrui0l2';
-  const AI_MODEL = 'claude-opus-4-6';
+  // AI API Configuration — SiliconFlow Free Tier
+  // Get your free API key at: https://cloud.siliconflow.cn/
+  const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.siliconflow.cn/v1';
+  const AI_API_KEY = process.env.AI_API_KEY || '';
+  const AI_MODEL = process.env.AI_MODEL || 'Qwen/Qwen2.5-72B-Instruct';
+
+  if (!AI_API_KEY) {
+    return res.status(500).json({
+      error: 'AI API key not configured',
+      detail: 'Please set AI_API_KEY environment variable in Vercel project settings'
+    });
+  }
 
   const contextText = [
     title ? `网页标题: ${title}` : '',
