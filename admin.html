@@ -570,24 +570,21 @@ async function fetchCompanyInfo() {
     const d = result.data;
     let filled = [];
     
-    // Fill basic fields from heuristics
-    if (d.name && !document.getElementById('f-name').value.trim()) {
+    // Fill basic fields from heuristics (always overwrite)
+    if (d.name) {
       document.getElementById('f-name').value = d.name;
+      document.getElementById('f-nameEn').value = d.name;
       filled.push('公司名称');
     }
-    // Also fill English name field with heuristic name (usually English from page title)
-    if (d.name && !document.getElementById('f-nameEn').value.trim()) {
-      document.getElementById('f-nameEn').value = d.name;
-    }
-    if (d.location && !document.getElementById('f-location').value.trim()) {
+    if (d.location) {
       document.getElementById('f-location').value = d.location;
       filled.push('所在地区');
     }
-    if (d.contact && !document.getElementById('f-contact').value.trim()) {
+    if (d.contact) {
       document.getElementById('f-contact').value = d.contact;
       filled.push('联系方式');
     }
-    if (d.email && !document.getElementById('f-email').value.trim()) {
+    if (d.email) {
       document.getElementById('f-email').value = d.email;
       filled.push('邮箱');
     }
@@ -598,46 +595,31 @@ async function fetchCompanyInfo() {
     try {
       const aiResult = await callAISummary(result.raw);
       
-      // Auto-fill nameEn and nameCn from AI
-      if (aiResult.nameCn && !document.getElementById('f-name').value.trim()) {
+      // Auto-fill from AI (always overwrite existing values on re-fetch)
+      if (aiResult.nameCn) {
         document.getElementById('f-name').value = aiResult.nameCn;
         filled.push('公司中文名（AI）');
-      } else if (aiResult.nameCn && document.getElementById('f-name').value.trim()) {
-        // If heuristic name is English (no Chinese chars), replace with Chinese name
-        const currentName = document.getElementById('f-name').value.trim();
-        if (!/[\u4e00-\u9fa5]/.test(currentName) && aiResult.nameCn) {
-          document.getElementById('f-name').value = aiResult.nameCn;
-          filled.push('公司中文名（AI覆盖）');
-        }
       }
-      if (aiResult.nameEn && !document.getElementById('f-nameEn').value.trim()) {
+      if (aiResult.nameEn) {
         document.getElementById('f-nameEn').value = aiResult.nameEn;
         filled.push('公司英文名（AI）');
       }
-      
-      if (aiResult.location && !document.getElementById('f-location').value.trim()) {
+      if (aiResult.location) {
         document.getElementById('f-location').value = aiResult.location;
         filled.push('所在地区（AI）');
-      } else if (aiResult.location && document.getElementById('f-location').value.trim()) {
-        // AI got a more detailed location — override if current one is shorter
-        const current = document.getElementById('f-location').value.trim();
-        if (aiResult.location.length > current.length) {
-          document.getElementById('f-location').value = aiResult.location;
-          filled.push('所在地区（AI优化）');
-        }
       }
-      if (aiResult.specialty && !document.getElementById('f-specialty').value.trim()) {
+      if (aiResult.specialty) {
         document.getElementById('f-specialty').value = aiResult.specialty;
         filled.push('专长/产品（AI）');
       }
-      if (aiResult.notes && !document.getElementById('f-notes').value.trim()) {
+      if (aiResult.notes) {
         document.getElementById('f-notes').value = aiResult.notes;
         filled.push('备注（AI）');
       }
       
       let statusMsg = filled.length > 0
-        ? '<span style="color:#148a4e">✓ 已自动填入：' + filled.join('、') + '</span>'
-        : '<span style="color:#888">ℹ 所有字段已有内容，未覆盖</span>';
+        ? '<span style="color:#148a4e">✓ 已重新抓取并覆盖：' + filled.join('、') + '</span>'
+        : '<span style="color:#888">ℹ 网页未提取到有效信息</span>';
       statusMsg += '<br><span style="font-size:11px;color:#6b21a8">🤖 AI已分析网页内容并生成总结</span>';
       statusEl.innerHTML = statusMsg;
       
