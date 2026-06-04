@@ -47,6 +47,8 @@ module.exports = async function handler(req, res) {
   "nameEn": "（公司英文名称）",
   "nameCn": "（公司中文名称）",
   "location": "（公司所在地，格式：国家+省/州+城市，如'中国山东省潍坊市'或'Netherlands, South Holland, Westland'）",
+  "phones": "（电话号码，多个用换行\\n分隔）",
+  "emails": "（邮箱地址，多个用换行\\n分隔）",
   "notes": "（给采购经理看的备注）",
   "specialty": "（给买家看的产品介绍）"
 }
@@ -84,6 +86,17 @@ module.exports = async function handler(req, res) {
 - 必须基于网页真实内容，不要编造
 - 如果该公司与温室/农业自动化无关，如实说明"该供应商主营业务与温室自动化改造无直接关联"
 - 控制在150字以内
+
+## phones 的要求：
+- 提取网页中出现的所有电话号码（座机、手机、400热线等）
+- 多个号码用换行符 \\n 分隔
+- 保留原始格式（如 400-780-3131、020-39218499、17558864609）
+- 如果网页中没有找到任何电话号码，输出空字符串 ""
+
+## emails 的要求：
+- 提取网页中出现的所有邮箱地址
+- 多个邮箱用换行符 \\n 分隔
+- 如果网页中没有找到任何邮箱，输出空字符串 ""
 
 只输出JSON，不要输出其他内容。`;
 
@@ -133,6 +146,8 @@ module.exports = async function handler(req, res) {
           nameEn: parsed.nameEn || '',
           nameCn: parsed.nameCn || '',
           location: parsed.location || '',
+          phones: parsed.phones || '',
+          emails: parsed.emails || '',
           notes: parsed.notes || '',
           specialty: parsed.specialty || ''
         });

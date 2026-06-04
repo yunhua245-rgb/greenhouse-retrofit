@@ -608,6 +608,14 @@ async function fetchCompanyInfo() {
         document.getElementById('f-location').value = aiResult.location;
         filled.push('所在地区（AI）');
       }
+      if (aiResult.phones) {
+        document.getElementById('f-contact').value = aiResult.phones;
+        filled.push('联系电话（AI）');
+      }
+      if (aiResult.emails) {
+        document.getElementById('f-email').value = aiResult.emails;
+        filled.push('邮箱（AI）');
+      }
       if (aiResult.specialty) {
         document.getElementById('f-specialty').value = aiResult.specialty;
         filled.push('专长/产品（AI）');

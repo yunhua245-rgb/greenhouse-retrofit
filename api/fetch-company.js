@@ -211,10 +211,10 @@ function findKeySubpages(html, baseUrl) {
 function guessCommonSubpages(baseUrl) {
   // Prioritized: most company sites use these paths
   const commonPaths = [
-    '/about', '/about.html', '/aboutus', '/about-us',
-    '/contact', '/contact.html', '/contactus', '/contact-us',
+    '/about', '/about.html', '/aboutus', '/about-us', '/about/contacts',
+    '/contact', '/contact.html', '/contactus', '/contact-us', '/contacts',
     '/products', '/product', '/products.html',
-    '/company', '/introduction'
+    '/company', '/introduction', '/join', '/join-us'
   ];
   
   return commonPaths.map(p => baseUrl.origin + p);
