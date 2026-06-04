@@ -164,11 +164,11 @@ function findKeySubpages(html, baseUrl) {
   const links = [];
   // Keywords that indicate important pages
   const keywords = [
-    /关于我们|about\s*us|公司简介|公司介绍|走进|company/i,
-    /联系我们|contact\s*us|联系方式/i,
+    /关于我们|关于丰疆|about[\s-]*us|公司简介|公司介绍|走进|company|about/i,
+    /联系我们|contact[\s-]*us|联系方式|联系|contact/i,
     /产品中心|products?|主营产品|产品展示|solutions?|服务/i,
     /案例|projects?|工程案例|成功案例|case/i,
-    /新闻|news|动态|资讯/i
+    /新闻|news|动态|资讯|blog/i
   ];
 
   // Extract all <a> links
@@ -346,22 +346,43 @@ function extractContact(html, text) {
   const phones = [];
   const emails = [];
 
-  // Extract phones
-  const phoneMatches = text.match(/(?:电话|Tel|Phone|联系|手机|Mobile|热线)[：:\s]*([0-9\-+() ]{7,20})/gi);
+  // Extract phones from tel: links in HTML (most reliable source)
+  const telLinks = html.match(/href=["']tel:([^"']+)["']/gi);
+  if (telLinks) {
+    telLinks.forEach(m => {
+      const num = m.replace(/href=["']tel:/i, '').replace(/["']$/, '').replace(/[\s-]/g, '');
+      if (num.length >= 7 && !phones.includes(num)) phones.push(num);
+    });
+  }
+
+  // Extract phones with prefix keywords
+  const phoneMatches = text.match(/(?:电话|Tel|Phone|联系电话|手机|Mobile|热线|咨询|询价|商务|媒体)[：:\s]*([0-9\-+() ]{7,20})/gi);
   if (phoneMatches) {
     phoneMatches.slice(0, 5).forEach(m => {
       const num = m.replace(/.*[：:\s]/, '').trim();
       if (num.length >= 7 && !phones.includes(num)) phones.push(num);
     });
   }
-  const phonePattern = text.match(/(?:1[3-9]\d{9}|0\d{2,3}[-\s]?\d{7,8}|400[-\s]?\d{3,4}[-\s]?\d{3,4})/g);
+  // Match standalone phone patterns
+  const phonePattern = text.match(/(?:1[3-9]\d{9}|0\d{2,3}[-\s]?\d{7,8}|400[-\s]?\d{3,4}[-\s]?\d{3,4}|400\d{7})/g);
   if (phonePattern) {
     phonePattern.slice(0, 5).forEach(p => {
       if (!phones.includes(p)) phones.push(p);
     });
   }
 
-  // Extract emails
+  // Extract emails from mailto: links (most reliable)
+  const mailtoLinks = html.match(/href=["']mailto:([^"'?]+)/gi);
+  if (mailtoLinks) {
+    mailtoLinks.forEach(m => {
+      const email = m.replace(/href=["']mailto:/i, '').trim();
+      if (email && !emails.includes(email) && !email.includes('example') && !email.includes('test')) {
+        emails.push(email);
+      }
+    });
+  }
+  
+  // Extract emails from text
   const emailMatch = text.match(/[\w.+-]+@[\w-]+\.[\w.-]+/g);
   if (emailMatch) {
     emailMatch.slice(0, 5).forEach(e => {
