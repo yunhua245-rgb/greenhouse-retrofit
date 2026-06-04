@@ -269,6 +269,14 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
     <form id="supplier-form" onsubmit="saveSupplier(event)">
       <input type="hidden" id="edit-id">
       <div class="form-group">
+        <label>公司官网（填入后可AI自动抓取信息）</label>
+        <div style="display:flex;gap:8px">
+          <input type="url" id="f-website" placeholder="https://www.example.com" style="flex:1">
+          <button type="button" class="btn btn-primary btn-sm" onclick="fetchCompanyInfo()" id="btn-fetch" style="white-space:nowrap;padding:8px 14px">🤖 AI抓取</button>
+        </div>
+        <div id="fetch-status" style="font-size:12px;margin-top:6px"></div>
+      </div>
+      <div class="form-group">
         <label>公司名称 *</label>
         <input type="text" id="f-name" required placeholder="例：XX智能农业科技有限公司">
       </div>
@@ -510,12 +518,80 @@ function openAddModal() {
   document.getElementById('modal-title').textContent = '添加供应商';
   document.getElementById('edit-id').value = '';
   document.getElementById('supplier-form').reset();
+  document.getElementById('fetch-status').innerHTML = '';
   document.getElementById('modal-overlay').classList.add('show');
 }
 
 function closeModal(e) {
   if (e && e.target !== document.getElementById('modal-overlay')) return;
   document.getElementById('modal-overlay').classList.remove('show');
+}
+
+// AI Fetch company info from website
+async function fetchCompanyInfo() {
+  const url = document.getElementById('f-website').value.trim();
+  if (!url) { alert('请先填入公司官网地址'); return; }
+  
+  // Validate URL
+  try { new URL(url); } catch(e) { alert('请输入有效的网址（以 http:// 或 https:// 开头）'); return; }
+  
+  const statusEl = document.getElementById('fetch-status');
+  const btn = document.getElementById('btn-fetch');
+  btn.disabled = true;
+  btn.textContent = '⏳ 抓取中...';
+  statusEl.innerHTML = '<span style="color:#b86e00">正在访问网站并提取信息...</span>';
+  
+  try {
+    const res = await fetch('/api/fetch-company', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ url })
+    });
+    
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || `HTTP ${res.status}`);
+    }
+    
+    const result = await res.json();
+    if (result.success && result.data) {
+      const d = result.data;
+      // Fill in fields (only if currently empty or user confirms)
+      let filled = [];
+      if (d.name && !document.getElementById('f-name').value.trim()) {
+        document.getElementById('f-name').value = d.name;
+        filled.push('公司名称');
+      }
+      if (d.location && !document.getElementById('f-location').value.trim()) {
+        document.getElementById('f-location').value = d.location;
+        filled.push('所在地区');
+      }
+      if (d.specialty && !document.getElementById('f-specialty').value.trim()) {
+        document.getElementById('f-specialty').value = d.specialty;
+        filled.push('专长/主营产品');
+      }
+      if (d.contact && !document.getElementById('f-contact').value.trim()) {
+        document.getElementById('f-contact').value = d.contact;
+        filled.push('联系方式');
+      }
+      
+      if (filled.length > 0) {
+        statusEl.innerHTML = '<span style="color:#148a4e">✓ 已自动填入：' + filled.join('、') + '</span>';
+      } else {
+        statusEl.innerHTML = '<span style="color:#888">ℹ 未发现新信息（字段已填写或网站未提取到）</span>';
+      }
+      
+      // Show raw text preview for reference
+      if (result.raw && result.raw.textPreview) {
+        statusEl.innerHTML += '<br><details style="margin-top:6px;font-size:11px;color:#666"><summary style="cursor:pointer">查看网页摘要</summary><div style="max-height:100px;overflow-y:auto;background:#f7f8fa;padding:8px;border-radius:6px;margin-top:4px;white-space:pre-wrap;word-break:break-all">' + escHtml(result.raw.textPreview.substring(0, 500)) + '...</div></details>';
+      }
+    }
+  } catch(e) {
+    statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 抓取失败：' + escHtml(e.message) + '</span>';
+  }
+  
+  btn.disabled = false;
+  btn.textContent = '🤖 AI抓取';
 }
 
 function saveSupplier(e) {
@@ -525,6 +601,7 @@ function saveSupplier(e) {
 
   const data = {
     name: document.getElementById('f-name').value.trim(),
+    website: document.getElementById('f-website').value.trim(),
     location: document.getElementById('f-location').value.trim(),
     specialty: document.getElementById('f-specialty').value.trim(),
     contact: document.getElementById('f-contact').value.trim(),
@@ -560,6 +637,7 @@ function editSupplier(id) {
 
   document.getElementById('modal-title').textContent = '编辑供应商';
   document.getElementById('edit-id').value = s.id;
+  document.getElementById('f-website').value = s.website || '';
   document.getElementById('f-name').value = s.name || '';
   document.getElementById('f-location').value = s.location || '';
   document.getElementById('f-specialty').value = s.specialty || '';
