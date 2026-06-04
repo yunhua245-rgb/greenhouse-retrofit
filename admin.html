@@ -579,17 +579,26 @@ async function fetchCompanyInfo() {
     // Fill basic fields from heuristics (always overwrite)
     if (d.name) {
       // Smart fill: if name contains Chinese chars → fill Chinese name field
-      // If name is English only → fill English name field only
       const hasChinese = /[\u4e00-\u9fa5]/.test(d.name);
       if (hasChinese) {
         document.getElementById('f-name').value = d.name;
+        filled.push('公司中文名');
+      } else {
+        document.getElementById('f-nameEn').value = d.name;
+        filled.push('公司英文名');
       }
-      document.getElementById('f-nameEn').value = d.name;
-      filled.push('公司名称');
+    }
+    if (d.nameEn && d.nameEn !== d.name) {
+      document.getElementById('f-nameEn').value = d.nameEn;
+      if (!filled.includes('公司英文名')) filled.push('公司英文名');
     }
     if (d.location) {
       document.getElementById('f-location').value = d.location;
       filled.push('所在地区');
+    }
+    if (d.specialty) {
+      document.getElementById('f-specialty').value = d.specialty;
+      filled.push('主营业务');
     }
     if (d.contact) {
       document.getElementById('f-contact').value = d.contact;

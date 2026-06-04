@@ -356,17 +356,33 @@ async function fetchCompanyInfo() {
     // Fill heuristic data
     if (d.name) {
       const hasChinese = /[\u4e00-\u9fa5]/.test(d.name);
-      if (hasChinese) document.getElementById('f-name').value = d.name;
-      document.getElementById('f-nameEn').value = d.name;
-      filled.push('公司名称');
+      if (hasChinese) {
+        document.getElementById('f-name').value = d.name;
+        filled.push('公司中文名');
+      } else {
+        document.getElementById('f-nameEn').value = d.name;
+        filled.push('公司英文名');
+      }
+    }
+    if (d.nameEn && d.nameEn !== d.name) {
+      document.getElementById('f-nameEn').value = d.nameEn;
+      if (!filled.includes('公司英文名')) filled.push('公司英文名');
     }
     if (d.location) { document.getElementById('f-location').value = d.location; filled.push('所在地区'); }
+    if (d.specialty) { document.getElementById('f-specialty').value = d.specialty; filled.push('主营业务'); }
     if (d.contact) { document.getElementById('f-contact').value = d.contact; filled.push('联系方式'); }
     if (d.email) { document.getElementById('f-email').value = d.email; filled.push('邮箱'); }
     
-    statusEl.innerHTML = filled.length > 0 
-      ? '<span style="color:#148a4e">✓ 已填入: ' + filled.join('、') + '</span><br><span style="font-size:11px;color:#888">正在AI分析...</span>'
-      : '<span style="color:#888">正在AI分析...</span>';
+    // If no webpage content (SPA/search result), skip AI summary
+    if (!result.raw || !result.raw.textContent || result.raw.textContent.trim().length < 50) {
+      let statusMsg = filled.length > 0
+        ? '<span style="color:#148a4e">✓ 已填入: ' + filled.join('、') + '</span>'
+        : '<span style="color:#888">ℹ 未提取到有效信息</span>';
+      if (result.note) {
+        statusMsg += '<br><span style="font-size:11px;color:#b86e00">' + (result.note || '').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>';
+      }
+      statusEl.innerHTML = statusMsg;
+    } else {
     
     // AI analysis
     const aiRes = await fetch('/api/ai-summary', {
@@ -393,6 +409,7 @@ async function fetchCompanyInfo() {
       
       statusEl.innerHTML = '<span style="color:#148a4e">✓ 已重新抓取并覆盖：' + filled.join('、') + '</span><br><span style="font-size:11px;color:#6b21a8">🤖 AI已分析网页内容并生成总结</span>';
     }
+    } // end of else (has content to analyze)
   } catch(e) {
     statusEl.innerHTML = '<span style="color:#e24b4a">❌ 抓取失败: ' + e.message + '</span>';
   }

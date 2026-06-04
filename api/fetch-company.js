@@ -62,7 +62,18 @@ module.exports = async function handler(req, res) {
     }
     
     if (!homepage.ok) {
-      // Website unreachable — report error directly, no AI guessing
+      // Website unreachable — try AI web search as fallback
+      const domain = new URL(url).hostname.replace(/^www\./, '');
+      const searchResult = await searchCompanyByAI(domain, url);
+      if (searchResult && (searchResult.name || searchResult.nameEn)) {
+        return res.status(200).json({
+          success: true,
+          data: searchResult,
+          raw: { title: '', description: '', keywords: '', textContent: '', subpagesCrawled: 0 },
+          note: '⚠️ 网站无法直接访问，以上信息通过搜索引擎获取，请核实后确认。'
+        });
+      }
+      // Search also failed — report error
       const reason = homepage.error || '';
       let userMsg = `无法访问该网站 (HTTP ${homepage.status || '超时'})`;
       if (reason.includes('abort') || reason.includes('timeout') || homepage.status === 0) {
@@ -86,10 +97,31 @@ module.exports = async function handler(req, res) {
     const isSPA = homeText.length < 300 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"') || homeHtml.includes('id="__next"'));
     const isEmptyPage = homeText.length < 100;
     
-    // If page is essentially empty (SPA with no SSR or very thin content), try ICP lookup
+    // If page is essentially empty (SPA with no SSR or very thin content), try ICP + AI search
     if (isEmptyPage || (isSPA && homeText.length < 150)) {
       const domain = new URL(url).hostname.replace(/^www\./, '');
-      const icpResult = await lookupICP(domain);
+      const pageTitle = homeHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '';
+      
+      // Run ICP lookup and AI search in parallel
+      const [icpResult, searchResult] = await Promise.all([
+        lookupICP(domain),
+        searchCompanyByAI(domain, url, pageTitle)
+      ]);
+      
+      // Merge results: prefer search (more complete) but use ICP name if search didn't get one
+      if (searchResult && (searchResult.name || searchResult.nameEn)) {
+        // AI search got info — use it, supplement with ICP name if needed
+        if (!searchResult.name && icpResult && icpResult.name) {
+          searchResult.name = icpResult.name;
+        }
+        return res.status(200).json({
+          success: true,
+          data: searchResult,
+          raw: { title: pageTitle, description: '', keywords: '', textContent: '', subpagesCrawled: 0 },
+          note: '⚠️ 该网站为SPA框架，以上信息通过搜索引擎获取，请核实后确认。'
+        });
+      }
+      
       if (icpResult && icpResult.name) {
         return res.status(200).json({
           success: true,
@@ -102,13 +134,14 @@ module.exports = async function handler(req, res) {
             email: '',
             website: url
           },
-          raw: { title: homeHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '', description: '', keywords: '', textContent: '', subpagesCrawled: 0 },
+          raw: { title: pageTitle, description: '', keywords: '', textContent: '', subpagesCrawled: 0 },
           note: '⚠️ 该网站为SPA框架，仅通过备案信息获取到公司名称，其余信息请手动补充。'
         });
       }
-      // ICP also failed
+      
+      // Both failed
       return res.status(502).json({
-        error: '该网站为前端框架渲染（SPA），无法读取内容且未查到备案信息。请手动填写供应商信息。'
+        error: '该网站为前端框架渲染（SPA），无法读取内容且搜索未找到相关信息。请手动填写供应商信息。'
       });
     }
 
@@ -488,6 +521,77 @@ function extractContact(html, text) {
 }
 
 // --- Helper: Render SPA page via internal /api/render-spa endpoint ---
+// --- Helper: Search company info using AI (with web search capability) ---
+async function searchCompanyByAI(domain, fullUrl, pageTitle) {
+  const apiKey = process.env.AI_API_KEY || 'sk-f2a6af8a39d848a5ade70105fb27c208';
+  const apiBase = (process.env.AI_BASE_URL || 'https://api.deepseek.com').replace(/\/v1\/?$/, '').replace(/\/$/, '');
+  const model = process.env.AI_MODEL || 'deepseek-chat';
+  
+  const prompt = `请搜索以下公司的信息。域名：${domain}，网址：${fullUrl}${pageTitle ? '，网页标题：' + pageTitle : ''}
+
+请提供该公司的以下信息（只填你能确认的，不确定的留空）：
+1. nameCn: 中文公司名称
+2. nameEn: 英文公司名称  
+3. location: 公司所在城市/地区
+4. specialty: 主营业务/产品（简短描述）
+5. contact: 联系电话
+6. email: 联系邮箱
+
+重要规则：
+- 只提供你确实知道或能查到的信息，不要编造
+- 如果完全不认识这家公司，所有字段返回空字符串
+- 返回纯JSON格式，不要加任何其他文字
+
+返回格式：{"nameCn":"","nameEn":"","location":"","specialty":"","contact":"","email":""}`;
+
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    
+    const res = await fetch(`${apiBase}/v1/chat/completions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 400
+      }),
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    
+    const data = await res.json();
+    const content = (data.choices?.[0]?.message?.content || '').trim();
+    
+    // Parse JSON from response
+    const jsonMatch = content.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) return null;
+    
+    const info = JSON.parse(jsonMatch[0]);
+    
+    // Only return if we got at least a company name
+    if (!info.nameCn && !info.nameEn) return null;
+    
+    return {
+      name: info.nameCn || '',
+      nameEn: info.nameEn || '',
+      location: info.location || '',
+      specialty: info.specialty || '',
+      contact: info.contact || '',
+      email: info.email || '',
+      website: fullUrl
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
 // --- Helper: Lookup ICP registration info for a domain ---
 async function lookupICP(domain) {
   try {
