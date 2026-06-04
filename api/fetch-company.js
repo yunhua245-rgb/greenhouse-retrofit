@@ -20,7 +20,10 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    // Fetch the webpage
+    // Fetch the webpage with timeout via AbortController
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+
     const response = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -28,8 +31,10 @@ module.exports = async function handler(req, res) {
         'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8'
       },
       redirect: 'follow',
-      signal: AbortSignal.timeout(15000)
+      signal: controller.signal
     });
+
+    clearTimeout(timeout);
 
     if (!response.ok) {
       return res.status(502).json({ error: `Failed to fetch: HTTP ${response.status}` });
