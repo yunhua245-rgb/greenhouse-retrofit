@@ -94,7 +94,9 @@ module.exports = async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({
       error: 'Failed to fetch and parse website',
-      detail: e.message
+      detail: e.message || String(e),
+      code: e.code || '',
+      cause: e.cause ? String(e.cause) : ''
     });
   }
 };
