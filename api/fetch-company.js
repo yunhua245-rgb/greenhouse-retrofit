@@ -1,28 +1,94 @@
-// Vercel Serverless Function — Fetch company website and extract basic info
-// AI summary is done client-side to avoid IP restrictions on AI gateway
+// Vercel Serverless Function — Fetch company website (homepage + subpages) and extract info
+// Crawls key subpages (about, contact, products) for more complete data
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
-
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method not allowed' });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const { url } = req.body || {};
-  if (!url) {
-    return res.status(400).json({ error: 'URL is required' });
-  }
+  if (!url) return res.status(400).json({ error: 'URL is required' });
 
   try {
-    // Fetch the webpage
+    // Step 1: Fetch homepage
+    const homepage = await fetchPage(url);
+    if (!homepage.ok) {
+      return res.status(502).json({ error: `Failed to fetch: HTTP ${homepage.status}` });
+    }
+
+    const homeHtml = homepage.html;
+    const homeText = htmlToText(homeHtml);
+
+    // Step 2: Find important subpage links
+    const baseUrl = new URL(url);
+    const subLinks = findKeySubpages(homeHtml, baseUrl);
+
+    // Step 3: Fetch subpages in parallel (max 4, 8s timeout each)
+    const subResults = await Promise.allSettled(
+      subLinks.slice(0, 4).map(link => fetchPage(link, 8000))
+    );
+
+    // Step 4: Merge all text content
+    let allText = homeText;
+    const subTexts = [];
+    for (const r of subResults) {
+      if (r.status === 'fulfilled' && r.value.ok) {
+        const t = htmlToText(r.value.html);
+        subTexts.push(t);
+        allText += '\n\n' + t;
+      }
+    }
+
+    // Limit total text
+    const combinedText = allText.substring(0, 12000);
+
+    // Extract title & meta from homepage
+    const titleMatch = homeHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+    const pageTitle = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '').trim() : '';
+    const descMatch = homeHtml.match(/<meta[^>]*name=["']description["'][^>]*content=["']([\s\S]*?)["']/i);
+    const metaDesc = descMatch ? descMatch[1].trim() : '';
+    const kwMatch = homeHtml.match(/<meta[^>]*name=["']keywords["'][^>]*content=["']([\s\S]*?)["']/i);
+    const metaKw = kwMatch ? kwMatch[1].trim() : '';
+
+    // Heuristic extraction using ALL text
+    const contactInfo = extractContact(homeHtml + subResults.map(r => r.status === 'fulfilled' && r.value.ok ? r.value.html : '').join(''), combinedText);
+    const result = {
+      name: extractCompanyName(pageTitle, combinedText),
+      location: extractLocation(combinedText),
+      contact: contactInfo.phones,
+      email: contactInfo.emails,
+      website: url
+    };
+
+    return res.status(200).json({
+      success: true,
+      data: result,
+      raw: {
+        title: pageTitle,
+        description: metaDesc,
+        keywords: metaKw,
+        textContent: combinedText,
+        subpagesCrawled: subLinks.slice(0, 4).length
+      }
+    });
+
+  } catch (e) {
+    return res.status(500).json({
+      error: 'Failed to fetch website',
+      detail: e.message || String(e),
+      code: e.code || ''
+    });
+  }
+};
+
+// --- Helper: Fetch a single page ---
+async function fetchPage(url, timeoutMs = 12000) {
+  try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 15000);
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
     const response = await fetch(url, {
       headers: {
@@ -36,65 +102,79 @@ module.exports = async function handler(req, res) {
 
     clearTimeout(timeout);
 
-    if (!response.ok) {
-      return res.status(502).json({ error: `Failed to fetch: HTTP ${response.status}` });
-    }
-
+    if (!response.ok) return { ok: false, status: response.status };
     const html = await response.text();
-
-    // Extract text content
-    let text = html
-      .replace(/<script[\s\S]*?<\/script>/gi, '')
-      .replace(/<style[\s\S]*?<\/style>/gi, '')
-      .replace(/<[^>]+>/g, ' ')
-      .replace(/&nbsp;/g, ' ')
-      .replace(/&amp;/g, '&')
-      .replace(/&lt;/g, '<')
-      .replace(/&gt;/g, '>')
-      .replace(/&quot;/g, '"')
-      .replace(/&#\d+;/g, '')
-      .replace(/\s+/g, ' ')
-      .trim();
-
-    const pageText = text.substring(0, 6000);
-
-    // Extract title & meta
-    const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-    const pageTitle = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '').trim() : '';
-    const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([\s\S]*?)["']/i);
-    const metaDesc = descMatch ? descMatch[1].trim() : '';
-    const kwMatch = html.match(/<meta[^>]*name=["']keywords["'][^>]*content=["']([\s\S]*?)["']/i);
-    const metaKw = kwMatch ? kwMatch[1].trim() : '';
-
-    // Heuristic extraction for basic fields
-    const contactInfo = extractContact(html, pageText);
-    const result = {
-      name: extractCompanyName(pageTitle, pageText),
-      location: extractLocation(pageText),
-      contact: contactInfo.phones,
-      email: contactInfo.emails,
-      website: url
-    };
-
-    return res.status(200).json({
-      success: true,
-      data: result,
-      raw: {
-        title: pageTitle,
-        description: metaDesc,
-        keywords: metaKw,
-        textContent: pageText
-      }
-    });
-
+    return { ok: true, html };
   } catch (e) {
-    return res.status(500).json({
-      error: 'Failed to fetch website',
-      detail: e.message || String(e),
-      code: e.code || ''
-    });
+    return { ok: false, status: 0, error: e.message };
   }
-};
+}
+
+// --- Helper: Find key subpages from homepage HTML ---
+function findKeySubpages(html, baseUrl) {
+  const links = [];
+  // Keywords that indicate important pages
+  const keywords = [
+    /关于我们|about\s*us|公司简介|公司介绍|走进|company/i,
+    /联系我们|contact\s*us|联系方式/i,
+    /产品中心|products?|主营产品|产品展示|solutions?|服务/i,
+    /案例|projects?|工程案例|成功案例|case/i,
+    /新闻|news|动态|资讯/i
+  ];
+
+  // Extract all <a> links
+  const linkMatches = html.matchAll(/<a[^>]*href=["']([^"'#]+)["'][^>]*>([\s\S]*?)<\/a>/gi);
+  const seen = new Set();
+
+  for (const m of linkMatches) {
+    let href = m[1].trim();
+    const linkText = m[2].replace(/<[^>]+>/g, '').trim();
+
+    // Skip external links, anchors, javascript, files
+    if (href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) continue;
+    if (/\.(pdf|jpg|png|gif|zip|doc|mp4|mp3)$/i.test(href)) continue;
+
+    // Resolve relative URLs
+    try {
+      const resolved = new URL(href, baseUrl.origin);
+      // Only same domain
+      if (resolved.hostname !== baseUrl.hostname) continue;
+      href = resolved.href;
+    } catch { continue; }
+
+    if (seen.has(href)) continue;
+
+    // Check if link text or href matches our keywords
+    const combined = linkText + ' ' + href;
+    for (const kw of keywords) {
+      if (kw.test(combined)) {
+        seen.add(href);
+        links.push(href);
+        break;
+      }
+    }
+  }
+
+  return links;
+}
+
+// --- Helper: HTML to plain text ---
+function htmlToText(html) {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#\d+;/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+// --- Extraction functions ---
 
 function extractCompanyName(title, text) {
   if (title) {
@@ -103,21 +183,20 @@ function extractCompanyName(title, text) {
     if (companyMatch) return companyMatch[1];
     if (cleaned.length > 2 && cleaned.length < 30) return cleaned;
   }
-  const textMatch = text.match(/([\u4e00-\u9fa5]{2,}(?:智能|自动化|农业|温室|园艺)?[\u4e00-\u9fa5]*(?:科技|设备|机械|集团|技术)(?:有限|股份)?公司)/);
+  const textMatch = text.match(/([\u4e00-\u9fa5]{2,}(?:智能|自动化|农业|温室|园艺|物联)?[\u4e00-\u9fa5]*(?:科技|设备|机械|集团|技术|数据)(?:有限|股份)?公司)/);
   if (textMatch) return textMatch[1];
   return '';
 }
 
 function extractLocation(text) {
   // Try to find explicit address first
-  const addrMatch = text.match(/(?:地址|地点|位于|总部|Address|address)[：:\s]*([^。，,\n]{5,60})/i);
+  const addrMatch = text.match(/(?:地址|地点|位于|总部|Address|address|公司地址)[：:\s]*([^。，,\n]{5,80})/i);
   if (addrMatch) {
     const addr = addrMatch[1].trim();
     // Try to extract province+city from address
     const provCityMatch = addr.match(/([\u4e00-\u9fa5]{2,5}(?:省|自治区|市))([\u4e00-\u9fa5]{2,6}(?:市|区|县))?/);
     if (provCityMatch) {
-      const result = '中国' + (provCityMatch[1] || '') + (provCityMatch[2] || '');
-      return result;
+      return '中国' + (provCityMatch[1] || '') + (provCityMatch[2] || '');
     }
     return addr;
   }
@@ -127,17 +206,15 @@ function extractLocation(text) {
   if (intlMatch) return intlMatch[1].trim();
 
   const provinces = ['北京','上海','天津','重庆','河北','山西','辽宁','吉林','黑龙江','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','海南','四川','贵州','云南','陕西','甘肃','青海','内蒙古','广西','西藏','宁夏','新疆'];
-  const cities = ['潍坊','寿光','青岛','济南','杭州','上海','北京','深圳','广州','成都','武汉','南京','苏州','无锡','常州','泰安','聊城','临沂','烟台','威海','淄博','济宁','日照','德州','滨州','东营','菏泽','枣庄','莱芜'];
+  const cities = ['潍坊','寿光','青岛','济南','杭州','上海','北京','深圳','广州','成都','武汉','南京','苏州','无锡','常州','泰安','聊城','临沂','烟台','威海','淄博','济宁','日照','德州','滨州','东营','菏泽','枣庄','莱芜','天津','西安','长沙','郑州','石家庄','合肥','福州','厦门','昆明','贵阳','南宁','南昌','太原','兰州','海口','银川','呼和浩特','乌鲁木齐','拉萨','西宁','大连','宁波','温州','东莞','佛山','中山','珠海','惠州','嘉兴','绍兴','台州','金华','湖州','漳州','泉州','保定','唐山','廊坊','洛阳','邯郸','徐州','连云港','盐城','扬州','镇江','泰州','南通','芜湖','马鞍山','蚌埠','襄阳','宜昌','岳阳','株洲','湘潭','柳州','桂林'];
   
   for (const city of cities) {
     if (text.includes(city)) {
-      // Look around the city mention for province info
       const idx = text.indexOf(city);
       const context = text.substring(Math.max(0, idx - 30), idx + 30);
       for (const prov of provinces) {
         if (context.includes(prov)) return '中国' + prov + (prov.endsWith('省') ? '' : '省') + city + '市';
       }
-      // Search broader for province
       for (const prov of provinces) {
         if (text.includes(prov)) return '中国' + prov + (prov.endsWith('省') || prov.endsWith('市') ? '' : '省') + city + '市';
       }
@@ -155,16 +232,16 @@ function extractContact(html, text) {
   const emails = [];
 
   // Extract phones
-  const phoneMatches = text.match(/(?:电话|Tel|Phone|联系)[：:\s]*([0-9\-+() ]{7,20})/gi);
+  const phoneMatches = text.match(/(?:电话|Tel|Phone|联系|手机|Mobile|热线)[：:\s]*([0-9\-+() ]{7,20})/gi);
   if (phoneMatches) {
-    phoneMatches.slice(0, 3).forEach(m => {
+    phoneMatches.slice(0, 5).forEach(m => {
       const num = m.replace(/.*[：:\s]/, '').trim();
       if (num.length >= 7 && !phones.includes(num)) phones.push(num);
     });
   }
-  const phonePattern = text.match(/(?:1[3-9]\d{9}|0\d{2,3}[-\s]?\d{7,8})/g);
+  const phonePattern = text.match(/(?:1[3-9]\d{9}|0\d{2,3}[-\s]?\d{7,8}|400[-\s]?\d{3,4}[-\s]?\d{3,4})/g);
   if (phonePattern) {
-    phonePattern.slice(0, 3).forEach(p => {
+    phonePattern.slice(0, 5).forEach(p => {
       if (!phones.includes(p)) phones.push(p);
     });
   }
@@ -172,17 +249,17 @@ function extractContact(html, text) {
   // Extract emails
   const emailMatch = text.match(/[\w.+-]+@[\w-]+\.[\w.-]+/g);
   if (emailMatch) {
-    emailMatch.slice(0, 3).forEach(e => {
-      if (!emails.includes(e)) emails.push(e);
+    emailMatch.slice(0, 5).forEach(e => {
+      if (!emails.includes(e) && !e.includes('example') && !e.includes('test')) emails.push(e);
     });
   }
 
   return {
-    phones: phones.join('\n'),
-    emails: emails.join('\n')
+    phones: phones.slice(0, 4).join('\n'),
+    emails: emails.slice(0, 4).join('\n')
   };
 }
 
 module.exports.config = {
-  maxDuration: 20
+  maxDuration: 30
 };
