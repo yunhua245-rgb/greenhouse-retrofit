@@ -21,7 +21,7 @@ module.exports = async function handler(req, res) {
 
   // AI API Configuration — DeepSeek Official API
   // Register at platform.deepseek.com to get $5 free credit
-  const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.deepseek.com';
+  const AI_BASE_URL = (process.env.AI_BASE_URL || 'https://api.deepseek.com').replace(/\/v1\/?$/, '').replace(/\/$/, '');
   const AI_API_KEY = process.env.AI_API_KEY || 'sk-f2a6af8a39d848a5ade70105fb27c208';
   const AI_MODEL = process.env.AI_MODEL || 'deepseek-chat';
 
@@ -108,7 +108,7 @@ module.exports = async function handler(req, res) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 55000);
 
-    const response = await fetch(AI_BASE_URL + '/chat/completions', {
+    const response = await fetch(AI_BASE_URL + '/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

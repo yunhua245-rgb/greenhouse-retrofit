@@ -24,10 +24,10 @@ module.exports = async function handler(req, res) {
     const startTime = Date.now();
     
     for (const tryUrl of urlsToTry.slice(0, 3)) {
-      // Abort if we've spent >3s already (leave plenty of time for AI inference)
-      if (Date.now() - startTime > 3000) break;
+      // Abort if we've spent >8s already (leave time for subpages + AI inference within 30s budget)
+      if (Date.now() - startTime > 8000) break;
       
-      const attempt = await fetchPage(tryUrl, 3000);
+      const attempt = await fetchPage(tryUrl, 6000);
       if (attempt.ok) {
         const text = htmlToText(attempt.html);
         // Skip 404/error pages (very short content or contains 404 indicators)
@@ -53,9 +53,9 @@ module.exports = async function handler(req, res) {
     }
     
     // If all priority URLs failed, try ONE fallback path (keep it fast)
-    if (!homepage.ok && Date.now() - startTime < 5000) {
+    if (!homepage.ok && Date.now() - startTime < 10000) {
       const baseUrl = new URL(url);
-      const attempt = await fetchPage(baseUrl.origin + '/index.html', 2000);
+      const attempt = await fetchPage(baseUrl.origin + '/index.html', 4000);
       if (attempt.ok) {
         homepage = attempt;
         effectiveUrl = baseUrl.origin + '/index.html';
@@ -96,11 +96,11 @@ module.exports = async function handler(req, res) {
     const homeText = htmlToText(homeHtml);
 
     // Detect SPA (very little text content + app container) or near-empty page
-    const isSPA = homeText.length < 200 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"') || homeHtml.includes('id="__next"'));
-    const isEmptyPage = homeText.length < 50;
+    const isSPA = homeText.length < 300 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"') || homeHtml.includes('id="__next"'));
+    const isEmptyPage = homeText.length < 100;
     
-    // If page is essentially empty (SPA with no SSR), use AI inference directly
-    if (isEmptyPage || (isSPA && homeText.length < 80)) {
+    // If page is essentially empty (SPA with no SSR or very thin content), use AI inference directly
+    if (isEmptyPage || (isSPA && homeText.length < 150)) {
       const domain = new URL(url).hostname.replace('www.', '');
       const inferResult = await inferFromDomain(domain, url);
       if (inferResult) {
@@ -128,10 +128,11 @@ module.exports = async function handler(req, res) {
       subLinks = guessCommonSubpages(baseUrl);
     }
 
-    // Step 3: Fetch subpages in parallel (max 3, 3s timeout each) — stay within Vercel 10s limit
-    const timeLeft = Math.max(2000, 8500 - (Date.now() - startTime));
+    // Step 3: Fetch subpages in parallel (max 3, 5s timeout each) — stay within 30s budget
+    const elapsed = Date.now() - startTime;
+    const subpageTimeout = Math.min(5000, Math.max(2000, 20000 - elapsed));
     const subResults = await Promise.allSettled(
-      subLinks.slice(0, 3).map(link => fetchPage(link, Math.min(3000, timeLeft)))
+      subLinks.slice(0, 3).map(link => fetchPage(link, subpageTimeout))
     );
 
     // Step 4: Merge all text content
@@ -491,7 +492,7 @@ function extractContact(html, text) {
 async function inferFromDomain(domain, fullUrl) {
   // Use same env vars as ai-summary.js for consistency
   const apiKey = process.env.AI_API_KEY || process.env.DEEPSEEK_API_KEY || process.env.OPENAI_API_KEY || 'sk-f2a6af8a39d848a5ade70105fb27c208';
-  const apiBase = process.env.AI_BASE_URL || 'https://api.deepseek.com';
+  const apiBase = (process.env.AI_BASE_URL || 'https://api.deepseek.com').replace(/\/v1\/?$/, '').replace(/\/$/, '');
   const model = process.env.AI_MODEL || 'deepseek-chat';
   
   const prompt = `I cannot access the website ${fullUrl} (domain: "${domain}"). Based on your knowledge of this company AND reasonable inference from the domain name, please provide:

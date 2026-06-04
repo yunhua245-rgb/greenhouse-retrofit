@@ -701,7 +701,7 @@ async function callAISummary(rawData) {
 
   const data = await response.json();
   if (!data.success) throw new Error('AI返回异常');
-  return { nameEn: data.nameEn || '', nameCn: data.nameCn || '', location: data.location || '', notes: data.notes || '', specialty: data.specialty || '' };
+  return { nameEn: data.nameEn || '', nameCn: data.nameCn || '', location: data.location || '', phones: data.phones || '', emails: data.emails || '', notes: data.notes || '', specialty: data.specialty || '' };
 }
 
 function saveSupplier(e) {
