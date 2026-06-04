@@ -13,10 +13,34 @@ module.exports = async function handler(req, res) {
   if (!url) return res.status(400).json({ error: 'URL is required' });
 
   try {
-    // Step 1: Fetch homepage (try multiple URL variations)
-    let homepage = await fetchPage(url);
+    // Prioritize Chinese version of the site
+    const urlsToTry = buildChineseUrlPriority(url);
     
-    // If root URL fails, try common alternative paths
+    // Step 1: Try URLs in priority order (Chinese versions first)
+    let homepage = { ok: false, status: 0 };
+    let effectiveUrl = url;
+    
+    for (const tryUrl of urlsToTry) {
+      const attempt = await fetchPage(tryUrl);
+      if (attempt.ok) {
+        // Check if this page has meaningful Chinese content
+        const text = htmlToText(attempt.html);
+        const chineseRatio = (text.match(/[\u4e00-\u9fa5]/g) || []).length / Math.max(text.length, 1);
+        if (chineseRatio > 0.1 || tryUrl === urlsToTry[urlsToTry.length - 1]) {
+          // Has Chinese content or it's the last resort (original URL)
+          homepage = attempt;
+          effectiveUrl = tryUrl;
+          break;
+        }
+        // Store as fallback if no Chinese version found
+        if (!homepage.ok) {
+          homepage = attempt;
+          effectiveUrl = tryUrl;
+        }
+      }
+    }
+    
+    // If all priority URLs failed, try common alternative paths
     if (!homepage.ok) {
       const baseUrl = new URL(url);
       const fallbackPaths = [
@@ -28,6 +52,7 @@ module.exports = async function handler(req, res) {
         const attempt = await fetchPage(fallbackUrl, 8000);
         if (attempt.ok) {
           homepage = attempt;
+          effectiveUrl = fallbackUrl;
           break;
         }
       }
@@ -55,7 +80,7 @@ module.exports = async function handler(req, res) {
     const isSPA = homeText.length < 200 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"'));
 
     // Step 2: Find important subpage links
-    const baseUrl = new URL(url);
+    const baseUrl = new URL(effectiveUrl);
     let subLinks = findKeySubpages(homeHtml, baseUrl);
 
     // Step 2b: If SPA, try extracting content from JS bundles instead
@@ -132,6 +157,33 @@ module.exports = async function handler(req, res) {
     });
   }
 };
+
+// --- Helper: Build URL priority list favoring Chinese versions ---
+function buildChineseUrlPriority(originalUrl) {
+  const urls = [];
+  const parsed = new URL(originalUrl);
+  const hostname = parsed.hostname;
+  
+  // Strategy 1: If it's a .com domain, try .cn / .com.cn first
+  if (hostname.endsWith('.com') && !hostname.endsWith('.com.cn')) {
+    const cnDomain = hostname.replace(/\.com$/, '.cn');
+    const comCnDomain = hostname.replace(/\.com$/, '.com.cn');
+    urls.push(parsed.protocol + '//' + cnDomain + parsed.pathname);
+    urls.push(parsed.protocol + '//' + comCnDomain + parsed.pathname);
+  }
+  
+  // Strategy 2: Try Chinese language paths on the original domain
+  const chinesePaths = ['/zh', '/zh-cn', '/cn', '/zh-CN', '/chinese'];
+  for (const p of chinesePaths) {
+    urls.push(parsed.origin + p + '/');
+  }
+  
+  // Strategy 3: Original URL as final fallback
+  urls.push(originalUrl);
+  
+  // Deduplicate
+  return [...new Set(urls)];
+}
 
 // --- Helper: Fetch a single page ---
 async function fetchPage(url, timeoutMs = 12000) {
