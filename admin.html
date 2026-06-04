@@ -540,10 +540,16 @@ function closeModal(e) {
 // AI calls go through /api/ai-summary (server-side proxy to avoid CORS)
 
 async function fetchCompanyInfo() {
-  const url = document.getElementById('f-website').value.trim();
+  let url = document.getElementById('f-website').value.trim();
   if (!url) { alert('请先填入公司官网地址'); return; }
   
-  try { new URL(url); } catch(e) { alert('请输入有效的网址（以 http:// 或 https:// 开头）'); return; }
+  // Auto-prepend https:// if user only typed domain
+  if (!/^https?:\/\//i.test(url)) {
+    url = 'https://' + url;
+    document.getElementById('f-website').value = url;
+  }
+  
+  try { new URL(url); } catch(e) { alert('网址格式有误，请检查'); return; }
   
   const statusEl = document.getElementById('fetch-status');
   const btn = document.getElementById('btn-fetch');

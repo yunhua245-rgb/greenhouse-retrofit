@@ -325,8 +325,14 @@ async function saveToServer() {
 }
 
 async function fetchCompanyInfo() {
-  const url = document.getElementById('f-url').value.trim();
+  let url = document.getElementById('f-url').value.trim();
   if (!url) { alert('请先输入公司网址'); return; }
+  
+  // Auto-prepend https:// if user only typed domain
+  if (!/^https?:\/\//i.test(url)) {
+    url = 'https://' + url;
+    document.getElementById('f-url').value = url;
+  }
   
   const statusEl = document.getElementById('fetch-status');
   statusEl.style.display = 'block';
