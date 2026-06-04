@@ -3,353 +3,528 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MODU Toy Manufacturing — China Sourcing Progress</title>
+<title>MODU Toy Manufacturing — China Sourcing</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
-
-.hero{background:linear-gradient(135deg,#e65100 0%,#ff6d00 40%,#ff9800 100%);color:#fff;padding:52px 24px 60px;text-align:center;position:relative;overflow:hidden}
-.hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:40px;background:#f7f8fa;border-radius:50% 50% 0 0/100% 100% 0 0}
-.hero h1{font-size:28px;font-weight:800;margin-bottom:10px;letter-spacing:-0.5px}
-.hero-sub{font-size:15px;opacity:0.9;max-width:600px;margin:0 auto 16px}
-.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);border-radius:20px;font-size:13px}
-.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:#ffeb3b}
-
-.container{max-width:840px;margin:0 auto;padding:0 20px 60px}
-.lang-switch{display:flex;justify-content:flex-end;gap:8px;margin:20px 0 0}
-.lang-btn{padding:6px 14px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer;transition:all 0.2s}
-.lang-btn.active{border-color:#e65100;background:#fff3e0;color:#e65100;font-weight:600}
-
-.section{background:#fff;border-radius:16px;border:1px solid #e8eaed;padding:28px;margin-top:22px}
-.section-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
-.section-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
-.section-title{font-size:17px;font-weight:700}
-
-.req-core{background:#fff8f0;border:1px solid #ffe0b2;border-radius:12px;padding:20px;margin-bottom:16px}
-.req-core h4{font-size:14px;font-weight:700;margin-bottom:8px;color:#e65100}
-.req-core p{font-size:14px;color:#333}
-
-.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
-.info-item{background:#f7f8fa;border-radius:8px;padding:12px 14px}
-.info-item .info-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:3px}
-.info-item .info-value{font-size:14px;font-weight:500}
-.info-item .info-value.tbd{color:#aaa;font-style:italic}
-
-/* Sourcing Tracks */
-.track-list{display:flex;flex-direction:column;gap:12px;margin-top:14px}
-.track-card{border:1.5px solid #e8eaed;border-radius:12px;padding:18px;position:relative;overflow:hidden}
-.track-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-.track-card.track-a::before{background:#1565c0}
-.track-card.track-b::before{background:#e65100}
-.track-card.track-c::before{background:#7b1fa2}
-.track-card .track-title{font-size:15px;font-weight:700;margin-bottom:6px}
-.track-card .track-desc{font-size:13px;color:#555;line-height:1.5}
-.track-items{margin-top:10px;padding-left:18px}
-.track-items li{font-size:13px;color:#444;margin-bottom:4px}
-
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-amber{background:#fff3e0;color:#e65100}
-.badge-blue{background:#e3f2fd;color:#1565c0}
-.badge-purple{background:#f3e5f5;color:#7b1fa2}
-.badge-green{background:#e8f5ee;color:#0a6e3a}
-.badge-gray{background:#f0f0f0;color:#666}
-
-/* Supplier Cards */
-.supplier-grid{display:flex;flex-direction:column;gap:12px;margin-top:12px}
-.sup-card{border:1px solid #e8eaed;border-radius:12px;padding:16px;display:flex;gap:14px;align-items:flex-start;transition:all 0.2s}
-.sup-card:hover{border-color:#ff9800;background:#fffdf8}
-.sup-num{width:30px;height:30px;border-radius:50%;background:#fff3e0;color:#e65100;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0}
-.sup-info{flex:1}
-.sup-name{font-size:14px;font-weight:700;margin-bottom:2px}
-.sup-detail{font-size:12px;color:#666}
-.sup-status{margin-top:6px}
-
-.coordinator-card{display:flex;align-items:center;gap:14px;margin-top:12px}
-.coordinator-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e65100,#ff6d00);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;flex-shrink:0;overflow:hidden}
-.coordinator-avatar img{width:100%;height:100%;object-fit:cover}
-.coordinator-info{flex:1}
-.coordinator-info h4{font-size:15px;font-weight:700}
-.coordinator-info p{font-size:12px;color:#666}
-.contact-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.contact-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#f7f8fa;border:1px solid #e8eaed;border-radius:8px;font-size:12px;color:#555;text-decoration:none;transition:all 0.2s}
-.contact-chip:hover{background:#fff3e0;border-color:#ff9800;color:#e65100}
-
-.back-link{display:inline-flex;align-items:center;gap:6px;margin-top:20px;padding:8px 16px;background:#fff;border:1.5px solid #e8eaed;border-radius:8px;font-size:13px;color:#555;text-decoration:none;transition:all 0.2s}
-.back-link:hover{border-color:#e65100;color:#e65100}
-
-.empty-state{text-align:center;padding:40px 20px;color:#888}
-.empty-state .emoji{font-size:40px;margin-bottom:12px}
-.empty-state p{font-size:14px}
-
-@media(max-width:600px){
-  .info-grid{grid-template-columns:1fr}
-}
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
+  
+  .hero{background:linear-gradient(135deg,#bf360c 0%,#e65100 40%,#ff6d00 100%);color:#fff;padding:52px 24px 60px;text-align:center;position:relative;overflow:hidden}
+  .hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:40px;background:#f7f8fa;border-radius:50% 50% 0 0/100% 100% 0 0}
+  .hero h1{font-size:28px;font-weight:800;margin-bottom:10px;letter-spacing:-0.5px}
+  .hero-sub{font-size:15px;opacity:0.88;max-width:600px;margin:0 auto 16px}
+  .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;font-size:13px}
+  .hero-badge .dot{width:8px;height:8px;border-radius:50%;background:#ffeb3b}
+  
+  .container{max-width:840px;margin:0 auto;padding:0 20px 60px}
+  .lang-switch{display:flex;justify-content:flex-end;gap:8px;margin:20px 0 0}
+  .lang-btn{padding:6px 14px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer;transition:all 0.2s}
+  .lang-btn.active{border-color:#e65100;background:#fff3e0;color:#e65100;font-weight:600}
+  
+  .section{background:#fff;border-radius:16px;border:1px solid #e8eaed;padding:28px;margin-top:22px}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .section-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .section-title{font-size:17px;font-weight:700}
+  .section-subtitle{font-size:13px;color:#888;margin-top:2px}
+  
+  .status-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .st-card{background:#f7f8fa;border:1px solid #e8eaed;border-radius:10px;padding:16px;text-align:center}
+  .st-card .st-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:4px}
+  .st-card .st-value{font-size:18px;font-weight:700}
+  .st-card .st-value.orange{color:#e65100}
+  .st-card .st-value.amber{color:#b86e00}
+  
+  .req-core{background:#fff8f0;border:1px solid #ffe0b2;border-radius:12px;padding:20px;margin-bottom:16px}
+  .req-core h4{font-size:14px;font-weight:700;margin-bottom:8px;color:#e65100}
+  .req-core p{font-size:14px;color:#333}
+  
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .info-item{background:#f7f8fa;border-radius:8px;padding:12px 14px}
+  .info-item .info-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:3px}
+  .info-item .info-value{font-size:14px;font-weight:500}
+  
+  /* Sourcing Tracks */
+  .track-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+  .track-card{border:1.5px solid #e8eaed;border-radius:12px;padding:18px;position:relative;overflow:hidden;transition:all 0.2s}
+  .track-card:hover{border-color:#ff9800;background:#fffdf8}
+  .track-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .track-card.track-a::before{background:#1565c0}
+  .track-card.track-b::before{background:#e65100}
+  .track-card.track-c::before{background:#7b1fa2}
+  .track-tag{font-size:12px;font-weight:700;color:#fff;display:inline-block;padding:2px 10px;border-radius:12px;margin-bottom:8px}
+  .track-card.track-a .track-tag{background:#1565c0}
+  .track-card.track-b .track-tag{background:#e65100}
+  .track-card.track-c .track-tag{background:#7b1fa2}
+  .track-card .track-title{font-size:14px;font-weight:600;margin-bottom:4px}
+  .track-card .track-desc{font-size:12px;color:#666;line-height:1.5}
+  .track-items{margin-top:8px;padding-left:16px}
+  .track-items li{font-size:12px;color:#555;margin-bottom:3px}
+  
+  /* Supplier Scheme Cards */
+  .eval-summary{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .eval-stat{padding:12px 18px;background:#f7f8fa;border-radius:10px;text-align:center;flex:1;min-width:80px}
+  .eval-stat .es-num{font-size:22px;font-weight:800;color:#e65100}
+  .eval-stat .es-label{font-size:11px;color:#888;margin-top:2px}
+  
+  .scheme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
+  .scheme-card{border:1px solid #e8eaed;border-radius:12px;padding:18px;position:relative;overflow:hidden;transition:all 0.2s}
+  .scheme-card:hover{border-color:#ff9800;background:#fffdf8}
+  .scheme-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .scheme-card.a::before{background:#1565c0}
+  .scheme-card.b::before{background:#e65100}
+  .scheme-card.c::before{background:#7b1fa2}
+  .scheme-card.d::before{background:#b86e00}
+  .scheme-tag{font-size:12px;font-weight:700;color:#fff;display:inline-block;padding:2px 10px;border-radius:12px;margin-bottom:8px}
+  .scheme-card.a .scheme-tag{background:#1565c0}
+  .scheme-card.b .scheme-tag{background:#e65100}
+  .scheme-card.c .scheme-tag{background:#7b1fa2}
+  .scheme-card.d .scheme-tag{background:#b86e00}
+  
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge-green{background:#e8f5ee;color:#0a6e3a}
+  .badge-amber{background:#fff3e0;color:#b86e00}
+  .badge-blue{background:#e3f2fd;color:#1565c0}
+  .badge-purple{background:#f3e5f5;color:#7b1fa2}
+  .badge-gray{background:#f0f0f0;color:#666}
+  
+  /* Coordinator */
+  .coordinator-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e65100,#ff6d00);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;overflow:hidden;flex-shrink:0}
+  .coordinator-avatar img{width:100%;height:100%;object-fit:cover}
+  .contact-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+  .contact-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#f7f8fa;border:1px solid #e8eaed;border-radius:8px;font-size:12px;color:#555;text-decoration:none;transition:all 0.2s}
+  .contact-chip:hover{background:#fff3e0;border-color:#e65100;color:#e65100}
+  
+  .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .role-item{display:flex;align-items:flex-start;gap:8px;font-size:13px}
+  .role-item .ri-icon{font-size:15px;flex-shrink:0}
+  .role-item .ri-label{font-weight:600;font-size:12px;color:#555}
+  
+  .update-bar{background:#fff;border:1px solid #e8eaed;border-radius:10px;padding:12px 18px;margin-top:22px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#888}
+  .update-bar .dot{width:7px;height:7px;background:#4caf50;border-radius:50%;display:inline-block;margin-right:6px}
+  .footer{text-align:center;padding:30px 20px;font-size:11px;color:#bbb}
+  
+  @media(max-width:600px){
+    .hero h1{font-size:22px}
+    .status-strip{grid-template-columns:1fr 1fr}
+    .info-grid{grid-template-columns:1fr}
+    .track-grid{grid-template-columns:1fr}
+    .scheme-grid{grid-template-columns:1fr}
+    .role-grid{grid-template-columns:1fr}
+    .section{padding:20px}
+  }
 </style>
 </head>
 <body>
 
 <div class="hero">
-  <h1 id="hero-title">MODU 模块化玩具 — 中国制造寻源</h1>
-  <p class="hero-sub" id="hero-sub">为丹麦 MODU 品牌寻找中国注塑代工厂、设备供应商和模具制造商</p>
-  <div class="hero-badge"><span class="dot"></span> <span id="hero-status">项目启动阶段</span></div>
+  <h1 id="hero-title">MODU Modular Toys — China Manufacturing Sourcing</h1>
+  <p class="hero-sub" id="hero-desc">Sourcing Chinese injection molding factories, equipment suppliers, and mold makers for Danish MODU brand</p>
+  <span class="hero-badge"><span class="dot"></span><span id="badge-phase">Project Kickoff Phase</span></span>
 </div>
 
 <div class="container">
+
   <div class="lang-switch">
+    <button class="lang-btn" onclick="switchLang('en')">English</button>
+    <button class="lang-btn" onclick="switchLang('ru')">Русский</button>
     <button class="lang-btn active" onclick="switchLang('zh')">中文</button>
-    <button class="lang-btn" onclick="switchLang('en')">EN</button>
-    <button class="lang-btn" onclick="switchLang('ru')">РУ</button>
   </div>
 
-  <!-- Project Overview -->
+  <!-- PROJECT STATUS -->
   <div class="section">
     <div class="section-header">
-      <div class="section-icon" style="background:#fff3e0">📋</div>
+      <div class="section-icon" style="background:#fff3e0;color:#e65100">📊</div>
       <div>
-        <div class="section-title" data-i18n="overview-title">项目概述</div>
+        <div class="section-title" data-i18n="s1-title">项目状态</div>
       </div>
     </div>
+    <div class="status-strip">
+      <div class="st-card">
+        <div class="st-label" data-i18n="s1-type-l">项目类型</div>
+        <div class="st-value orange" data-i18n="s1-type-v">代工寻源</div>
+      </div>
+      <div class="st-card">
+        <div class="st-label" data-i18n="s1-phase-l">当前阶段</div>
+        <div class="st-value amber" data-i18n="s1-phase-v">供应商寻源</div>
+      </div>
+      <div class="st-card">
+        <div class="st-label" data-i18n="s1-suppliers-l">已找到供应商</div>
+        <div class="st-value" id="stat-suppliers">0</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROJECT REQUIREMENT -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff3e0;color:#e65100">🧸</div>
+      <div>
+        <div class="section-title" data-i18n="s2-title">项目需求</div>
+      </div>
+    </div>
+    
     <div class="req-core">
-      <h4 data-i18n="ref-product">参考产品</h4>
-      <p data-i18n="ref-desc">MODU (modutoy.com) — 丹麦品牌，真人尺寸模块化儿童玩具，由泡沫块、连接栓(pegs)和轮子(wheels)组成。目标年龄 6个月~6岁。</p>
+      <h4 data-i18n="s2-core-t">参考产品</h4>
+      <p data-i18n="s2-core-d">MODU (modutoy.com) — 丹麦品牌，真人尺寸模块化儿童玩具，由泡沫块、连接栓和轮子组成。目标年龄 6个月~6岁。需要寻找中国合作伙伴完成代工生产、设备采购和模具制造。</p>
     </div>
+    
     <div class="info-grid">
-      <div class="info-item"><div class="info-label" data-i18n="material-lbl">主要材料</div><div class="info-value" data-i18n="material-val">聚丙烯 (PP) + 其他塑料</div></div>
-      <div class="info-item"><div class="info-label" data-i18n="parts-lbl">零件类型</div><div class="info-value" data-i18n="parts-val">连接件、轮子、衬套</div></div>
-      <div class="info-item"><div class="info-label" data-i18n="process-lbl">生产工艺</div><div class="info-value" data-i18n="process-val">注塑成型 (Injection Molding)</div></div>
-      <div class="info-item"><div class="info-label" data-i18n="packaging-lbl">包装</div><div class="info-value" data-i18n="packaging-val">纸板包装盒（单独采购）</div></div>
+      <div class="info-item">
+        <div class="info-label" data-i18n="s2-mat-l">主要材料</div>
+        <div class="info-value" data-i18n="s2-mat-v">聚丙烯 (PP) + 其他塑料</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label" data-i18n="s2-parts-l">零件类型</div>
+        <div class="info-value" data-i18n="s2-parts-v">连接件、轮子、衬套</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label" data-i18n="s2-process-l">生产工艺</div>
+        <div class="info-value" data-i18n="s2-process-v">注塑成型</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label" data-i18n="s2-pkg-l">包装</div>
+        <div class="info-value" data-i18n="s2-pkg-v">纸板包装盒（单独采购）</div>
+      </div>
     </div>
   </div>
 
-  <!-- Sourcing Tracks -->
+  <!-- SOURCING TRACKS -->
   <div class="section">
     <div class="section-header">
-      <div class="section-icon" style="background:#e3f2fd">🎯</div>
+      <div class="section-icon" style="background:#e3f2fd;color:#1565c0">🎯</div>
       <div>
-        <div class="section-title" data-i18n="tracks-title">寻源方向</div>
+        <div class="section-title" data-i18n="s3-title">寻源方向</div>
+        <div class="section-subtitle" data-i18n="s3-sub">三条并行寻源路线</div>
       </div>
     </div>
-    <div class="track-list">
+    <div class="track-grid">
       <div class="track-card track-a">
-        <div class="track-title"><span class="badge badge-blue">方向 A</span> <span data-i18n="track-a-title">合同制造（代工）</span></div>
+        <div class="track-tag" data-i18n="track-a-tag">方向 A</div>
+        <div class="track-title" data-i18n="track-a-title">合同制造（代工）</div>
         <div class="track-desc" data-i18n="track-a-desc">提供3D模型和图纸，中国工厂按要求生产零件。</div>
         <ul class="track-items">
-          <li data-i18n="track-a-1">聚丙烯(PP)注塑件生产</li>
-          <li data-i18n="track-a-2">其他塑料件（轮子、衬套等）</li>
+          <li data-i18n="track-a-1">PP注塑件生产</li>
+          <li data-i18n="track-a-2">其他塑料件（轮子、衬套）</li>
           <li data-i18n="track-a-3">纸板包装盒制造</li>
         </ul>
       </div>
       <div class="track-card track-b">
-        <div class="track-title"><span class="badge badge-amber">方向 B</span> <span data-i18n="track-b-title">注塑设备采购</span></div>
-        <div class="track-desc" data-i18n="track-b-desc">购买注塑成型机——投入塑料颗粒原料，按模具形状生产零件。</div>
+        <div class="track-tag" data-i18n="track-b-tag">方向 B</div>
+        <div class="track-title" data-i18n="track-b-title">注塑设备采购</div>
+        <div class="track-desc" data-i18n="track-b-desc">采购注塑成型机，投入塑料颗粒按模具形状生产零件。</div>
         <ul class="track-items">
-          <li data-i18n="track-b-1">注塑成型机选型与采购</li>
-          <li data-i18n="track-b-2">适配聚丙烯(PP)颗粒材料</li>
+          <li data-i18n="track-b-1">注塑机选型与采购</li>
+          <li data-i18n="track-b-2">适配PP颗粒材料</li>
         </ul>
       </div>
       <div class="track-card track-c">
-        <div class="track-title"><span class="badge badge-purple">方向 C</span> <span data-i18n="track-c-title">模具定制</span></div>
+        <div class="track-tag" data-i18n="track-c-tag">方向 C</div>
+        <div class="track-title" data-i18n="track-c-title">模具定制</div>
         <div class="track-desc" data-i18n="track-c-desc">为每个零件设计并制造专用注塑模具。</div>
         <ul class="track-items">
           <li data-i18n="track-c-1">根据3D模型/图纸制造模具</li>
-          <li data-i18n="track-c-2">每种零件需要独立模具</li>
+          <li data-i18n="track-c-2">每种零件需独立模具</li>
         </ul>
       </div>
     </div>
   </div>
 
-  <!-- Suppliers Section -->
+  <!-- SUPPLIER PROGRESS -->
   <div class="section">
     <div class="section-header">
-      <div class="section-icon" style="background:#e8f5ee">🏭</div>
+      <div class="section-icon" style="background:#f3e5f5;color:#7b1fa2">🏭</div>
       <div>
-        <div class="section-title" data-i18n="suppliers-title">供应商进度</div>
+        <div class="section-title" data-i18n="s4-title">供应商进展</div>
+        <div class="section-subtitle" data-i18n="s4-sub">评估中的方案</div>
       </div>
     </div>
-    <div id="suppliers-container">
-      <div class="empty-state">
-        <div class="emoji">🔍</div>
-        <p data-i18n="no-suppliers">尚未开始供应商寻源，即将启动...</p>
+    
+    <div class="eval-summary">
+      <div class="eval-stat">
+        <div class="es-num" id="eval-total">0</div>
+        <div class="es-label" data-i18n="s4-total">已评估</div>
       </div>
+      <div class="eval-stat">
+        <div class="es-num" id="eval-active">0</div>
+        <div class="es-label" data-i18n="s4-active">沟通中</div>
+      </div>
+      <div class="eval-stat">
+        <div class="es-num" id="eval-quoted">0</div>
+        <div class="es-label" data-i18n="s4-quoted">已报价</div>
+      </div>
+    </div>
+    
+    <div class="scheme-grid" id="scheme-grid">
+      <div style="text-align:center;padding:20px;color:#aaa;font-size:13px;grid-column:1/-1" data-i18n="s4-empty">正在搜索供应商 — 有进展会更新在这里</div>
     </div>
   </div>
 
-  <!-- Coordinator -->
+  <!-- YOUR COORDINATOR -->
   <div class="section">
     <div class="section-header">
-      <div class="section-icon" style="background:#ede7f6">👤</div>
+      <div class="section-icon" style="background:#fff3e0;color:#e65100">🤝</div>
       <div>
-        <div class="section-title" data-i18n="coordinator-title">你的协调人</div>
+        <div class="section-title" data-i18n="s5-title">你的协调人</div>
       </div>
     </div>
-    <div class="coordinator-card" id="coord-card">
+    <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px" id="coordinator-card">
       <div class="coordinator-avatar" id="coord-avatar">A</div>
-      <div class="coordinator-info">
-        <h4 id="coord-name">Amalia HOU</h4>
-        <p data-i18n="coord-role">采购协调人 / Sourcing Coordinator</p>
-        <div class="contact-grid" id="contact-grid"></div>
+      <div>
+        <div style="font-size:16px;font-weight:700" id="coord-name">Amalia HOU</div>
+        <div style="font-size:13px;color:#888" id="coord-city">Beijing, China</div>
+        <div style="font-size:12px;color:#666;margin-top:4px" id="coord-bio"></div>
       </div>
+    </div>
+    <div class="contact-grid" id="contact-grid" style="display:none"></div>
+    <div class="role-grid" style="margin-top:16px">
+      <div class="role-item"><div class="ri-icon">🔍</div><div><div class="ri-label" data-i18n="s5-r1">供应商筛选</div></div></div>
+      <div class="role-item"><div class="ri-icon">💰</div><div><div class="ri-label" data-i18n="s5-r2">价格谈判</div></div></div>
+      <div class="role-item"><div class="ri-icon">📋</div><div><div class="ri-label" data-i18n="s5-r3">项目协调</div></div></div>
+      <div class="role-item"><div class="ri-icon">🛡️</div><div><div class="ri-label" data-i18n="s5-r4">质量保障</div></div></div>
     </div>
   </div>
 
-  <a class="back-link" href="portal.html" id="back-link">← <span data-i18n="back">返回项目总览</span></a>
+  <div class="update-bar">
+    <div><span class="dot"></span><span data-i18n="update-text">每个节点更新</span></div>
+    <div data-i18n="update-time">2026年6月4日</div>
+  </div>
+
 </div>
+
+<div class="footer">MODU China Sourcing Project © 2026</div>
 
 <script>
 const i18n = {
   zh: {
-    'hero-title': 'MODU 模块化玩具 — 中国制造寻源',
-    'hero-sub': '为丹麦 MODU 品牌寻找中国注塑代工厂、设备供应商和模具制造商',
-    'hero-status': '项目启动阶段',
-    'overview-title': '项目概述',
-    'ref-product': '参考产品',
-    'ref-desc': 'MODU (modutoy.com) — 丹麦品牌，真人尺寸模块化儿童玩具，由泡沫块、连接栓(pegs)和轮子(wheels)组成。目标年龄 6个月~6岁。',
-    'material-lbl': '主要材料', 'material-val': '聚丙烯 (PP) + 其他塑料',
-    'parts-lbl': '零件类型', 'parts-val': '连接件、轮子、衬套',
-    'process-lbl': '生产工艺', 'process-val': '注塑成型 (Injection Molding)',
-    'packaging-lbl': '包装', 'packaging-val': '纸板包装盒（单独采购）',
-    'tracks-title': '寻源方向',
-    'track-a-title': '合同制造（代工）', 'track-a-desc': '提供3D模型和图纸，中国工厂按要求生产零件。',
-    'track-a-1': '聚丙烯(PP)注塑件生产', 'track-a-2': '其他塑料件（轮子、衬套等）', 'track-a-3': '纸板包装盒制造',
-    'track-b-title': '注塑设备采购', 'track-b-desc': '购买注塑成型机——投入塑料颗粒原料，按模具形状生产零件。',
-    'track-b-1': '注塑成型机选型与采购', 'track-b-2': '适配聚丙烯(PP)颗粒材料',
-    'track-c-title': '模具定制', 'track-c-desc': '为每个零件设计并制造专用注塑模具。',
-    'track-c-1': '根据3D模型/图纸制造模具', 'track-c-2': '每种零件需要独立模具',
-    'suppliers-title': '供应商进度', 'no-suppliers': '尚未开始供应商寻源，即将启动...',
-    'coordinator-title': '你的协调人', 'coord-role': '采购协调人 / Sourcing Coordinator',
-    'back': '返回项目总览'
+    "hero-title": "MODU 模块化玩具 — 中国制造寻源",
+    "hero-desc": "为丹麦 MODU 品牌寻找中国注塑代工厂、设备供应商和模具制造商",
+    "badge-phase": "项目启动阶段",
+    "s1-title": "项目状态",
+    "s1-type-l": "项目类型", "s1-type-v": "代工寻源",
+    "s1-phase-l": "当前阶段", "s1-phase-v": "供应商寻源",
+    "s1-suppliers-l": "已找到供应商",
+    "s2-title": "项目需求",
+    "s2-core-t": "参考产品",
+    "s2-core-d": "MODU (modutoy.com) — 丹麦品牌，真人尺寸模块化儿童玩具，由泡沫块、连接栓和轮子组成。目标年龄 6个月~6岁。需要寻找中国合作伙伴完成代工生产、设备采购和模具制造。",
+    "s2-mat-l": "主要材料", "s2-mat-v": "聚丙烯 (PP) + 其他塑料",
+    "s2-parts-l": "零件类型", "s2-parts-v": "连接件、轮子、衬套",
+    "s2-process-l": "生产工艺", "s2-process-v": "注塑成型",
+    "s2-pkg-l": "包装", "s2-pkg-v": "纸板包装盒（单独采购）",
+    "s3-title": "寻源方向", "s3-sub": "三条并行寻源路线",
+    "track-a-tag": "方向 A", "track-a-title": "合同制造（代工）", "track-a-desc": "提供3D模型和图纸，中国工厂按要求生产零件。",
+    "track-a-1": "PP注塑件生产", "track-a-2": "其他塑料件（轮子、衬套）", "track-a-3": "纸板包装盒制造",
+    "track-b-tag": "方向 B", "track-b-title": "注塑设备采购", "track-b-desc": "采购注塑成型机，投入塑料颗粒按模具形状生产零件。",
+    "track-b-1": "注塑机选型与采购", "track-b-2": "适配PP颗粒材料",
+    "track-c-tag": "方向 C", "track-c-title": "模具定制", "track-c-desc": "为每个零件设计并制造专用注塑模具。",
+    "track-c-1": "根据3D模型/图纸制造模具", "track-c-2": "每种零件需独立模具",
+    "s4-title": "供应商进展", "s4-sub": "评估中的方案",
+    "s4-total": "已评估", "s4-active": "沟通中", "s4-quoted": "已报价",
+    "s4-empty": "正在搜索供应商 — 有进展会更新在这里",
+    "s5-title": "你的协调人",
+    "s5-r1": "供应商筛选", "s5-r2": "价格谈判", "s5-r3": "项目协调", "s5-r4": "质量保障",
+    "update-text": "每个节点更新", "update-time": "2026年6月4日"
   },
   en: {
-    'hero-title': 'MODU Modular Toys — China Manufacturing Sourcing',
-    'hero-sub': 'Sourcing Chinese injection molding factories, equipment suppliers, and mold makers for MODU brand',
-    'hero-status': 'Project Kickoff Phase',
-    'overview-title': 'Project Overview',
-    'ref-product': 'Reference Product',
-    'ref-desc': 'MODU (modutoy.com) — Danish brand, life-size modular building toys for children, consisting of foam blocks, pegs, and wheels. Target age: 6 months to 6+ years.',
-    'material-lbl': 'Main Material', 'material-val': 'Polypropylene (PP) + Other Plastics',
-    'parts-lbl': 'Part Types', 'parts-val': 'Connectors, Wheels, Bushings',
-    'process-lbl': 'Manufacturing', 'process-val': 'Injection Molding',
-    'packaging-lbl': 'Packaging', 'packaging-val': 'Cardboard boxes (separate sourcing)',
-    'tracks-title': 'Sourcing Tracks',
-    'track-a-title': 'Contract Manufacturing (OEM)', 'track-a-desc': 'Provide 3D models and drawings; Chinese factory produces parts to spec.',
-    'track-a-1': 'PP injection molded parts production', 'track-a-2': 'Other plastic parts (wheels, bushings)', 'track-a-3': 'Cardboard packaging manufacturing',
-    'track-b-title': 'Injection Molding Machine Purchase', 'track-b-desc': 'Buy an injection molding machine — feed plastic granules, produce parts per mold shape.',
-    'track-b-1': 'Machine selection and procurement', 'track-b-2': 'Compatible with PP granules',
-    'track-c-title': 'Custom Mold Making', 'track-c-desc': 'Design and manufacture dedicated injection molds for each part.',
-    'track-c-1': 'Mold making from 3D models/drawings', 'track-c-2': 'Each part requires its own mold',
-    'suppliers-title': 'Supplier Progress', 'no-suppliers': 'Supplier sourcing not yet started. Coming soon...',
-    'coordinator-title': 'Your Coordinator', 'coord-role': 'Sourcing Coordinator',
-    'back': 'Back to Projects'
+    "hero-title": "MODU Modular Toys — China Manufacturing Sourcing",
+    "hero-desc": "Sourcing Chinese injection molding factories, equipment suppliers, and mold makers for Danish MODU brand",
+    "badge-phase": "Project Kickoff Phase",
+    "s1-title": "Project Status",
+    "s1-type-l": "Project Type", "s1-type-v": "OEM Sourcing",
+    "s1-phase-l": "Current Phase", "s1-phase-v": "Supplier Research",
+    "s1-suppliers-l": "Suppliers Found",
+    "s2-title": "Project Requirement",
+    "s2-core-t": "Reference Product",
+    "s2-core-d": "MODU (modutoy.com) — Danish brand, life-size modular building toys for children, consisting of foam blocks, pegs, and wheels. Target age: 6 months to 6+ years. Looking for Chinese partners for contract manufacturing, equipment procurement, and mold making.",
+    "s2-mat-l": "Main Material", "s2-mat-v": "Polypropylene (PP) + Other Plastics",
+    "s2-parts-l": "Part Types", "s2-parts-v": "Connectors, Wheels, Bushings",
+    "s2-process-l": "Manufacturing", "s2-process-v": "Injection Molding",
+    "s2-pkg-l": "Packaging", "s2-pkg-v": "Cardboard boxes (separate sourcing)",
+    "s3-title": "Sourcing Tracks", "s3-sub": "Three parallel sourcing tracks",
+    "track-a-tag": "Track A", "track-a-title": "Contract Manufacturing (OEM)", "track-a-desc": "Provide 3D models and drawings; Chinese factory produces parts to spec.",
+    "track-a-1": "PP injection molded parts", "track-a-2": "Other plastic parts (wheels, bushings)", "track-a-3": "Cardboard packaging",
+    "track-b-tag": "Track B", "track-b-title": "Injection Molding Machine Purchase", "track-b-desc": "Buy injection molding machine — feed plastic granules, produce parts per mold.",
+    "track-b-1": "Machine selection & procurement", "track-b-2": "Compatible with PP granules",
+    "track-c-tag": "Track C", "track-c-title": "Custom Mold Making", "track-c-desc": "Design and manufacture dedicated injection molds for each part.",
+    "track-c-1": "Mold making from 3D models/drawings", "track-c-2": "Each part requires its own mold",
+    "s4-title": "Supplier Progress", "s4-sub": "Solutions under evaluation",
+    "s4-total": "Evaluated", "s4-active": "In Discussion", "s4-quoted": "Quoted",
+    "s4-empty": "Searching for suppliers — results will appear here as we progress",
+    "s5-title": "Your Coordinator",
+    "s5-r1": "Supplier screening", "s5-r2": "Price negotiation", "s5-r3": "Project coordination", "s5-r4": "Quality assurance",
+    "update-text": "Page updated at every milestone", "update-time": "Jun 4, 2026"
   },
   ru: {
-    'hero-title': 'MODU модульные игрушки — Производство в Китае',
-    'hero-sub': 'Поиск китайских заводов для литья под давлением, поставщиков оборудования и изготовителей пресс-форм',
-    'hero-status': 'Этап запуска проекта',
-    'overview-title': 'Обзор проекта',
-    'ref-product': 'Референсный продукт',
-    'ref-desc': 'MODU (modutoy.com) — датский бренд, модульные строительные игрушки в натуральную величину для детей, состоящие из пенных блоков, штифтов (pegs) и колёс. Целевой возраст: от 6 месяцев до 6+ лет.',
-    'material-lbl': 'Основной материал', 'material-val': 'Полипропилен (PP) + другие пластики',
-    'parts-lbl': 'Типы деталей', 'parts-val': 'Соединители, колёса, втулки',
-    'process-lbl': 'Производство', 'process-val': 'Литьё под давлением (Injection Molding)',
-    'packaging-lbl': 'Упаковка', 'packaging-val': 'Картонные коробки (отдельная закупка)',
-    'tracks-title': 'Направления поиска',
-    'track-a-title': 'Контрактное производство (OEM)', 'track-a-desc': 'Предоставляем 3D-модели и чертежи; китайский завод производит детали по спецификации.',
-    'track-a-1': 'Производство деталей из PP методом литья', 'track-a-2': 'Другие пластиковые детали (колёса, втулки)', 'track-a-3': 'Производство картонной упаковки',
-    'track-b-title': 'Покупка термопластавтомата', 'track-b-desc': 'Купить станок для литья под давлением — засыпать гранулы пластика, производить детали по форме.',
-    'track-b-1': 'Выбор и закупка станка', 'track-b-2': 'Совместимость с гранулами PP',
-    'track-c-title': 'Изготовление пресс-форм', 'track-c-desc': 'Проектирование и изготовление индивидуальных пресс-форм для каждой детали.',
-    'track-c-1': 'Изготовление форм по 3D-моделям/чертежам', 'track-c-2': 'Для каждой детали нужна отдельная форма',
-    'suppliers-title': 'Прогресс поиска поставщиков', 'no-suppliers': 'Поиск поставщиков ещё не начат. Скоро начнём...',
-    'coordinator-title': 'Ваш координатор', 'coord-role': 'Координатор закупок / Sourcing Coordinator',
-    'back': 'К списку проектов'
+    "hero-title": "MODU модульные игрушки — Производство в Китае",
+    "hero-desc": "Поиск китайских заводов для литья под давлением, поставщиков оборудования и изготовителей пресс-форм для бренда MODU",
+    "badge-phase": "Этап запуска проекта",
+    "s1-title": "Статус проекта",
+    "s1-type-l": "Тип проекта", "s1-type-v": "Поиск OEM",
+    "s1-phase-l": "Текущий этап", "s1-phase-v": "Поиск поставщиков",
+    "s1-suppliers-l": "Найдено поставщиков",
+    "s2-title": "Требования проекта",
+    "s2-core-t": "Референсный продукт",
+    "s2-core-d": "MODU (modutoy.com) — датский бренд, модульные строительные игрушки в натуральную величину. Состоят из пенных блоков, штифтов и колёс. Возраст: 6 мес — 6+ лет. Ищем партнёров для контрактного производства, закупки оборудования и изготовления пресс-форм.",
+    "s2-mat-l": "Основной материал", "s2-mat-v": "Полипропилен (PP) + другие пластики",
+    "s2-parts-l": "Типы деталей", "s2-parts-v": "Соединители, колёса, втулки",
+    "s2-process-l": "Производство", "s2-process-v": "Литьё под давлением",
+    "s2-pkg-l": "Упаковка", "s2-pkg-v": "Картонные коробки (отдельная закупка)",
+    "s3-title": "Направления поиска", "s3-sub": "Три параллельных направления",
+    "track-a-tag": "Направление A", "track-a-title": "Контрактное производство (OEM)", "track-a-desc": "Предоставляем 3D-модели и чертежи; завод производит детали по спецификации.",
+    "track-a-1": "PP литьевые детали", "track-a-2": "Другие пластиковые детали (колёса, втулки)", "track-a-3": "Картонная упаковка",
+    "track-b-tag": "Направление B", "track-b-title": "Покупка термопластавтомата", "track-b-desc": "Купить станок для литья — засыпать гранулы, производить детали по форме.",
+    "track-b-1": "Выбор и закупка станка", "track-b-2": "Совместимость с гранулами PP",
+    "track-c-tag": "Направление C", "track-c-title": "Изготовление пресс-форм", "track-c-desc": "Проектирование и изготовление индивидуальных пресс-форм для каждой детали.",
+    "track-c-1": "Изготовление по 3D-моделям/чертежам", "track-c-2": "Для каждой детали — отдельная форма",
+    "s4-title": "Прогресс по поставщикам", "s4-sub": "Решения на рассмотрении",
+    "s4-total": "Оценено", "s4-active": "В обсуждении", "s4-quoted": "Получено КП",
+    "s4-empty": "Поиск поставщиков — результаты появятся здесь по мере продвижения",
+    "s5-title": "Ваш координатор",
+    "s5-r1": "Отбор поставщиков", "s5-r2": "Переговоры о цене", "s5-r3": "Координация проекта", "s5-r4": "Гарантия качества",
+    "update-text": "Обновляется на каждом этапе", "update-time": "4 июня 2026"
   }
 };
 
 let currentLang = 'zh';
 
+// Read language from URL
+(function initLangFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const urlLang = params.get('lang');
+  if (urlLang && ['en', 'ru', 'zh'].includes(urlLang)) {
+    currentLang = urlLang;
+  }
+})();
+
 function switchLang(lang) {
   currentLang = lang;
-  document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.textContent.trim() === (lang==='zh'?'中文':lang==='en'?'EN':'РУ')));
-  
-  const t = i18n[lang];
-  document.getElementById('hero-title').textContent = t['hero-title'];
-  document.getElementById('hero-sub').textContent = t['hero-sub'];
-  document.getElementById('hero-status').textContent = t['hero-status'];
-  
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.textContent.trim() === {en:'English',ru:'Русский',zh:'中文'}[lang]);
+  });
+  document.getElementById('hero-title').textContent = i18n[lang]['hero-title'];
+  document.getElementById('hero-desc').textContent = i18n[lang]['hero-desc'];
+  document.getElementById('badge-phase').textContent = i18n[lang]['badge-phase'];
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
-    if (t[key]) el.textContent = t[key];
+    if (i18n[lang][key]) el.textContent = i18n[lang][key];
   });
+  renderSuppliers();
+  renderCoordinator();
+}
+
+// Cloud data
+let suppliersData = [];
+let coordinatorProfile = {};
+
+async function fetchData() {
+  try {
+    // Load MODU suppliers
+    const moduRes = await fetch('/api/modu-data');
+    if (moduRes.ok) {
+      const moduData = await moduRes.json();
+      suppliersData = moduData.suppliers || [];
+    }
+  } catch(e) { console.log('MODU data fetch failed'); }
   
-  // Update back link
-  document.getElementById('back-link').href = 'portal.html?lang=' + lang;
-}
-
-// Load suppliers from API
-async function loadSuppliers() {
   try {
-    const res = await fetch('/api/modu-data');
-    const data = await res.json();
-    if (data.suppliers && data.suppliers.length > 0) {
-      renderSuppliers(data.suppliers);
-    }
-  } catch(e) { /* No data yet, show empty state */ }
-}
-
-function renderSuppliers(suppliers) {
-  const container = document.getElementById('suppliers-container');
-  container.innerHTML = '<div class="supplier-grid">' + suppliers.map((s, i) => `
-    <div class="sup-card">
-      <div class="sup-num">${i+1}</div>
-      <div class="sup-info">
-        <div class="sup-name">${currentLang === 'zh' ? (s.name || s.nameEn || '') : (s.nameEn || s.name || '')}</div>
-        <div class="sup-detail">${s.location || ''} ${s.specialty ? '· ' + s.specialty : ''}</div>
-        <div class="sup-status">
-          <span class="badge badge-${s.status === 'shortlisted' ? 'green' : s.status === 'contacted' ? 'amber' : 'gray'}">${s.status || 'new'}</span>
-          ${s.track ? '<span class="badge badge-blue">' + s.track + '</span>' : ''}
-        </div>
-      </div>
-    </div>
-  `).join('') + '</div>';
-}
-
-// Load coordinator profile from main data source
-async function loadCoordinator() {
-  try {
+    // Load coordinator profile from main data source
     const res = await fetch('/api/data');
-    const data = await res.json();
-    const p = data.coordinatorProfile || {};
-    
-    const avatarEl = document.getElementById('coord-avatar');
-    const nameEl = document.getElementById('coord-name');
-    const contactGrid = document.getElementById('contact-grid');
-    
-    // Avatar
-    if (p.avatarUrl) {
-      avatarEl.innerHTML = '<img src="' + p.avatarUrl + '" alt="">';
-    } else {
-      avatarEl.textContent = (p.name || 'A').charAt(0).toUpperCase();
+    if (res.ok) {
+      const data = await res.json();
+      coordinatorProfile = data.coordinatorProfile || {};
     }
-    
-    // Name
-    nameEl.textContent = p.name || 'Amalia HOU';
-    
-    // Contact chips
-    let contacts = '';
-    if (p.phone) contacts += '<a class="contact-chip" href="tel:' + p.phone + '">📱 ' + p.phone + '</a>';
-    if (p.whatsapp) contacts += '<a class="contact-chip" href="https://wa.me/' + p.whatsapp.replace(/[^0-9]/g,'') + '" target="_blank">📲 WhatsApp</a>';
-    if (p.wechat) contacts += '<span class="contact-chip">💬 WeChat: ' + p.wechat + '</span>';
-    if (p.telegram) contacts += '<a class="contact-chip" href="https://t.me/' + p.telegram.replace('@','') + '" target="_blank">✈️ Telegram</a>';
-    if (p.city) contacts += '<span class="contact-chip">📍 ' + p.city + '</span>';
-    contactGrid.innerHTML = contacts;
-  } catch(e) { console.log('Failed to load coordinator profile', e); }
+  } catch(e) { console.log('Coordinator fetch failed'); }
+  
+  renderSuppliers();
+  renderCoordinator();
+  // Apply URL language param
+  if (currentLang !== 'zh') switchLang(currentLang);
 }
 
-// Init
-loadCoordinator();
-loadSuppliers();
-const urlLang = new URLSearchParams(window.location.search).get('lang');
-if (urlLang && i18n[urlLang]) switchLang(urlLang);
+function renderSuppliers() {
+  const suppliers = suppliersData;
+  const total = suppliers.length;
+  const active = suppliers.filter(s => s.status === 'contacting' || s.status === 'quoted').length;
+  const quoted = suppliers.filter(s => s.status === 'quoted').length;
+  
+  document.getElementById('eval-total').textContent = total;
+  document.getElementById('eval-active').textContent = active;
+  document.getElementById('eval-quoted').textContent = quoted;
+  document.getElementById('stat-suppliers').textContent = suppliers.filter(s => s.status !== 'rejected').length;
+  
+  const grid = document.getElementById('scheme-grid');
+  const activeSuppliers = suppliers.filter(s => s.status !== 'rejected');
+  
+  if (activeSuppliers.length === 0) {
+    grid.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;font-size:13px;grid-column:1/-1" data-i18n="s4-empty">' + (i18n[currentLang]['s4-empty'] || '') + '</div>';
+    return;
+  }
+  
+  const codes = ['A','B','C','D','E','F','G','H'];
+  const colors = ['a','b','c','d','a','b','c','d'];
+  const stLabels = {
+    zh: {new:'新增',pending:'评估中',contacting:'沟通中',quoted:'已报价',selected:'已选定',shortlisted:'候选'},
+    en: {new:'New',pending:'Under review',contacting:'In discussion',quoted:'Quoted',selected:'Selected',shortlisted:'Shortlisted'},
+    ru: {new:'Новый',pending:'На рассмотрении',contacting:'В обсуждении',quoted:'КП получено',selected:'Выбран',shortlisted:'В шорт-листе'}
+  };
+  
+  grid.innerHTML = activeSuppliers.map((s, i) => {
+    const code = codes[i] || String.fromCharCode(65+i);
+    const cls = colors[i%4];
+    const stLabel = (stLabels[currentLang]||stLabels.zh)[s.status]||s.status||'new';
+    const displayName = currentLang === 'zh' ? (s.name || s.nameEn || '') : (s.nameEn || s.name || '');
+    const trackBadge = s.track ? '<span class="badge badge-blue" style="margin-left:6px">' + escHtml(s.track) + '</span>' : '';
+    return `<div class="scheme-card ${cls}">
+      <div class="scheme-tag">${({zh:'方案 ',en:'Solution ',ru:'Вариант '}[currentLang]||'方案 ')+code}</div>
+      ${displayName ? '<div style="font-size:14px;font-weight:600;color:#1a1a2e;margin:4px 0">' + escHtml(displayName) + '</div>' : ''}
+      <div style="font-size:13px;color:#555">${escHtml(s.specialty||s.location||'')}</div>
+      <div style="margin-top:6px"><span class="badge ${s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':s.status==='shortlisted'?'badge-green':'badge-amber'}">${stLabel}</span>${trackBadge}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderCoordinator() {
+  const p = coordinatorProfile;
+  const avatarEl = document.getElementById('coord-avatar');
+  const nameEl = document.getElementById('coord-name');
+  const cityEl = document.getElementById('coord-city');
+  const bioEl = document.getElementById('coord-bio');
+  const contactGrid = document.getElementById('contact-grid');
+
+  // Avatar
+  if (p.avatarUrl) {
+    avatarEl.innerHTML = '<img src="' + escHtml(p.avatarUrl) + '" alt="">';
+  } else {
+    avatarEl.textContent = (p.name || 'A').charAt(0).toUpperCase();
+  }
+
+  // Name & city
+  nameEl.textContent = p.name || 'Amalia HOU';
+  cityEl.textContent = p.city || 'Beijing, China';
+  bioEl.textContent = p.bio || '';
+  bioEl.style.display = p.bio ? 'block' : 'none';
+
+  // Contact chips
+  const contacts = [];
+  if (p.whatsapp) contacts.push({icon:'📲', label:'WhatsApp', value:p.whatsapp, href:'https://wa.me/'+p.whatsapp.replace(/[^0-9]/g,'')});
+  if (p.telegram) contacts.push({icon:'✈️', label:'Telegram', value:p.telegram, href:'https://t.me/'+p.telegram.replace('@','')});
+  if (p.phone) contacts.push({icon:'📱', label:'Phone', value:p.phone, href:'tel:'+p.phone});
+  if (p.wechat) contacts.push({icon:'💬', label:'WeChat', value:p.wechat, href:null});
+
+  if (contacts.length > 0) {
+    contactGrid.style.display = 'flex';
+    contactGrid.innerHTML = contacts.map(c => {
+      if (c.href) {
+        return '<a href="'+escHtml(c.href)+'" class="contact-chip" target="_blank">'+c.icon+' '+escHtml(c.label)+': '+escHtml(c.value)+'</a>';
+      }
+      return '<span class="contact-chip">'+c.icon+' '+escHtml(c.label)+': '+escHtml(c.value)+'</span>';
+    }).join('');
+  } else {
+    contactGrid.style.display = 'none';
+  }
+}
+
+function escHtml(str) { const d=document.createElement('div'); d.textContent=str||''; return d.innerHTML; }
+
+fetchData();
 </script>
 </body>
 </html>
