@@ -41,17 +41,25 @@ module.exports = async function handler(req, res) {
 
   const systemPrompt = `你是一个专业的供应商信息分析助手。用户正在为俄罗斯客户寻找中国的温室自动化改造设备供应商。
 
-你需要根据提供的公司网页内容，生成两段总结，严格按照JSON格式输出：
+你需要根据提供的公司网页内容，生成总结信息，严格按照JSON格式输出：
 
 {
+  "location": "（公司所在地，格式：国家+省/州+城市，如'中国山东省潍坊市'或'Netherlands, South Holland, Westland'）",
   "notes": "（给采购经理看的备注）",
   "specialty": "（给买家看的产品介绍）"
 }
 
+## location 的要求：
+- 尽量精确到：国家 + 省/州 + 城市
+- 中国公司用中文（如"中国山东省潍坊市"、"中国广东省深圳市"）
+- 非中国公司用英文（如"Netherlands, South Holland, Westland"）
+- 如果网页中没有明确的地址信息，输出空字符串 ""
+- 不要编造地址，只提取网页中明确提到的
+
 ## notes 的要求（给采购经理自己看，管理用）：
 - 用中文
 - 尽量保留原文信息，整理清楚
-- 内容包括：公司全称、成立时间、所在地、主要业务领域、核心产品列表、公司规模/资质（如有）
+- 内容包括：公司全称、成立时间、所在地（精确到省市）、主要业务领域、核心产品列表、公司规模/资质（如有）
 - 必须真实准确，只基于网页内容，不要编造
 - 格式简洁清晰，分条列出
 
@@ -110,12 +118,14 @@ module.exports = async function handler(req, res) {
         const parsed = JSON.parse(jsonMatch[0]);
         return res.status(200).json({
           success: true,
+          location: parsed.location || '',
           notes: parsed.notes || '',
           specialty: parsed.specialty || ''
         });
       } catch(e) {
         return res.status(200).json({
           success: true,
+          location: '',
           notes: content,
           specialty: ''
         });

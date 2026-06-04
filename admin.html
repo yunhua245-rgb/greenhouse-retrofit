@@ -590,6 +590,17 @@ async function fetchCompanyInfo() {
     try {
       const aiResult = await callAISummary(result.raw);
       
+      if (aiResult.location && !document.getElementById('f-location').value.trim()) {
+        document.getElementById('f-location').value = aiResult.location;
+        filled.push('所在地区（AI）');
+      } else if (aiResult.location && document.getElementById('f-location').value.trim()) {
+        // AI got a more detailed location — override if current one is shorter
+        const current = document.getElementById('f-location').value.trim();
+        if (aiResult.location.length > current.length) {
+          document.getElementById('f-location').value = aiResult.location;
+          filled.push('所在地区（AI优化）');
+        }
+      }
       if (aiResult.specialty && !document.getElementById('f-specialty').value.trim()) {
         document.getElementById('f-specialty').value = aiResult.specialty;
         filled.push('专长/产品（AI）');
@@ -647,7 +658,7 @@ async function callAISummary(rawData) {
 
   const data = await response.json();
   if (!data.success) throw new Error('AI返回异常');
-  return { notes: data.notes || '', specialty: data.specialty || '' };
+  return { location: data.location || '', notes: data.notes || '', specialty: data.specialty || '' };
 }
 
 function saveSupplier(e) {

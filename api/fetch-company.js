@@ -109,21 +109,43 @@ function extractCompanyName(title, text) {
 }
 
 function extractLocation(text) {
-  const addrMatch = text.match(/(?:地址|地点|位于|总部|Address)[：:\s]*([^。，,\n]{5,40})/i);
-  if (addrMatch) return addrMatch[1].trim();
+  // Try to find explicit address first
+  const addrMatch = text.match(/(?:地址|地点|位于|总部|Address|address)[：:\s]*([^。，,\n]{5,60})/i);
+  if (addrMatch) {
+    const addr = addrMatch[1].trim();
+    // Try to extract province+city from address
+    const provCityMatch = addr.match(/([\u4e00-\u9fa5]{2,5}(?:省|自治区|市))([\u4e00-\u9fa5]{2,6}(?:市|区|县))?/);
+    if (provCityMatch) {
+      const result = '中国' + (provCityMatch[1] || '') + (provCityMatch[2] || '');
+      return result;
+    }
+    return addr;
+  }
+
+  // Try country + international patterns
+  const intlMatch = text.match(/(?:headquarter|based in|located in|location)[:\s]*([A-Za-z, ]{3,40})/i);
+  if (intlMatch) return intlMatch[1].trim();
+
   const provinces = ['北京','上海','天津','重庆','河北','山西','辽宁','吉林','黑龙江','江苏','浙江','安徽','福建','江西','山东','河南','湖北','湖南','广东','海南','四川','贵州','云南','陕西','甘肃','青海','内蒙古','广西','西藏','宁夏','新疆'];
   const cities = ['潍坊','寿光','青岛','济南','杭州','上海','北京','深圳','广州','成都','武汉','南京','苏州','无锡','常州','泰安','聊城','临沂','烟台','威海','淄博','济宁','日照','德州','滨州','东营','菏泽','枣庄','莱芜'];
+  
   for (const city of cities) {
     if (text.includes(city)) {
-      const context = text.substring(Math.max(0, text.indexOf(city) - 20), text.indexOf(city) + 20);
+      // Look around the city mention for province info
+      const idx = text.indexOf(city);
+      const context = text.substring(Math.max(0, idx - 30), idx + 30);
       for (const prov of provinces) {
-        if (context.includes(prov)) return prov + city;
+        if (context.includes(prov)) return '中国' + prov + (prov.endsWith('省') ? '' : '省') + city + '市';
       }
-      return city;
+      // Search broader for province
+      for (const prov of provinces) {
+        if (text.includes(prov)) return '中国' + prov + (prov.endsWith('省') || prov.endsWith('市') ? '' : '省') + city + '市';
+      }
+      return '中国' + city + '市';
     }
   }
   for (const prov of provinces) {
-    if (text.includes(prov)) return prov;
+    if (text.includes(prov)) return '中国' + prov;
   }
   return '';
 }
