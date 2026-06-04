@@ -86,6 +86,26 @@
   .contact-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#f7f8fa;border:1px solid #e8eaed;border-radius:8px;font-size:12px;color:#555;text-decoration:none;transition:all 0.2s}
   .contact-chip:hover{background:#e8f5ee;border-color:#148a4e;color:#0a6e3a}
   
+  /* Smart Quiz Card */
+  .quiz-section{margin-top:0}
+  .quiz-card{background:#fff;border:1px solid #e8eaed;border-radius:14px;padding:20px;margin-bottom:12px;transition:all 0.3s}
+  .quiz-card.answered{opacity:0.6;transform:scale(0.98)}
+  .quiz-card.answered .quiz-options{pointer-events:none}
+  .quiz-q{font-size:15px;font-weight:600;color:#1a1a2e;margin-bottom:12px;line-height:1.5}
+  .quiz-q .q-icon{display:inline-block;width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#148a4e,#0a6e3a);color:#fff;text-align:center;line-height:26px;font-size:13px;font-weight:700;margin-right:8px;vertical-align:middle}
+  .quiz-options{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .quiz-opt{padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fafafa;font-size:13px;cursor:pointer;transition:all 0.2s;text-align:center;color:#333;line-height:1.4}
+  .quiz-opt:hover{border-color:#148a4e;background:#e8f5ee;color:#0a6e3a}
+  .quiz-opt.selected{border-color:#148a4e;background:#148a4e;color:#fff;font-weight:600}
+  .quiz-opt.selected::before{content:'✓ '}
+  .quiz-status{text-align:center;padding:14px;font-size:13px;color:#888}
+  .quiz-loading{display:flex;align-items:center;justify-content:center;gap:8px;padding:20px;color:#888;font-size:13px}
+  .quiz-loading .spinner{width:18px;height:18px;border:2px solid #e0e0e0;border-top-color:#148a4e;border-radius:50%;animation:spin 0.8s linear infinite}
+  .quiz-done{text-align:center;padding:16px;background:#e8f5ee;border-radius:12px;color:#0a6e3a;font-size:14px;font-weight:600}
+  .quiz-more-btn{display:block;width:100%;padding:10px;border:1.5px dashed #ccc;border-radius:10px;background:transparent;font-size:13px;color:#888;cursor:pointer;transition:all 0.2s;margin-top:8px}
+  .quiz-more-btn:hover{border-color:#148a4e;color:#0a6e3a;background:#f0faf4}
+  @media(max-width:480px){.quiz-options{grid-template-columns:1fr}}
+  
   .client-edit-link{display:block;text-align:center;margin-top:20px;padding:14px;background:#f7f8fa;border:1px dashed #ccc;border-radius:12px;text-decoration:none;color:#555;font-size:14px;transition:all 0.2s}
   .client-edit-link:hover{background:#e8f5ee;border-color:#148a4e;color:#0a6e3a}
   
@@ -245,6 +265,24 @@
       <div class="role-item"><div class="ri-icon">📋</div><div><div class="ri-label" data-i18n="s5-r3">Project coordination</div></div></div>
       <div class="role-item"><div class="ri-icon">🛡️</div><div><div class="ri-label" data-i18n="s5-r4">Quality assurance</div></div></div>
     </div>
+  </div>
+
+  <!-- SMART QUIZ SECTION -->
+  <div class="section quiz-section" id="quiz-section" style="display:none">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fff3e0;color:#b86e00">❓</div>
+      <div>
+        <div class="section-title" id="quiz-title">Help us understand your project</div>
+        <div style="font-size:12px;color:#888;margin-top:2px" id="quiz-subtitle">Answer a few quick questions to get more accurate results</div>
+      </div>
+    </div>
+    <div id="quiz-container">
+      <div class="quiz-loading" id="quiz-loading">
+        <div class="spinner"></div>
+        <span id="quiz-loading-text">Generating questions...</span>
+      </div>
+    </div>
+    <button class="quiz-more-btn" id="quiz-more-btn" style="display:none" onclick="loadMoreQuestions()">🔄 More questions</button>
   </div>
 
   <!-- CLIENT EDIT LINK -->
@@ -581,6 +619,153 @@ function renderPhases() {
 }
 
 fetchData();
+
+// ===================== SMART QUIZ SYSTEM =====================
+const QUIZ_API = '/api/generate-questions';
+const SAVE_ANSWER_API = '/api/save-quiz-answer';
+let quizAnswered = {}; // track answered slots
+
+const quizI18n = {
+  en: { title: 'Help us understand your project', subtitle: 'Answer a few quick questions to get more accurate results', loading: 'Generating questions...', done: '✓ All info collected — thank you!', more: '🔄 More questions', saving: 'Saving...', saved: '✓ Saved!' },
+  ru: { title: 'Помогите нам понять ваш проект', subtitle: 'Ответьте на несколько вопросов для более точных результатов', loading: 'Генерация вопросов...', done: '✓ Вся информация собрана — спасибо!', more: '🔄 Ещё вопросы', saving: 'Сохранение...', saved: '✓ Сохранено!' },
+  zh: { title: '帮助我们了解您的项目', subtitle: '回答几个简单问题，获得更精准的方案', loading: '正在生成问题...', done: '✓ 所有信息已收集完成，感谢！', more: '🔄 更多问题', saving: '保存中...', saved: '✓ 已保存！' }
+};
+
+function getMissingSlots() {
+  const slots = ['area', 'structureType', 'infrastructure', 'crops', 'scope', 'budget', 'timeline'];
+  return slots.filter(s => !projectInfo[s] && !quizAnswered[s]);
+}
+
+async function initQuiz() {
+  const missing = getMissingSlots();
+  if (missing.length === 0) {
+    document.getElementById('quiz-section').style.display = 'none';
+    return;
+  }
+
+  // Show quiz section
+  const section = document.getElementById('quiz-section');
+  section.style.display = 'block';
+
+  // Update i18n
+  const t = quizI18n[currentLang] || quizI18n.en;
+  document.getElementById('quiz-title').textContent = t.title;
+  document.getElementById('quiz-subtitle').textContent = t.subtitle;
+  document.getElementById('quiz-loading-text').textContent = t.loading;
+  document.getElementById('quiz-more-btn').textContent = t.more;
+
+  await loadQuestions(missing);
+}
+
+async function loadQuestions(missingSlots) {
+  const container = document.getElementById('quiz-container');
+  const loadingEl = document.getElementById('quiz-loading');
+  const moreBtn = document.getElementById('quiz-more-btn');
+  
+  loadingEl.style.display = 'flex';
+  moreBtn.style.display = 'none';
+
+  try {
+    const res = await fetch(QUIZ_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        missingSlots: missingSlots.slice(0, 3),
+        existingInfo: projectInfo,
+        lang: currentLang
+      })
+    });
+
+    const data = await res.json();
+    loadingEl.style.display = 'none';
+
+    if (data.success && data.questions && data.questions.length > 0) {
+      renderQuizCards(data.questions);
+      // Show "more" button if there are still more missing slots
+      if (getMissingSlots().length > data.questions.length) {
+        moreBtn.style.display = 'block';
+      }
+    } else {
+      container.innerHTML = '<div class="quiz-status">⚠️ Could not generate questions</div>';
+    }
+  } catch (e) {
+    loadingEl.style.display = 'none';
+    container.innerHTML = '<div class="quiz-status">⚠️ Connection error</div>';
+  }
+}
+
+function renderQuizCards(questions) {
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = questions.map((q, idx) => {
+    const optionsHtml = (q.options || []).map((opt, oi) => 
+      `<div class="quiz-opt" data-slot="${escHtml(q.slot)}" data-value="${escHtml(opt)}" onclick="selectQuizOption(this)">${escHtml(opt)}</div>`
+    ).join('');
+    return `<div class="quiz-card" id="quiz-card-${idx}">
+      <div class="quiz-q"><span class="q-icon">${idx + 1}</span>${escHtml(q.question)}</div>
+      <div class="quiz-options">${optionsHtml}</div>
+      <div class="quiz-feedback" style="display:none;margin-top:8px;font-size:12px;color:#148a4e;font-weight:600"></div>
+    </div>`;
+  }).join('');
+}
+
+async function selectQuizOption(el) {
+  const slot = el.dataset.slot;
+  const value = el.dataset.value;
+  const card = el.closest('.quiz-card');
+  
+  // Visual feedback - mark as selected
+  card.querySelectorAll('.quiz-opt').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  
+  const feedback = card.querySelector('.quiz-feedback');
+  const t = quizI18n[currentLang] || quizI18n.en;
+  feedback.style.display = 'block';
+  feedback.textContent = t.saving;
+
+  // Save to backend
+  try {
+    const res = await fetch(SAVE_ANSWER_API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slot, value })
+    });
+    const data = await res.json();
+    
+    if (data.success) {
+      feedback.textContent = t.saved;
+      card.classList.add('answered');
+      quizAnswered[slot] = value;
+      // Update local projectInfo
+      projectInfo[slot] = value;
+      renderProjectInfo();
+      
+      // Check if all done
+      setTimeout(() => {
+        const remaining = getMissingSlots();
+        if (remaining.length === 0) {
+          document.getElementById('quiz-container').innerHTML = `<div class="quiz-done">${t.done}</div>`;
+          document.getElementById('quiz-more-btn').style.display = 'none';
+        }
+      }, 800);
+    } else {
+      feedback.textContent = '⚠️ ' + (data.error || 'Save failed');
+      feedback.style.color = '#b86e00';
+    }
+  } catch (e) {
+    feedback.textContent = '⚠️ Network error';
+    feedback.style.color = '#b86e00';
+  }
+}
+
+function loadMoreQuestions() {
+  const missing = getMissingSlots();
+  if (missing.length > 0) {
+    loadQuestions(missing);
+  }
+}
+
+// Initialize quiz after data loads
+setTimeout(initQuiz, 500);
 </script>
 </body>
 </html>
