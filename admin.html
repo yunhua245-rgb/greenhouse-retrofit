@@ -528,12 +528,7 @@ function closeModal(e) {
 }
 
 // AI Fetch company info from website
-// AI Configuration
-const AI_CONFIG = {
-  baseUrl: 'https://aigw.netease.com/v1',
-  apiKey: 'xwr0fg2y3yc6b4y3.kjqqwez7e1hqn86mr45ew3vvcvrui0l2',
-  model: 'claude-opus-4-6'
-};
+// AI calls go through /api/ai-summary (server-side proxy to avoid CORS)
 
 async function fetchCompanyInfo() {
   const url = document.getElementById('f-website').value.trim();
@@ -623,79 +618,27 @@ async function fetchCompanyInfo() {
   btn.textContent = '🤖 AI抓取';
 }
 
-// AI Summary - called from browser (client-side) to use domestic IP
+// AI Summary - called via backend proxy to avoid CORS
 async function callAISummary(rawData) {
-  const contextText = [
-    rawData.title ? `网页标题: ${rawData.title}` : '',
-    rawData.description ? `网页描述: ${rawData.description}` : '',
-    rawData.keywords ? `关键词: ${rawData.keywords}` : '',
-    `网页正文摘要:\n${(rawData.textContent || '').substring(0, 4000)}`
-  ].filter(Boolean).join('\n\n');
-
-  const systemPrompt = `你是一个专业的供应商信息分析助手。用户正在为俄罗斯客户寻找中国的温室自动化改造设备供应商。
-
-你需要根据提供的公司网页内容，生成两段总结，严格按照JSON格式输出：
-
-{
-  "notes": "（给采购经理看的备注）",
-  "specialty": "（给买家看的产品介绍）"
-}
-
-## notes 的要求（给采购经理自己看，管理用）：
-- 用中文
-- 尽量保留原文信息，整理清楚
-- 内容包括：公司全称、成立时间、所在地、主要业务领域、核心产品列表、公司规模/资质（如有）
-- 必须真实准确，只基于网页内容，不要编造
-- 格式简洁清晰，分条列出
-
-## specialty 的要求（给买家看，展示在供应商评估页面）：
-- 用中文
-- 围绕"温室自动化改造"这个需求，查找并总结该公司能提供的相关服务和产品
-- 总结这个公司在温室/农业自动化方面的优势项
-- 不要泄露公司具体名称（用"该供应商"代替）
-- 不要泄露联系方式
-- 必须基于网页真实内容，不要编造
-- 如果该公司与温室/农业自动化无关，如实说明"该供应商主营业务与温室自动化改造无直接关联"
-- 控制在150字以内
-
-只输出JSON，不要输出其他内容。`;
-
-  const response = await fetch(AI_CONFIG.baseUrl + '/chat/completions', {
+  const response = await fetch('/api/ai-summary', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + AI_CONFIG.apiKey
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: AI_CONFIG.model,
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: '请分析以下公司网页内容：\n\n' + contextText }
-      ],
-      max_tokens: 1000,
-      temperature: 0.3
+      textContent: (rawData.textContent || '').substring(0, 5000),
+      title: rawData.title || '',
+      description: rawData.description || '',
+      keywords: rawData.keywords || ''
     })
   });
 
   if (!response.ok) {
-    const errText = await response.text().catch(() => '');
-    throw new Error(`AI API错误: HTTP ${response.status}`);
+    const err = await response.json().catch(() => ({}));
+    throw new Error(err.error || `HTTP ${response.status}: ${err.detail || ''}`);
   }
 
   const data = await response.json();
-  const content = data.choices?.[0]?.message?.content || '';
-
-  // Parse JSON from AI response
-  const jsonMatch = content.match(/\{[\s\S]*\}/);
-  if (jsonMatch) {
-    try {
-      const parsed = JSON.parse(jsonMatch[0]);
-      return { notes: parsed.notes || '', specialty: parsed.specialty || '' };
-    } catch(e) {
-      return { notes: content, specialty: '' };
-    }
-  }
-  return { notes: content, specialty: '' };
+  if (!data.success) throw new Error('AI返回异常');
+  return { notes: data.notes || '', specialty: data.specialty || '' };
 }
 
 function saveSupplier(e) {

@@ -2,6 +2,12 @@
   "functions": {
     "api/data.js": {
       "maxDuration": 30
+    },
+    "api/fetch-company.js": {
+      "maxDuration": 30
+    },
+    "api/ai-summary.js": {
+      "maxDuration": 30
     }
   }
 }
