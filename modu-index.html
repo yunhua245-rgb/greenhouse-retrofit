@@ -490,11 +490,10 @@ function renderSuppliers() {
   function renderCol(items) {
     if (items.length === 0) return `<div class="col-empty">${emptyText}</div>`;
     return items.map(s => {
-      const displayName = currentLang === 'zh' ? (s.name || s.nameEn || '') : (s.nameEn || s.name || '');
       const stLabel = (stLabels[currentLang]||stLabels.zh)[s.status]||s.status||'new';
       const badgeCls = s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':s.status==='shortlisted'?'badge-green':'badge-amber';
       return `<div class="sup-item">
-        <div class="sup-name">${escHtml(displayName)}</div>
+        <div style="font-size:11px;color:#999;margin-bottom:4px">${escHtml(s.track||'')} · #${s.id||''}</div>
         ${s.specialty||s.location ? '<div class="sup-detail">'+escHtml(s.location||'')+( s.specialty?' · '+escHtml(s.specialty):'')+'</div>' : ''}
         <div class="sup-status"><span class="badge ${badgeCls}">${stLabel}</span></div>
       </div>`;
