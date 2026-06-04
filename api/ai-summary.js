@@ -1,4 +1,4 @@
-// Vercel Serverless Function — AI Summary via SiliconFlow (Free API)
+// Vercel Serverless Function — AI Summary via DeepSeek API
 // Proxies AI calls from frontend to avoid CORS issues
 
 module.exports = async function handler(req, res) {
@@ -19,10 +19,18 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'textContent is required' });
   }
 
-  // AI API Configuration — SiliconFlow Free Tier
-  const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.siliconflow.cn/v1';
-  const AI_API_KEY = process.env.AI_API_KEY || 'sk-msvgpfvdpvesylsljvgfcblqopekyabniowyhivfzwzhoolg';
-  const AI_MODEL = process.env.AI_MODEL || 'Qwen/Qwen2.5-72B-Instruct';
+  // AI API Configuration — DeepSeek Official API
+  // Register at platform.deepseek.com to get $5 free credit
+  const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.deepseek.com';
+  const AI_API_KEY = process.env.AI_API_KEY || 'sk-f2a6af8a39d848a5ade70105fb27c208';
+  const AI_MODEL = process.env.AI_MODEL || 'deepseek-chat';
+
+  if (!AI_API_KEY) {
+    return res.status(500).json({
+      error: 'AI API key not configured',
+      detail: 'Please provide DeepSeek API key'
+    });
+  }
 
   const contextText = [
     title ? `网页标题: ${title}` : '',
