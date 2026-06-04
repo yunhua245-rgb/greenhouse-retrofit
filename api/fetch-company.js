@@ -67,10 +67,12 @@ module.exports = async function handler(req, res) {
     const metaKw = kwMatch ? kwMatch[1].trim() : '';
 
     // Heuristic extraction for basic fields
+    const contactInfo = extractContact(html, pageText);
     const result = {
       name: extractCompanyName(pageTitle, pageText),
       location: extractLocation(pageText),
-      contact: extractContact(html, pageText),
+      contact: contactInfo.phones,
+      email: contactInfo.emails,
       website: url
     };
 
@@ -127,27 +129,36 @@ function extractLocation(text) {
 }
 
 function extractContact(html, text) {
-  const contacts = [];
+  const phones = [];
+  const emails = [];
+
+  // Extract phones
   const phoneMatches = text.match(/(?:电话|Tel|Phone|联系)[：:\s]*([0-9\-+() ]{7,20})/gi);
   if (phoneMatches) {
-    phoneMatches.slice(0, 2).forEach(m => {
+    phoneMatches.slice(0, 3).forEach(m => {
       const num = m.replace(/.*[：:\s]/, '').trim();
-      if (num.length >= 7) contacts.push(num);
+      if (num.length >= 7 && !phones.includes(num)) phones.push(num);
     });
   }
   const phonePattern = text.match(/(?:1[3-9]\d{9}|0\d{2,3}[-\s]?\d{7,8})/g);
   if (phonePattern) {
-    phonePattern.slice(0, 2).forEach(p => {
-      if (!contacts.includes(p)) contacts.push(p);
+    phonePattern.slice(0, 3).forEach(p => {
+      if (!phones.includes(p)) phones.push(p);
     });
   }
+
+  // Extract emails
   const emailMatch = text.match(/[\w.+-]+@[\w-]+\.[\w.-]+/g);
   if (emailMatch) {
-    emailMatch.slice(0, 2).forEach(e => {
-      if (!contacts.includes(e)) contacts.push(e);
+    emailMatch.slice(0, 3).forEach(e => {
+      if (!emails.includes(e)) emails.push(e);
     });
   }
-  return contacts.join(' / ');
+
+  return {
+    phones: phones.join('\n'),
+    emails: emails.join('\n')
+  };
 }
 
 module.exports.config = {

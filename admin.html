@@ -290,7 +290,11 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
       </div>
       <div class="form-group">
         <label>联系方式</label>
-        <input type="text" id="f-contact" placeholder="例：张经理 138xxxx / sales@example.com">
+        <textarea id="f-contact" placeholder="例：张经理 138xxxx&#10;王工 WeChat: wang123&#10;可分行填写多个联系人" rows="3" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;line-height:1.5"></textarea>
+      </div>
+      <div class="form-group">
+        <label>邮箱</label>
+        <textarea id="f-email" placeholder="例：sales@company.com&#10;export@company.com&#10;可分行填写多个邮箱" rows="2" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;line-height:1.5"></textarea>
       </div>
       <div class="form-group">
         <label>出口经验</label>
@@ -474,7 +478,8 @@ function renderList() {
       </div>
       <div class="supplier-body" id="body-${s.id}">
         <div class="info-grid">
-          <div class="info-item"><div class="lbl">联系方式</div><div class="val">${escHtml(s.contact || '未填写')}</div></div>
+          <div class="info-item"><div class="lbl">联系方式</div><div class="val" style="white-space:pre-line">${escHtml(s.contact || '未填写')}</div></div>
+          <div class="info-item"><div class="lbl">邮箱</div><div class="val" style="white-space:pre-line">${escHtml(s.email || '未填写')}</div></div>
           <div class="info-item"><div class="lbl">出口经验</div><div class="val">${exportMap[s.export] || '未知'}</div></div>
           <div class="info-item"><div class="lbl">添加时间</div><div class="val">${formatDate(s.createdAt)}</div></div>
           <div class="info-item"><div class="lbl">备注</div><div class="val">${escHtml(s.notes || '无')}</div></div>
@@ -574,6 +579,10 @@ async function fetchCompanyInfo() {
       document.getElementById('f-contact').value = d.contact;
       filled.push('联系方式');
     }
+    if (d.email && !document.getElementById('f-email').value.trim()) {
+      document.getElementById('f-email').value = d.email;
+      filled.push('邮箱');
+    }
     
     // Step 2: Call AI for summary (from browser - avoids IP restrictions)
     statusEl.innerHTML = '<span style="color:#b86e00">② AI正在分析网页内容，生成总结...</span>';
@@ -652,6 +661,7 @@ function saveSupplier(e) {
     location: document.getElementById('f-location').value.trim(),
     specialty: document.getElementById('f-specialty').value.trim(),
     contact: document.getElementById('f-contact').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
     export: document.getElementById('f-export').value,
     status: document.getElementById('f-status').value,
     notes: document.getElementById('f-notes').value.trim()
@@ -689,6 +699,7 @@ function editSupplier(id) {
   document.getElementById('f-location').value = s.location || '';
   document.getElementById('f-specialty').value = s.specialty || '';
   document.getElementById('f-contact').value = s.contact || '';
+  document.getElementById('f-email').value = s.email || '';
   document.getElementById('f-export').value = s.export || 'unknown';
   document.getElementById('f-status').value = s.status || 'pending';
   document.getElementById('f-notes').value = s.notes || '';
