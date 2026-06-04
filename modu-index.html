@@ -59,25 +59,27 @@
   .track-items{margin-top:8px;padding-left:16px}
   .track-items li{font-size:12px;color:#555;margin-bottom:3px}
   
-  /* Supplier Scheme Cards */
+  /* Supplier Track Columns */
   .eval-summary{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
   .eval-stat{padding:12px 18px;background:#f7f8fa;border-radius:10px;text-align:center;flex:1;min-width:80px}
   .eval-stat .es-num{font-size:22px;font-weight:800;color:#e65100}
   .eval-stat .es-label{font-size:11px;color:#888;margin-top:2px}
   
-  .scheme-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:12px}
-  .scheme-card{border:1px solid #e8eaed;border-radius:12px;padding:18px;position:relative;overflow:hidden;transition:all 0.2s}
-  .scheme-card:hover{border-color:#ff9800;background:#fffdf8}
-  .scheme-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
-  .scheme-card.a::before{background:#1565c0}
-  .scheme-card.b::before{background:#e65100}
-  .scheme-card.c::before{background:#7b1fa2}
-  .scheme-card.d::before{background:#b86e00}
-  .scheme-tag{font-size:12px;font-weight:700;color:#fff;display:inline-block;padding:2px 10px;border-radius:12px;margin-bottom:8px}
-  .scheme-card.a .scheme-tag{background:#1565c0}
-  .scheme-card.b .scheme-tag{background:#e65100}
-  .scheme-card.c .scheme-tag{background:#7b1fa2}
-  .scheme-card.d .scheme-tag{background:#b86e00}
+  .track-columns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:12px}
+  .track-col{border:1px solid #e8eaed;border-radius:12px;overflow:hidden;background:#fafbfc}
+  .track-col-header{padding:12px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;border-bottom:1px solid #e8eaed}
+  .track-col-header.track-col-a{background:#e3f2fd;color:#1565c0}
+  .track-col-header.track-col-b{background:#fff3e0;color:#e65100}
+  .track-col-header.track-col-c{background:#f3e5f5;color:#7b1fa2}
+  .track-col-icon{font-size:15px}
+  .track-col-body{padding:10px;display:flex;flex-direction:column;gap:8px;min-height:60px}
+  .col-empty{text-align:center;padding:16px 8px;color:#bbb;font-size:12px;font-style:italic}
+  
+  .sup-item{background:#fff;border:1px solid #e8eaed;border-radius:8px;padding:10px 12px;transition:all 0.2s}
+  .sup-item:hover{border-color:#ff9800;box-shadow:0 2px 6px rgba(230,81,0,0.08)}
+  .sup-item .sup-name{font-size:13px;font-weight:600;color:#1a1a2e;margin-bottom:3px}
+  .sup-item .sup-detail{font-size:11px;color:#666;margin-bottom:4px}
+  .sup-item .sup-status .badge{font-size:10px}
   
   .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
   .badge-green{background:#e8f5ee;color:#0a6e3a}
@@ -107,7 +109,7 @@
     .status-strip{grid-template-columns:1fr 1fr}
     .info-grid{grid-template-columns:1fr}
     .track-grid{grid-template-columns:1fr}
-    .scheme-grid{grid-template-columns:1fr}
+    .track-columns{grid-template-columns:1fr}
     .role-grid{grid-template-columns:1fr}
     .section{padding:20px}
   }
@@ -228,13 +230,13 @@
     </div>
   </div>
 
-  <!-- SUPPLIER PROGRESS -->
+  <!-- SUPPLIER PROGRESS — 3 Columns by Track -->
   <div class="section">
     <div class="section-header">
       <div class="section-icon" style="background:#f3e5f5;color:#7b1fa2">🏭</div>
       <div>
         <div class="section-title" data-i18n="s4-title">供应商进展</div>
-        <div class="section-subtitle" data-i18n="s4-sub">评估中的方案</div>
+        <div class="section-subtitle" data-i18n="s4-sub">按寻源方向分类展示</div>
       </div>
     </div>
     
@@ -253,8 +255,25 @@
       </div>
     </div>
     
-    <div class="scheme-grid" id="scheme-grid">
-      <div style="text-align:center;padding:20px;color:#aaa;font-size:13px;grid-column:1/-1" data-i18n="s4-empty">正在搜索供应商 — 有进展会更新在这里</div>
+    <div class="track-columns" id="track-columns">
+      <div class="track-col" id="col-a">
+        <div class="track-col-header track-col-a"><span class="track-col-icon">🔧</span> <span data-i18n="col-a-title">方向A · 代工</span></div>
+        <div class="track-col-body" id="col-a-body">
+          <div class="col-empty" data-i18n="col-empty">暂无</div>
+        </div>
+      </div>
+      <div class="track-col" id="col-b">
+        <div class="track-col-header track-col-b"><span class="track-col-icon">⚙️</span> <span data-i18n="col-b-title">方向B · 设备</span></div>
+        <div class="track-col-body" id="col-b-body">
+          <div class="col-empty" data-i18n="col-empty">暂无</div>
+        </div>
+      </div>
+      <div class="track-col" id="col-c">
+        <div class="track-col-header track-col-c"><span class="track-col-icon">🛠️</span> <span data-i18n="col-c-title">方向C · 模具</span></div>
+        <div class="track-col-body" id="col-c-body">
+          <div class="col-empty" data-i18n="col-empty">暂无</div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -316,9 +335,9 @@ const i18n = {
     "track-b-1": "注塑机选型与采购", "track-b-2": "适配PP颗粒材料",
     "track-c-tag": "方向 C", "track-c-title": "模具定制", "track-c-desc": "为每个零件设计并制造专用注塑模具。",
     "track-c-1": "根据3D模型/图纸制造模具", "track-c-2": "每种零件需独立模具",
-    "s4-title": "供应商进展", "s4-sub": "评估中的方案",
+    "s4-title": "供应商进展", "s4-sub": "按寻源方向分类展示",
     "s4-total": "已评估", "s4-active": "沟通中", "s4-quoted": "已报价",
-    "s4-empty": "正在搜索供应商 — 有进展会更新在这里",
+    "col-a-title": "方向A · 代工", "col-b-title": "方向B · 设备", "col-c-title": "方向C · 模具", "col-empty": "暂无",
     "s5-title": "你的协调人",
     "s5-r1": "供应商筛选", "s5-r2": "价格谈判", "s5-r3": "项目协调", "s5-r4": "质量保障",
     "update-text": "每个节点更新", "update-time": "2026年6月4日"
@@ -345,9 +364,9 @@ const i18n = {
     "track-b-1": "Machine selection & procurement", "track-b-2": "Compatible with PP granules",
     "track-c-tag": "Track C", "track-c-title": "Custom Mold Making", "track-c-desc": "Design and manufacture dedicated injection molds for each part.",
     "track-c-1": "Mold making from 3D models/drawings", "track-c-2": "Each part requires its own mold",
-    "s4-title": "Supplier Progress", "s4-sub": "Solutions under evaluation",
+    "s4-title": "Supplier Progress", "s4-sub": "Categorized by sourcing track",
     "s4-total": "Evaluated", "s4-active": "In Discussion", "s4-quoted": "Quoted",
-    "s4-empty": "Searching for suppliers — results will appear here as we progress",
+    "col-a-title": "Track A · OEM", "col-b-title": "Track B · Equipment", "col-c-title": "Track C · Molds", "col-empty": "None yet",
     "s5-title": "Your Coordinator",
     "s5-r1": "Supplier screening", "s5-r2": "Price negotiation", "s5-r3": "Project coordination", "s5-r4": "Quality assurance",
     "update-text": "Page updated at every milestone", "update-time": "Jun 4, 2026"
@@ -374,9 +393,9 @@ const i18n = {
     "track-b-1": "Выбор и закупка станка", "track-b-2": "Совместимость с гранулами PP",
     "track-c-tag": "Направление C", "track-c-title": "Изготовление пресс-форм", "track-c-desc": "Проектирование и изготовление индивидуальных пресс-форм для каждой детали.",
     "track-c-1": "Изготовление по 3D-моделям/чертежам", "track-c-2": "Для каждой детали — отдельная форма",
-    "s4-title": "Прогресс по поставщикам", "s4-sub": "Решения на рассмотрении",
+    "s4-title": "Прогресс по поставщикам", "s4-sub": "По направлениям поиска",
     "s4-total": "Оценено", "s4-active": "В обсуждении", "s4-quoted": "Получено КП",
-    "s4-empty": "Поиск поставщиков — результаты появятся здесь по мере продвижения",
+    "col-a-title": "Направление A · OEM", "col-b-title": "Направление B · Оборудование", "col-c-title": "Направление C · Пресс-формы", "col-empty": "Пока нет",
     "s5-title": "Ваш координатор",
     "s5-r1": "Отбор поставщиков", "s5-r2": "Переговоры о цене", "s5-r3": "Координация проекта", "s5-r4": "Гарантия качества",
     "update-text": "Обновляется на каждом этапе", "update-time": "4 июня 2026"
@@ -450,35 +469,41 @@ function renderSuppliers() {
   document.getElementById('eval-quoted').textContent = quoted;
   document.getElementById('stat-suppliers').textContent = suppliers.filter(s => s.status !== 'rejected').length;
   
-  const grid = document.getElementById('scheme-grid');
-  const activeSuppliers = suppliers.filter(s => s.status !== 'rejected');
-  
-  if (activeSuppliers.length === 0) {
-    grid.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa;font-size:13px;grid-column:1/-1" data-i18n="s4-empty">' + (i18n[currentLang]['s4-empty'] || '') + '</div>';
-    return;
-  }
-  
-  const codes = ['A','B','C','D','E','F','G','H'];
-  const colors = ['a','b','c','d','a','b','c','d'];
   const stLabels = {
     zh: {new:'新增',pending:'评估中',contacting:'沟通中',quoted:'已报价',selected:'已选定',shortlisted:'候选'},
     en: {new:'New',pending:'Under review',contacting:'In discussion',quoted:'Quoted',selected:'Selected',shortlisted:'Shortlisted'},
     ru: {new:'Новый',pending:'На рассмотрении',contacting:'В обсуждении',quoted:'КП получено',selected:'Выбран',shortlisted:'В шорт-листе'}
   };
   
-  grid.innerHTML = activeSuppliers.map((s, i) => {
-    const code = codes[i] || String.fromCharCode(65+i);
-    const cls = colors[i%4];
-    const stLabel = (stLabels[currentLang]||stLabels.zh)[s.status]||s.status||'new';
-    const displayName = currentLang === 'zh' ? (s.name || s.nameEn || '') : (s.nameEn || s.name || '');
-    const trackBadge = s.track ? '<span class="badge badge-blue" style="margin-left:6px">' + escHtml(s.track) + '</span>' : '';
-    return `<div class="scheme-card ${cls}">
-      <div class="scheme-tag">${({zh:'方案 ',en:'Solution ',ru:'Вариант '}[currentLang]||'方案 ')+code}</div>
-      ${displayName ? '<div style="font-size:14px;font-weight:600;color:#1a1a2e;margin:4px 0">' + escHtml(displayName) + '</div>' : ''}
-      <div style="font-size:13px;color:#555">${escHtml(s.specialty||s.location||'')}</div>
-      <div style="margin-top:6px"><span class="badge ${s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':s.status==='shortlisted'?'badge-green':'badge-amber'}">${stLabel}</span>${trackBadge}</div>
-    </div>`;
-  }).join('');
+  const emptyText = i18n[currentLang]['col-empty'] || '暂无';
+  
+  // Categorize suppliers by track
+  const trackA = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'A' || s.track === 'a' || /代工|OEM|contract|manufacturing/i.test(s.track||'')));
+  const trackB = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'B' || s.track === 'b' || /设备|equipment|machine/i.test(s.track||'')));
+  const trackC = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'C' || s.track === 'c' || /模具|mold|mould/i.test(s.track||'')));
+  // Unclassified go to all columns evenly or show in A
+  const classified = new Set([...trackA, ...trackB, ...trackC]);
+  const unclassified = suppliers.filter(s => s.status !== 'rejected' && !classified.has(s));
+  // Put unclassified into track A for now
+  trackA.push(...unclassified);
+  
+  function renderCol(items) {
+    if (items.length === 0) return `<div class="col-empty">${emptyText}</div>`;
+    return items.map(s => {
+      const displayName = currentLang === 'zh' ? (s.name || s.nameEn || '') : (s.nameEn || s.name || '');
+      const stLabel = (stLabels[currentLang]||stLabels.zh)[s.status]||s.status||'new';
+      const badgeCls = s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':s.status==='shortlisted'?'badge-green':'badge-amber';
+      return `<div class="sup-item">
+        <div class="sup-name">${escHtml(displayName)}</div>
+        ${s.specialty||s.location ? '<div class="sup-detail">'+escHtml(s.location||'')+( s.specialty?' · '+escHtml(s.specialty):'')+'</div>' : ''}
+        <div class="sup-status"><span class="badge ${badgeCls}">${stLabel}</span></div>
+      </div>`;
+    }).join('');
+  }
+  
+  document.getElementById('col-a-body').innerHTML = renderCol(trackA);
+  document.getElementById('col-b-body').innerHTML = renderCol(trackB);
+  document.getElementById('col-c-body').innerHTML = renderCol(trackC);
 }
 
 function renderCoordinator() {
