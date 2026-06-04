@@ -1,6 +1,6 @@
 // Vercel Serverless Function — Fetch company website (homepage + subpages) and extract info
 // Crawls key subpages (about, contact, products) for more complete data
-// SPA rendering delegated to separate /api/render-spa function
+// SPA sites: falls back to ICP registration lookup for company name
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -86,41 +86,8 @@ module.exports = async function handler(req, res) {
     const isSPA = homeText.length < 300 && (homeHtml.includes('id="app"') || homeHtml.includes('id="root"') || homeHtml.includes('id="__nuxt"') || homeHtml.includes('id="__next"'));
     const isEmptyPage = homeText.length < 100;
     
-    // If page is essentially empty (SPA with no SSR or very thin content), use headless Chrome to render
+    // If page is essentially empty (SPA with no SSR or very thin content), try ICP lookup
     if (isEmptyPage || (isSPA && homeText.length < 150)) {
-      const rendered = await renderWithBrowser(effectiveUrl);
-      if (rendered && rendered.text && rendered.text.length > 100) {
-        // Successfully rendered! Use the rendered content for extraction
-        const renderedText = rendered.text.substring(0, 12000);
-        const renderedHtml = rendered.html || '';
-        
-        const titleMatch = renderedHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
-        const pageTitle = titleMatch ? titleMatch[1].replace(/<[^>]+>/g, '').trim() : '';
-        
-        const contactInfo = extractContact(renderedHtml, renderedText);
-        const result = {
-          name: extractCompanyName(pageTitle, renderedText),
-          location: extractLocation(renderedText),
-          contact: contactInfo.phones,
-          email: contactInfo.emails,
-          website: url
-        };
-
-        return res.status(200).json({
-          success: true,
-          data: result,
-          raw: {
-            title: pageTitle,
-            description: '',
-            keywords: '',
-            textContent: renderedText,
-            subpagesCrawled: 0
-          },
-          note: 'ℹ️ 该网站通过浏览器渲染获取内容（SPA框架）'
-        });
-      }
-      
-      // Browser render failed or got no content — try ICP as last resort
       const domain = new URL(url).hostname.replace(/^www\./, '');
       const icpResult = await lookupICP(domain);
       if (icpResult && icpResult.name) {
@@ -136,12 +103,12 @@ module.exports = async function handler(req, res) {
             website: url
           },
           raw: { title: homeHtml.match(/<title[^>]*>([\s\S]*?)<\/title>/i)?.[1] || '', description: '', keywords: '', textContent: '', subpagesCrawled: 0 },
-          note: '⚠️ 该网站为SPA框架，浏览器渲染超时，仅通过备案信息获取到公司名称，其余信息请手动补充。'
+          note: '⚠️ 该网站为SPA框架，仅通过备案信息获取到公司名称，其余信息请手动补充。'
         });
       }
-      // Everything failed
+      // ICP also failed
       return res.status(502).json({
-        error: '该网站为前端框架渲染（SPA），浏览器渲染超时且无法获取备案信息。请手动填写供应商信息。'
+        error: '该网站为前端框架渲染（SPA），无法读取内容且未查到备案信息。请手动填写供应商信息。'
       });
     }
 
@@ -521,37 +488,6 @@ function extractContact(html, text) {
 }
 
 // --- Helper: Render SPA page via internal /api/render-spa endpoint ---
-async function renderWithBrowser(url) {
-  try {
-    // Determine base URL for internal API call
-    // In Vercel, use VERCEL_URL env var; locally use localhost
-    const baseUrl = process.env.VERCEL_URL 
-      ? `https://${process.env.VERCEL_URL}` 
-      : 'http://localhost:3000';
-    
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-    
-    const response = await fetch(`${baseUrl}/api/render-spa`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ url }),
-      signal: controller.signal
-    });
-    
-    clearTimeout(timeout);
-    
-    if (!response.ok) return null;
-    
-    const data = await response.json();
-    if (!data.success) return null;
-    
-    return { text: data.text, html: data.html };
-  } catch (e) {
-    return null;
-  }
-}
-
 // --- Helper: Lookup ICP registration info for a domain ---
 async function lookupICP(domain) {
   try {
@@ -591,5 +527,5 @@ async function lookupICP(domain) {
 }
 
 module.exports.config = {
-  maxDuration: 60
+  maxDuration: 30
 };
