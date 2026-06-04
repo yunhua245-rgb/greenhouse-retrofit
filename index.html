@@ -493,8 +493,11 @@ function renderSuppliers() {
     const cls = colors[i%4];
     const stLabel = (stLabels[currentLang]||stLabels.en)[s.status]||s.status;
     const lastLog = (s.logs&&s.logs.length>0)?s.logs[s.logs.length-1].text:'';
+    // Display name based on current language: Chinese→nameCn/name, other→nameEn/name
+    const displayName = currentLang === 'zh' ? (s.name || s.nameEn || '') : (s.nameEn || s.name || '');
     return `<div class="scheme-card ${cls}">
       <div class="scheme-tag">${({en:'Solution ',ru:'Вариант ',zh:'方案'}[currentLang]||'Solution ')+code}</div>
+      ${displayName ? '<div style="font-size:14px;font-weight:600;color:#1a1a2e;margin:4px 0">' + escHtml(displayName) + '</div>' : ''}
       <div style="font-size:13px;color:#555"><strong data-translate data-original="${escHtml(s.specialty||'')}">${escHtml(s.specialty||'-')}</strong></div>
       <div style="margin-top:6px"><span class="badge ${s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':'badge-amber'}">${stLabel}</span></div>
       ${lastLog?'<div style="margin-top:6px;font-size:11px;color:#666" data-translate data-original="'+escHtml(lastLog)+'">'+escHtml(lastLog)+'</div>':''}

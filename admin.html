@@ -277,8 +277,12 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
         <div id="fetch-status" style="font-size:12px;margin-top:6px"></div>
       </div>
       <div class="form-group">
-        <label>公司名称 *</label>
-        <input type="text" id="f-name" required placeholder="例：XX智能农业科技有限公司">
+        <label>公司名称（中文） *</label>
+        <input type="text" id="f-name" required placeholder="例：广州极飞科技股份有限公司">
+      </div>
+      <div class="form-group">
+        <label>公司名称（英文）</label>
+        <input type="text" id="f-nameEn" placeholder="例：XAG / Dayu Irrigation">
       </div>
       <div class="form-group">
         <label>所在地区</label>
@@ -468,10 +472,10 @@ function renderList() {
     <div class="supplier-card" id="card-${s.id}">
       <div class="supplier-header" onclick="toggleCard('${s.id}')">
         <div class="supplier-info">
-          <div class="supplier-avatar">${s.name.charAt(0)}</div>
+          <div class="supplier-avatar">${(s.name||s.nameEn||'?').charAt(0)}</div>
           <div>
-            <div class="supplier-name">${escHtml(s.name)}</div>
-            <div class="supplier-meta">${escHtml(s.location || '未填写地区')} · ${escHtml((s.specialty || '未填写专长').replace(/\n+/g,' | ').substring(0,60))}</div>
+            <div class="supplier-name">${escHtml(s.name || s.nameEn || '未命名')}</div>
+            <div class="supplier-meta">${s.nameEn && s.name !== s.nameEn ? escHtml(s.nameEn) + ' · ' : ''}${escHtml(s.location || '未填写地区')} · ${escHtml((s.specialty || '未填写专长').replace(/\n+/g,' | ').substring(0,60))}</div>
           </div>
         </div>
         <span class="status-badge ${st.cls}">${st.label}</span>
@@ -571,6 +575,10 @@ async function fetchCompanyInfo() {
       document.getElementById('f-name').value = d.name;
       filled.push('公司名称');
     }
+    // Also fill English name field with heuristic name (usually English from page title)
+    if (d.name && !document.getElementById('f-nameEn').value.trim()) {
+      document.getElementById('f-nameEn').value = d.name;
+    }
     if (d.location && !document.getElementById('f-location').value.trim()) {
       document.getElementById('f-location').value = d.location;
       filled.push('所在地区');
@@ -589,6 +597,23 @@ async function fetchCompanyInfo() {
     
     try {
       const aiResult = await callAISummary(result.raw);
+      
+      // Auto-fill nameEn and nameCn from AI
+      if (aiResult.nameCn && !document.getElementById('f-name').value.trim()) {
+        document.getElementById('f-name').value = aiResult.nameCn;
+        filled.push('公司中文名（AI）');
+      } else if (aiResult.nameCn && document.getElementById('f-name').value.trim()) {
+        // If heuristic name is English (no Chinese chars), replace with Chinese name
+        const currentName = document.getElementById('f-name').value.trim();
+        if (!/[\u4e00-\u9fa5]/.test(currentName) && aiResult.nameCn) {
+          document.getElementById('f-name').value = aiResult.nameCn;
+          filled.push('公司中文名（AI覆盖）');
+        }
+      }
+      if (aiResult.nameEn && !document.getElementById('f-nameEn').value.trim()) {
+        document.getElementById('f-nameEn').value = aiResult.nameEn;
+        filled.push('公司英文名（AI）');
+      }
       
       if (aiResult.location && !document.getElementById('f-location').value.trim()) {
         document.getElementById('f-location').value = aiResult.location;
@@ -658,7 +683,7 @@ async function callAISummary(rawData) {
 
   const data = await response.json();
   if (!data.success) throw new Error('AI返回异常');
-  return { location: data.location || '', notes: data.notes || '', specialty: data.specialty || '' };
+  return { nameEn: data.nameEn || '', nameCn: data.nameCn || '', location: data.location || '', notes: data.notes || '', specialty: data.specialty || '' };
 }
 
 function saveSupplier(e) {
@@ -668,6 +693,7 @@ function saveSupplier(e) {
 
   const data = {
     name: document.getElementById('f-name').value.trim(),
+    nameEn: document.getElementById('f-nameEn').value.trim(),
     website: document.getElementById('f-website').value.trim(),
     location: document.getElementById('f-location').value.trim(),
     specialty: document.getElementById('f-specialty').value.trim(),
@@ -707,6 +733,7 @@ function editSupplier(id) {
   document.getElementById('edit-id').value = s.id;
   document.getElementById('f-website').value = s.website || '';
   document.getElementById('f-name').value = s.name || '';
+  document.getElementById('f-nameEn').value = s.nameEn || '';
   document.getElementById('f-location').value = s.location || '';
   document.getElementById('f-specialty').value = s.specialty || '';
   document.getElementById('f-contact').value = s.contact || '';

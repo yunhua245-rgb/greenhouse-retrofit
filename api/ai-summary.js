@@ -44,10 +44,21 @@ module.exports = async function handler(req, res) {
 你需要根据提供的公司网页内容，生成总结信息，严格按照JSON格式输出：
 
 {
+  "nameEn": "（公司英文名称）",
+  "nameCn": "（公司中文名称）",
   "location": "（公司所在地，格式：国家+省/州+城市，如'中国山东省潍坊市'或'Netherlands, South Holland, Westland'）",
   "notes": "（给采购经理看的备注）",
   "specialty": "（给买家看的产品介绍）"
 }
+
+## nameEn 和 nameCn 的要求：
+- nameEn：公司英文名称或英文品牌名，如"XAG"、"Dayu Irrigation"、"Netafim"
+  - 如果公司有明确英文品牌名，用品牌名（如XAG而不是"Guangzhou Xag Co., Ltd."）
+  - 如果没有英文品牌名但有英文全称，用英文全称
+  - 如果完全没有英文信息，将中文名做合理的英文翻译
+- nameCn：公司中文全称，如"广州极飞科技股份有限公司"、"大禹节水集团股份有限公司"
+  - 如果是非中国公司或纯英文网站，用英文名填入nameCn（保持跟nameEn一致）
+  - 不要编造中文名
 
 ## location 的要求：
 - 尽量精确到：国家 + 省/州 + 城市
@@ -118,6 +129,8 @@ module.exports = async function handler(req, res) {
         const parsed = JSON.parse(jsonMatch[0]);
         return res.status(200).json({
           success: true,
+          nameEn: parsed.nameEn || '',
+          nameCn: parsed.nameCn || '',
           location: parsed.location || '',
           notes: parsed.notes || '',
           specialty: parsed.specialty || ''
@@ -125,6 +138,8 @@ module.exports = async function handler(req, res) {
       } catch(e) {
         return res.status(200).json({
           success: true,
+          nameEn: '',
+          nameCn: '',
           location: '',
           notes: content,
           specialty: ''
