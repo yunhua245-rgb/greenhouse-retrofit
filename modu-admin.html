@@ -579,8 +579,9 @@ const trackLabels = {
 function updateStats() {
   const suppliers = getSuppliers();
   document.getElementById('stat-total').textContent = suppliers.length;
-  document.getElementById('stat-contacted').textContent = suppliers.filter(s => ['contacted','replied','shortlisted'].includes(s.status)).length;
+  document.getElementById('stat-contacted').textContent = suppliers.filter(s => ['contacting','contacted','replied','shortlisted'].includes(s.status)).length;
   document.getElementById('stat-shortlisted').textContent = suppliers.filter(s => s.status === 'shortlisted').length;
+  document.getElementById('stat-tracks').textContent = new Set(suppliers.map(s => s.track).filter(Boolean)).size;
 }
 
 function renderList() {
