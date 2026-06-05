@@ -146,6 +146,51 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
     </div>
   </div>
 
+  <!-- 编辑展示页内容 -->
+  <div class="profile-section" id="display-settings-section">
+    <div class="profile-header" onclick="toggleDisplaySettings()">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:42px;height:42px;border-radius:50%;background:#f3e5f5;color:#7b1fa2;display:flex;align-items:center;justify-content:center;font-size:18px">🎨</div>
+        <div>
+          <div style="font-size:15px;font-weight:600">编辑展示页内容</div>
+          <div style="font-size:12px;color:#888">修改展示页面的项目状态和需求描述文字</div>
+        </div>
+      </div>
+      <span style="font-size:18px;color:#aaa" id="display-toggle-icon">▼</span>
+    </div>
+    <div class="profile-body" id="display-settings-body">
+      <div class="profile-form">
+        <div class="pf-row">
+          <div class="form-group" style="flex:1">
+            <label>项目类型</label>
+            <input type="text" id="ds-projectType" placeholder="例：OEM Sourcing">
+            <div style="font-size:11px;color:#aaa;margin-top:2px">展示页「Project Type」位置显示的文字</div>
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>当前阶段</label>
+            <input type="text" id="ds-currentPhase" placeholder="例：Supplier Research">
+            <div style="font-size:11px;color:#aaa;margin-top:2px">展示页「Current Phase」位置显示的文字</div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>核心需求标题</label>
+          <input type="text" id="ds-coreReqTitle" placeholder="例：Reference Product">
+          <div style="font-size:11px;color:#aaa;margin-top:2px">需求卡片的标题（h4）</div>
+        </div>
+        <div class="form-group">
+          <label>核心需求描述</label>
+          <textarea id="ds-coreReqDesc" placeholder="例：MODU (modutoy.com) — Danish brand..." style="min-height:80px"></textarea>
+          <div style="font-size:11px;color:#aaa;margin-top:2px">需求卡片的详细描述段落</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
+          <button class="btn btn-outline btn-sm" onclick="loadDisplaySettings()">刷新</button>
+          <button class="btn btn-primary" onclick="saveDisplaySettings()">保存到展示页</button>
+        </div>
+        <div id="display-save-status" style="font-size:12px;margin-top:8px;text-align:right"></div>
+      </div>
+    </div>
+  </div>
+
   <div class="stats-bar" id="stats-bar">
     <div class="stat"><div class="num" id="stat-total">0</div><div class="lbl">总供应商</div></div>
     <div class="stat"><div class="num" id="stat-contacted">0</div><div class="lbl">沟通中</div></div>
@@ -1199,12 +1244,77 @@ function exportData() {
   a.click();
 }
 
+// === Display Settings ===
+function toggleDisplaySettings() {
+  const body = document.getElementById('display-settings-body');
+  const icon = document.getElementById('display-toggle-icon');
+  if (body.classList.contains('open')) {
+    body.classList.remove('open');
+    icon.textContent = '▼';
+  } else {
+    body.classList.add('open');
+    icon.textContent = '▲';
+  }
+}
+
+async function loadDisplaySettings() {
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    if (res.ok) {
+      const data = await res.json();
+      const info = data.projectInfo || {};
+      document.getElementById('ds-projectType').value = info.projectType || '';
+      document.getElementById('ds-currentPhase').value = info.currentPhase || '';
+      document.getElementById('ds-coreReqTitle').value = info.coreRequirementTitle || '';
+      document.getElementById('ds-coreReqDesc').value = info.coreRequirementDesc || '';
+    }
+  } catch(e) {
+    console.log('Failed to load display settings:', e);
+  }
+}
+
+async function saveDisplaySettings() {
+  const statusEl = document.getElementById('display-save-status');
+  const projectType = document.getElementById('ds-projectType').value.trim();
+  const currentPhase = document.getElementById('ds-currentPhase').value.trim();
+  const coreReqTitle = document.getElementById('ds-coreReqTitle').value.trim();
+  const coreReqDesc = document.getElementById('ds-coreReqDesc').value.trim();
+
+  statusEl.innerHTML = '<span style="color:#b86e00">⟳ 保存中...</span>';
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    let cloudData = {suppliers: [], lastUpdated: 0};
+    if (res.ok) cloudData = await res.json();
+    
+    if (!cloudData.projectInfo) cloudData.projectInfo = {};
+    cloudData.projectInfo.projectType = projectType;
+    cloudData.projectInfo.currentPhase = currentPhase;
+    cloudData.projectInfo.coreRequirementTitle = coreReqTitle;
+    cloudData.projectInfo.coreRequirementDesc = coreReqDesc;
+    
+    const putRes = await fetch(CLOUD_URL, {
+      method: 'PUT',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(cloudData)
+    });
+    if (putRes.ok) {
+      statusEl.innerHTML = '<span style="color:#148a4e">✓ 已保存，展示页已更新</span>';
+    } else {
+      statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 保存失败</span>';
+    }
+  } catch(e) {
+    statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 网络错误</span>';
+  }
+  setTimeout(() => { statusEl.innerHTML = ''; }, 3000);
+}
+
 // Init
 async function init() {
   await loadFromCloud();
   await forceReloadFromCloud();
   renderList();
   execWhenVisible(function() { loadEditHistory(); });
+  loadDisplaySettings();
 }
 
 function execWhenVisible(fn) {
