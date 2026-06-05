@@ -89,28 +89,6 @@
       "updatedAt": "2026-06-05T10:11:30.385Z"
     },
     {
-      "id": "rfxdn7kfl7td",
-      "name": "义乌市凯瑞玩具有限公司",
-      "nameEn": "Yiwu Kairui Toys Co., Ltd.",
-      "website": "https://kairuitoys.en.alibaba.com/",
-      "platformUrl": "https://kairuitoys.en.alibaba.com/",
-      "location": "浙江义乌",
-      "specialty": "阿里巴巴国际站供应商，注塑玩具代工经验丰富，支持定制包装",
-      "contact": "",
-      "email": "",
-      "export": "unknown",
-      "status": "pending",
-      "notes": "主营: 阿里巴巴国际站供应商，注塑玩具代工经验丰富，支持定制包装",
-      "logs": [
-        {
-          "time": "2026-06-05T10:11:30.385Z",
-          "text": "已添加供应商"
-        }
-      ],
-      "createdAt": "2026-06-05T10:11:30.385Z",
-      "updatedAt": "2026-06-05T10:11:30.385Z"
-    },
-    {
       "id": "hxv630dhl7td",
       "name": "汕头市澄海区恒达玩具厂",
       "nameEn": "Shantou Chenghai Hengda Toys Factory",
@@ -156,5 +134,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654359469
+  "lastUpdated": 1780654361619
 }
