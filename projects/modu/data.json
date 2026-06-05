@@ -1,28 +1,6 @@
 {
   "suppliers": [
     {
-      "id": "6xz39kv8l7td",
-      "name": "汕头市澄海区锦龙玩具厂",
-      "nameEn": "Shantou Chenghai Jinlong Toys Factory",
-      "website": "https://jinlongtoys.1688.com/",
-      "platformUrl": "https://jinlongtoys.1688.com/",
-      "location": "广东汕头",
-      "specialty": "专注注塑玩具代工，支持来图来样定制，有多年OEM经验",
-      "contact": "",
-      "email": "",
-      "export": "unknown",
-      "status": "pending",
-      "notes": "主营: 专注注塑玩具代工，支持来图来样定制，有多年OEM经验",
-      "logs": [
-        {
-          "time": "2026-06-05T10:11:30.385Z",
-          "text": "已添加供应商"
-        }
-      ],
-      "createdAt": "2026-06-05T10:11:30.385Z",
-      "updatedAt": "2026-06-05T10:11:30.385Z"
-    },
-    {
       "id": "0s062jrvl7td",
       "name": "汕头市澄海区嘉盛玩具厂",
       "nameEn": "Shantou Chenghai Jiasheng Toys Factory",
@@ -46,5 +24,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654373686
+  "lastUpdated": 1780654378181
 }
