@@ -14,7 +14,7 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: '请提供搜索关键词' });
   }
 
-  const enabledPlatforms = platforms || ['web', '1688', 'alibaba', 'madeinchina'];
+  const enabledPlatforms = (platforms && platforms.length > 0) ? platforms : ['1688', 'alibaba', 'madeinchina', 'web'];
   const searchKeywords = keywords.trim();
 
   try {
@@ -85,12 +85,15 @@ module.exports = async function handler(req, res) {
       }
     }
 
+    // Validate URLs (parallel HEAD checks, 3s timeout each)
+    const validated = await validateUrls(deduped);
+
     return res.status(200).json({
       success: true,
-      suppliers: deduped.slice(0, 20),
+      suppliers: validated.slice(0, 20),
       platformStatus,
       keywords: searchKeywords,
-      total: deduped.length
+      total: validated.length
     });
 
   } catch (e) {
@@ -546,6 +549,37 @@ async function aiSearchSuppliers(keywords) {
   } catch (e) {
     return [];
   }
+}
+
+// --- URL Validation: check if links actually work ---
+async function validateUrls(suppliers) {
+  const checks = suppliers.map(async (s) => {
+    const url = s.url;
+    if (!url || !url.startsWith('http')) {
+      return { ...s, urlStatus: 'no-url' };
+    }
+    try {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 3000);
+      const resp = await fetch(url, {
+        method: 'HEAD',
+        signal: controller.signal,
+        redirect: 'follow',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; WorkBuddy/1.0)',
+          'Accept': 'text/html'
+        }
+      });
+      clearTimeout(timeout);
+      // 200-399 are considered OK (includes redirects to valid pages)
+      const ok = resp.ok || (resp.status >= 300 && resp.status < 400);
+      return { ...s, urlStatus: ok ? 'ok' : 'dead' };
+    } catch (e) {
+      return { ...s, urlStatus: 'dead' };
+    }
+  });
+
+  return Promise.all(checks);
 }
 
 // --- Utility: Fetch with timeout ---
