@@ -56,6 +56,7 @@ module.exports = async function handler(req, res) {
       platformUrl: s.url || '',
       location: s.location || '',
       specialty: s.specialty || s.product || '',
+      track: s.track || '',
       contact: s.contact || '',
       email: s.email || '',
       export: 'unknown',
