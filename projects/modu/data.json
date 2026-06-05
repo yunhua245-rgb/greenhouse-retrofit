@@ -317,8 +317,25 @@
       "updatedAt": 1780667901502,
       "logs": [],
       "createdAt": 1780667901502
+    },
+    {
+      "id": "mq0zp2p1iu2ri",
+      "url": "http://www.haidaj.com",
+      "name": "宁波市海达塑料机械有限公司主营注塑机",
+      "nameEn": "",
+      "location": "中国中国浙江宁波市",
+      "specialty": "",
+      "contact": "0574-86379910",
+      "email": "",
+      "track": "",
+      "status": "new",
+      "rating": null,
+      "notes": "",
+      "updatedAt": 1780667907301,
+      "logs": [],
+      "createdAt": 1780667907301
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780667902839
+  "lastUpdated": 1780667907978
 }
