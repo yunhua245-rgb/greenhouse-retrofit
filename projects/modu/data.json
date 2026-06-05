@@ -45,28 +45,6 @@
       "updatedAt": "2026-06-05T10:11:30.385Z"
     },
     {
-      "id": "qz2h7co0l7td",
-      "name": "浙江新云玩具有限公司",
-      "nameEn": "Zhejiang Xinyun Toys Co., Ltd.",
-      "website": "https://xinyuntoys.en.alibaba.com/",
-      "platformUrl": "https://xinyuntoys.en.alibaba.com/",
-      "location": "浙江云和",
-      "specialty": "阿里巴巴国际站认证供应商，注塑玩具出口经验丰富，通过多项国际安全标准",
-      "contact": "",
-      "email": "",
-      "export": "unknown",
-      "status": "pending",
-      "notes": "主营: 阿里巴巴国际站认证供应商，注塑玩具出口经验丰富，通过多项国际安全标准",
-      "logs": [
-        {
-          "time": "2026-06-05T10:11:30.385Z",
-          "text": "已添加供应商"
-        }
-      ],
-      "createdAt": "2026-06-05T10:11:30.385Z",
-      "updatedAt": "2026-06-05T10:11:30.385Z"
-    },
-    {
       "id": "hxv630dhl7td",
       "name": "汕头市澄海区恒达玩具厂",
       "nameEn": "Shantou Chenghai Hengda Toys Factory",
@@ -112,5 +90,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654364463
+  "lastUpdated": 1780654368348
 }
