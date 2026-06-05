@@ -337,6 +337,8 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
         <label>当前状态</label>
         <select id="f-status">
           <option value="new">新发现</option>
+          <option value="pending">评估中</option>
+          <option value="contacting">沟通中</option>
           <option value="contacted">已联系</option>
           <option value="replied">已回复</option>
           <option value="shortlisted">候选</option>
@@ -520,7 +522,11 @@ async function forceReloadFromCloud() {
       const data = await res.json();
       if (data._sha) dataSha = data._sha;
       if (data.suppliers) {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
+        // Only overwrite if local is empty (first load) or explicitly requested
+        const local = getSuppliers();
+        if (local.length === 0) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
+        }
       }
     }
   } catch(e) { console.log('forceReloadFromCloud error:', e); }
@@ -555,6 +561,8 @@ function escHtml(str) {
 
 const statusMap = {
   new: {label:'新发现', cls:'status-new'},
+  pending: {label:'评估中', cls:'status-new'},
+  contacting: {label:'沟通中', cls:'status-contacted'},
   contacted: {label:'已联系', cls:'status-contacted'},
   replied: {label:'已回复', cls:'status-replied'},
   shortlisted: {label:'候选', cls:'status-shortlisted'},
@@ -614,7 +622,7 @@ function renderList() {
       </div>
       <div class="supplier-body" id="body-${s.id}">
         <div class="info-grid">
-          <div class="info-item"><div class="lbl">公司官网</div><div class="val">${s.url ? '<a href="'+escHtml(s.url)+'" target="_blank" style="color:#e65100">'+escHtml(s.url)+'</a>' : '未填写'}</div></div>
+          <div class="info-item"><div class="lbl">公司官网</div><div class="val">${(s.website || s.url) ? '<a href="'+escHtml(s.website || s.url)+'" target="_blank" style="color:#e65100">'+escHtml(s.website || s.url)+'</a>' : '未填写'}</div></div>
           <div class="info-item"><div class="lbl">联系方式</div><div class="val" style="white-space:pre-line">${escHtml(s.contact || '未填写')}</div></div>
           <div class="info-item"><div class="lbl">邮箱</div><div class="val" style="white-space:pre-line">${escHtml(s.email || '未填写')}</div></div>
           <div class="info-item"><div class="lbl">寻源方向</div><div class="val">${s.track ? trackLabels[s.track]||s.track : '未分类'}</div></div>
@@ -904,7 +912,7 @@ function renderSearchResults(data) {
           ${s.location ? `<span>📍 ${escHtml(s.location)}</span>` : ''}
           ${s.specialty ? `<span>⚡ ${escHtml(s.specialty.substring(0, 30))}</span>` : ''}
         </div>
-        ${s.url ? `<a href="${escHtml(s.url)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block">🔗 查看主页</a>` : ''}
+        ${(s.website || s.url) ? `<a href="${escHtml(s.website || s.url)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block">🔗 查看主页</a>` : ''}
       </div>
     </div>`;
   });
@@ -948,7 +956,7 @@ async function batchAddSuppliers() {
     const res = await fetch('/api/batch-add-suppliers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ suppliers: enriched })
+      body: JSON.stringify({ suppliers: enriched, dataFile: 'projects/modu/data.json' })
     });
     const data = await res.json();
 
@@ -1181,7 +1189,7 @@ function editSupplier(id) {
 
   document.getElementById('modal-title').textContent = '编辑供应商';
   document.getElementById('edit-id').value = s.id;
-  document.getElementById('f-url').value = s.url || '';
+  document.getElementById('f-url').value = (s.website || s.url) || '';
   document.getElementById('f-name').value = s.name || '';
   document.getElementById('f-nameEn').value = s.nameEn || '';
   document.getElementById('f-location').value = s.location || '';
@@ -1381,13 +1389,15 @@ function execWhenVisible(fn) {
   if (document.getElementById('edit-history-list').offsetParent) {
     fn();
   } else {
-    // Wait for edit history to be opened
+    const container = document.getElementById('edit-history-list').closest('.profile-body');
+    if (!container) { fn(); return; }
     const observer = new MutationObserver(() => {
       if (document.getElementById('edit-history-list').offsetParent) {
         observer.disconnect();
         fn();
       }
     });
+    observer.observe(container, { attributes: true, attributeFilter: ['class'] });
   }
 }
 
