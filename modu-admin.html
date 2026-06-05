@@ -128,74 +128,6 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 
 <div class="container">
 
-  <!-- 个人信息管理 -->
-  <div class="profile-section">
-    <div class="profile-header" onclick="toggleProfile()">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="profile-avatar" id="profile-avatar-preview">H</div>
-        <div>
-          <div style="font-size:15px;font-weight:600" id="profile-name-preview">点击设置个人信息</div>
-          <div style="font-size:12px;color:#888">名片信息将显示在展示页面的"协调人"板块</div>
-        </div>
-      </div>
-      <span style="font-size:18px;color:#aaa" id="profile-toggle-icon">▼</span>
-    </div>
-    <div class="profile-body" id="profile-body">
-      <div class="profile-form">
-        <div class="pf-row">
-          <div class="form-group" style="flex:1">
-            <label>姓名 / Name</label>
-            <input type="text" id="pf-name" placeholder="例：HUA">
-          </div>
-          <div class="form-group" style="flex:1">
-            <label>头像 / Avatar</label>
-            <div class="avatar-upload-area" id="avatar-upload-area" onclick="document.getElementById('pf-avatar-file').click()">
-              <div class="avatar-preview" id="avatar-preview-box">
-                <span class="avatar-placeholder" id="avatar-placeholder-text">点击上传<br><span style="font-size:11px;color:#aaa">支持 JPG/PNG</span></span>
-                <img id="avatar-preview-img" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px">
-              </div>
-            </div>
-            <input type="file" id="pf-avatar-file" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
-            <input type="hidden" id="pf-avatar">
-            <div style="margin-top:6px;font-size:11px;color:#aaa">或输入图片URL：</div>
-            <input type="text" id="pf-avatar-url" placeholder="https://..." style="margin-top:4px;padding:6px 10px;font-size:12px;border:1px solid #e8eaed;border-radius:6px;width:100%" oninput="handleAvatarUrl(this.value)">
-          </div>
-        </div>
-        <div class="pf-row">
-          <div class="form-group" style="flex:1">
-            <label>手机号 / Phone</label>
-            <input type="text" id="pf-phone" placeholder="+86 138xxxx">
-          </div>
-          <div class="form-group" style="flex:1">
-            <label>微信 / WeChat</label>
-            <input type="text" id="pf-wechat" placeholder="微信号">
-          </div>
-        </div>
-        <div class="pf-row">
-          <div class="form-group" style="flex:1">
-            <label>WhatsApp</label>
-            <input type="text" id="pf-whatsapp" placeholder="+86 138xxxx">
-          </div>
-          <div class="form-group" style="flex:1">
-            <label>Telegram</label>
-            <input type="text" id="pf-telegram" placeholder="@username">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>所在城市 / City</label>
-          <input type="text" id="pf-city" placeholder="例：Beijing, China">
-        </div>
-        <div class="form-group">
-          <label>个人简介 / Bio（可选）</label>
-          <textarea id="pf-bio" placeholder="简短自我介绍..." style="min-height:60px"></textarea>
-        </div>
-        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
-          <button class="btn btn-primary" onclick="saveProfile()">保存个人信息</button>
-        </div>
-        <div id="profile-save-status" style="font-size:12px;margin-top:8px;text-align:right"></div>
-      </div>
-    </div>
-  </div>
 
   <!-- 客户项目信息 -->
   <div class="profile-section" id="edit-history-section">
@@ -522,7 +454,6 @@ async function forceReloadFromCloud() {
       const data = await res.json();
       if (data._sha) dataSha = data._sha;
       if (data.suppliers) {
-        // Only overwrite if local is empty (first load) or explicitly requested
         const local = getSuppliers();
         if (local.length === 0) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
@@ -1259,115 +1190,6 @@ function deleteLog(supplierId, logIndex) {
   setTimeout(() => { document.getElementById('body-' + supplierId).classList.add('open'); }, 50);
 }
 
-// Profile management
-const PROFILE_KEY = 'modu_coordinator_profile';
-
-function getProfile() {
-  try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {}; } catch { return {}; }
-}
-
-function toggleProfile() {
-  document.getElementById('profile-body').classList.toggle('open');
-  const icon = document.getElementById('profile-toggle-icon');
-  icon.textContent = document.getElementById('profile-body').classList.contains('open') ? '▲' : '▼';
-}
-
-function loadProfile() {
-  const p = getProfile();
-  document.getElementById('pf-name').value = p.name || '';
-  document.getElementById('pf-avatar').value = p.avatarUrl || '';
-  document.getElementById('pf-avatar-url').value = (p.avatarUrl && !p.avatarUrl.startsWith('data:')) ? p.avatarUrl : '';
-  document.getElementById('pf-phone').value = p.phone || '';
-  document.getElementById('pf-wechat').value = p.wechat || '';
-  document.getElementById('pf-whatsapp').value = p.whatsapp || '';
-  document.getElementById('pf-telegram').value = p.telegram || '';
-  document.getElementById('pf-city').value = p.city || '';
-  document.getElementById('pf-bio').value = p.bio || '';
-  updateProfilePreview(p);
-  updateAvatarPreview(p.avatarUrl);
-}
-
-function updateProfilePreview(p) {
-  const avatarEl = document.getElementById('profile-avatar-preview');
-  const nameEl = document.getElementById('profile-name-preview');
-  if (p.avatarUrl) {
-    avatarEl.innerHTML = '<img src="' + escHtml(p.avatarUrl) + '" alt="">';
-  } else {
-    avatarEl.textContent = (p.name || 'H').charAt(0).toUpperCase();
-  }
-  nameEl.textContent = p.name || '点击设置个人信息';
-}
-
-function updateAvatarPreview(url) {
-  const img = document.getElementById('avatar-preview-img');
-  const placeholder = document.getElementById('avatar-placeholder-text');
-  const area = document.getElementById('avatar-upload-area');
-  if (url) {
-    img.src = url;
-    img.style.display = 'block';
-    placeholder.style.display = 'none';
-    area.classList.add('has-image');
-  } else {
-    img.style.display = 'none';
-    placeholder.style.display = 'block';
-    area.classList.remove('has-image');
-  }
-}
-
-function handleAvatarUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    const url = e.target.result;
-    document.getElementById('pf-avatar').value = url;
-    document.getElementById('pf-avatar-url').value = '';
-    updateAvatarPreview(url);
-  };
-  reader.readAsDataURL(file);
-}
-
-function handleAvatarUrl(url) {
-  document.getElementById('pf-avatar').value = url;
-  document.getElementById('pf-avatar-file').value = '';
-  updateAvatarPreview(url || '');
-}
-
-async function saveProfile() {
-  const profile = {
-    name: document.getElementById('pf-name').value.trim(),
-    avatarUrl: document.getElementById('pf-avatar').value,
-    phone: document.getElementById('pf-phone').value.trim(),
-    wechat: document.getElementById('pf-wechat').value.trim(),
-    whatsapp: document.getElementById('pf-whatsapp').value.trim(),
-    telegram: document.getElementById('pf-telegram').value.trim(),
-    city: document.getElementById('pf-city').value.trim(),
-    bio: document.getElementById('pf-bio').value.trim(),
-    updatedAt: Date.now()
-  };
-  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
-  
-  // Sync to cloud
-  try {
-    let cloudData = {};
-    try {
-      const getRes = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
-      if (getRes.ok) cloudData = await getRes.json();
-    } catch(e) {}
-    cloudData.coordinatorProfile = profile;
-    if (dataSha) cloudData._sha = dataSha;
-    await fetch(CLOUD_URL, {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify(cloudData)
-    });
-  } catch(e) { console.log('Profile sync failed:', e); }
-  
-  updateProfilePreview(profile);
-  document.getElementById('profile-save-status').innerHTML = '<span style="color:#148a4e">✓ 已保存</span>';
-  setTimeout(() => { document.getElementById('profile-save-status').innerHTML = ''; }, 2000);
-}
-
 function exportData() {
   const suppliers = getSuppliers();
   const blob = new Blob([JSON.stringify({ suppliers }, null, 2)], { type: 'application/json' });
@@ -1382,7 +1204,6 @@ async function init() {
   await loadFromCloud();
   await forceReloadFromCloud();
   renderList();
-  loadProfile();
   execWhenVisible(function() { loadEditHistory(); });
 }
 
