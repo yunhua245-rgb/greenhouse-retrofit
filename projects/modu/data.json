@@ -1,28 +1,5 @@
 {
-  "suppliers": [
-    {
-      "id": "0s062jrvl7td",
-      "name": "汕头市澄海区嘉盛玩具厂",
-      "nameEn": "Shantou Chenghai Jiasheng Toys Factory",
-      "website": "https://jiashengtoys.1688.com/",
-      "platformUrl": "https://jiashengtoys.1688.com/",
-      "location": "广东汕头",
-      "specialty": "专业注塑玩具代工，拥有多台注塑机，交期稳定",
-      "contact": "",
-      "email": "",
-      "export": "unknown",
-      "status": "pending",
-      "notes": "主营: 专业注塑玩具代工，拥有多台注塑机，交期稳定",
-      "logs": [
-        {
-          "time": "2026-06-05T10:11:30.385Z",
-          "text": "已添加供应商"
-        }
-      ],
-      "createdAt": "2026-06-05T10:11:30.385Z",
-      "updatedAt": "2026-06-05T10:11:30.385Z"
-    }
-  ],
+  "suppliers": [],
   "projectInfo": {},
-  "lastUpdated": 1780654378181
+  "lastUpdated": 1780654381456
 }
