@@ -138,74 +138,6 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 
 <div class="container">
 
-  <!-- 个人信息管理 -->
-  <div class="profile-section">
-    <div class="profile-header" onclick="toggleProfile()">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div class="profile-avatar" id="profile-avatar-preview">H</div>
-        <div>
-          <div style="font-size:15px;font-weight:600" id="profile-name-preview">点击设置个人信息</div>
-          <div style="font-size:12px;color:#888">名片信息将显示在展示页面的"协调人"板块</div>
-        </div>
-      </div>
-      <span style="font-size:18px;color:#aaa" id="profile-toggle-icon">▼</span>
-    </div>
-    <div class="profile-body" id="profile-body">
-      <div class="profile-form">
-        <div class="pf-row">
-          <div class="form-group" style="flex:1">
-            <label>姓名 / Name</label>
-            <input type="text" id="pf-name" placeholder="例：HUA">
-          </div>
-          <div class="form-group" style="flex:1">
-            <label>头像 / Avatar</label>
-            <div class="avatar-upload-area" id="avatar-upload-area" onclick="document.getElementById('pf-avatar-file').click()">
-              <div class="avatar-preview" id="avatar-preview-box">
-                <span class="avatar-placeholder" id="avatar-placeholder-text">点击上传<br><span style="font-size:11px;color:#aaa">支持 JPG/PNG</span></span>
-                <img id="avatar-preview-img" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px">
-              </div>
-            </div>
-            <input type="file" id="pf-avatar-file" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
-            <input type="hidden" id="pf-avatar">
-            <div style="margin-top:6px;font-size:11px;color:#aaa" id="avatar-hint">或输入图片URL：</div>
-            <input type="text" id="pf-avatar-url" placeholder="https://..." style="margin-top:4px;padding:6px 10px;font-size:12px;border:1px solid #e8eaed;border-radius:6px;width:100%" oninput="handleAvatarUrl(this.value)">
-          </div>
-        </div>
-        <div class="pf-row">
-          <div class="form-group" style="flex:1">
-            <label>📱 手机号 / Phone</label>
-            <input type="text" id="pf-phone" placeholder="+86 138xxxx">
-          </div>
-          <div class="form-group" style="flex:1">
-            <label>💬 微信 / WeChat</label>
-            <input type="text" id="pf-wechat" placeholder="微信号">
-          </div>
-        </div>
-        <div class="pf-row">
-          <div class="form-group" style="flex:1">
-            <label>📲 WhatsApp</label>
-            <input type="text" id="pf-whatsapp" placeholder="+86 138xxxx">
-          </div>
-          <div class="form-group" style="flex:1">
-            <label>✈️ Telegram</label>
-            <input type="text" id="pf-telegram" placeholder="@username">
-          </div>
-        </div>
-        <div class="form-group">
-          <label>📍 所在城市 / City</label>
-          <input type="text" id="pf-city" placeholder="例：Beijing, China">
-        </div>
-        <div class="form-group">
-          <label>个人简介 / Bio（可选）</label>
-          <textarea id="pf-bio" placeholder="简短自我介绍..." style="min-height:60px"></textarea>
-        </div>
-        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
-          <button class="btn btn-primary" onclick="saveProfile()">保存个人信息</button>
-        </div>
-        <div id="profile-save-status" style="font-size:12px;margin-top:8px;text-align:right"></div>
-      </div>
-    </div>
-  </div>
 
   <!-- 客户修改历史 -->
   <div class="profile-section" id="edit-history-section">
@@ -566,7 +498,6 @@ async function loadFromCloud() {
       const data = await res.json();
       if (data.suppliers && data.suppliers.length > 0) {
         const local = getSuppliers();
-        // If cloud has data and local is empty, use cloud data
         if (local.length === 0) {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
         }
@@ -723,7 +654,6 @@ function backToSearch() {
 }
 
 async function autoFillKeywords() {
-  // Use AI to summarize all project info into optimal Chinese search keywords
   const inputEl = document.getElementById('search-keywords');
   inputEl.value = '✨ AI 正在分析客户需求...';
   inputEl.disabled = true;
@@ -734,8 +664,6 @@ async function autoFillKeywords() {
     const info = data.projectInfo || {};
     const freeform = info.freeformNote || '';
 
-    // Pre-translate Russian/English fields to Chinese before sending to AI
-    // (so AI sees "连栋温室" not "Блочная" → "阻止")
     const translatedInfo = {};
     for (const [key, val] of Object.entries(info)) {
       if (typeof val === 'string' && val.trim()) {
@@ -747,7 +675,6 @@ async function autoFillKeywords() {
       }
     }
 
-    // Call AI to generate optimal search keywords (with pre-translated info)
     const aiRes = await fetch('/api/ai-keywords', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -758,7 +685,6 @@ async function autoFillKeywords() {
     if (aiData.success && aiData.keywords) {
       inputEl.value = aiData.keywords;
     } else {
-      // Fallback: simple extraction with dict translation
       const parts = [];
       if (info.crops) parts.push(info.crops);
       if (info.scope) parts.push(info.scope);
@@ -812,7 +738,6 @@ async function startSearch() {
       return;
     }
 
-    // Show results
     renderSearchResults(data);
     document.getElementById('search-step1').style.display = 'none';
     document.getElementById('search-step2').style.display = 'block';
@@ -829,7 +754,6 @@ async function startSearch() {
 function renderSearchResults(data) {
   const { suppliers, platformStatus } = data;
   
-  // Status line
   let statusParts = [];
   for (const [p, s] of Object.entries(platformStatus || {})) {
     const pLabels = { '1688': '1688', 'alibaba': '阿里国际站', 'madeinchina': '中国制造网', 'ai_search': 'AI搜索' };
@@ -839,7 +763,6 @@ function renderSearchResults(data) {
   document.getElementById('search-status').innerHTML = 
     `共找到 <strong>${suppliers.length}</strong> 家供应商 | ${statusParts.join(' · ')}`;
 
-  // Result cards
   let html = '';
   suppliers.forEach((s, i) => {
     const name = s.name || s.nameEn || '未知';
@@ -897,10 +820,8 @@ async function batchAddSuppliers() {
   statusEl.innerHTML = '<span style="color:#888">📡 正在查询供应商官网并提取详细信息...</span>';
 
   try {
-    // Step 1: Enrich suppliers with company info (fetch official websites)
     const enriched = await enrichSuppliersWithWebsite(selected, statusEl);
 
-    // Step 2: Save enriched suppliers to backend
     statusEl.innerHTML = '<span style="color:#888">💾 正在保存到管理后台...</span>';
     const res = await fetch('/api/batch-add-suppliers', {
       method: 'POST',
@@ -915,7 +836,6 @@ async function batchAddSuppliers() {
 
     statusEl.innerHTML = `<span style="color:#148a4e">✅ 成功添加 ${data.added} 家供应商！正在同步到列表...</span>`;
     
-    // Step 3: Force reload from cloud to sync localStorage
     setTimeout(async () => {
       await forceReloadFromCloud();
       renderList();
@@ -930,7 +850,6 @@ async function batchAddSuppliers() {
   }
 }
 
-// Force reload suppliers from cloud data into localStorage
 async function forceReloadFromCloud() {
   try {
     const res = await fetch(CLOUD_URL, { headers: { 'Accept': 'application/json' } });
@@ -945,24 +864,20 @@ async function forceReloadFromCloud() {
   }
 }
 
-// Enrich suppliers by querying their official websites
 async function enrichSuppliersWithWebsite(suppliers, statusEl) {
   const enriched = [];
   let completed = 0;
 
-  // Process in parallel batches of 3 (to avoid overloading)
   const batchSize = 3;
   for (let i = 0; i < suppliers.length; i += batchSize) {
     const batch = suppliers.slice(i, i + batchSize);
     const promises = batch.map(async (s) => {
       const enrichedItem = { ...s };
 
-      // Try to find official website if we have a company name
       const companyName = s.name || s.nameEn || '';
       if (!companyName) return enrichedItem;
 
       try {
-        // Use AI to search for the company's official website
         const searchRes = await fetch('/api/fetch-company', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -973,7 +888,6 @@ async function enrichSuppliersWithWebsite(suppliers, statusEl) {
           const result = await searchRes.json();
           if (result.success && result.data) {
             const d = result.data;
-            // 优先使用官网抓取的数据（搜索结果仅定位用，不保证准确）
             if (d.name) enrichedItem.name = d.name;
             if (d.nameEn) enrichedItem.nameEn = d.nameEn;
             if (d.location) enrichedItem.location = d.location;
@@ -984,7 +898,6 @@ async function enrichSuppliersWithWebsite(suppliers, statusEl) {
           }
         }
       } catch(e) {
-        // Enrichment failed, continue with basic info
         console.log('Enrich failed for:', companyName, e.message);
       }
 
@@ -1005,16 +918,11 @@ async function enrichSuppliersWithWebsite(suppliers, statusEl) {
   return enriched;
 }
 
-// Find official website for a company name
 async function findOfficialWebsite(companyName, platformUrl) {
-  // If we already have a platform URL that's a company homepage (not a product page), use it
   if (platformUrl) {
     try {
       const u = new URL(platformUrl);
-      // 1688 shop pages or alibaba supplier pages are not official websites
-      // but they can be crawled for info
       if (u.hostname.includes('1688.com') || u.hostname.includes('alibaba.com') || u.hostname.includes('made-in-china.com')) {
-        // Try to find official website via AI search
         const aiRes = await fetch('/api/search-official-website', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1024,14 +932,11 @@ async function findOfficialWebsite(companyName, platformUrl) {
           const data = await aiRes.json();
           if (data.website) return data.website;
         }
-        // Fallback: use platform URL for info extraction
         return platformUrl;
       }
-      // Non-platform URL, might be official website already
       return platformUrl;
     } catch(e) {}
   }
-  // No URL at all, return empty (won't fetch)
   return '';
 }
 // === End Search Suppliers ===
@@ -1049,14 +954,10 @@ function closeModal(e) {
   document.getElementById('modal-overlay').classList.remove('show');
 }
 
-// AI Fetch company info from website
-// AI calls go through /api/ai-summary (server-side proxy to avoid CORS)
-
 async function fetchCompanyInfo() {
   let url = document.getElementById('f-website').value.trim();
   if (!url) { alert('请先填入公司官网地址'); return; }
   
-  // Auto-prepend https:// if user only typed domain
   if (!/^https?:\/\//i.test(url)) {
     url = 'https://' + url;
     document.getElementById('f-website').value = url;
@@ -1071,7 +972,6 @@ async function fetchCompanyInfo() {
   statusEl.innerHTML = '<span style="color:#b86e00">① 正在访问网站获取内容...</span>';
   
   try {
-    // Step 1: Fetch webpage via backend (to avoid CORS)
     const res = await fetch('/api/fetch-company', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1089,9 +989,7 @@ async function fetchCompanyInfo() {
     const d = result.data;
     let filled = [];
     
-    // Fill basic fields from heuristics (always overwrite)
     if (d.name) {
-      // Smart fill: if name contains Chinese chars → fill Chinese name field
       const hasChinese = /[\u4e00-\u9fa5]/.test(d.name);
       if (hasChinese) {
         document.getElementById('f-name').value = d.name;
@@ -1122,8 +1020,6 @@ async function fetchCompanyInfo() {
       filled.push('邮箱');
     }
     
-    // Step 2: Call AI for summary (from browser - avoids IP restrictions)
-    // Skip if there's no real webpage content to analyze (e.g. SPA with only ICP info)
     if (!result.raw || !result.raw.textContent || result.raw.textContent.trim().length < 50) {
       let statusMsg = filled.length > 0
         ? '<span style="color:#148a4e">✓ 已填入：' + filled.join('、') + '</span>'
@@ -1138,7 +1034,6 @@ async function fetchCompanyInfo() {
     try {
       const aiResult = await callAISummary({...result.raw, url});
       
-      // Auto-fill from AI (always overwrite existing values on re-fetch)
       if (aiResult.nameCn) {
         document.getElementById('f-name').value = aiResult.nameCn;
         filled.push('公司中文名（AI）');
@@ -1175,7 +1070,6 @@ async function fetchCompanyInfo() {
       statusEl.innerHTML = statusMsg;
       
     } catch(aiErr) {
-      // AI failed, still show basic results
       let statusMsg = filled.length > 0
         ? '<span style="color:#148a4e">✓ 已填入基本信息：' + filled.join('、') + '</span>'
         : '';
@@ -1183,11 +1077,10 @@ async function fetchCompanyInfo() {
       statusEl.innerHTML = statusMsg;
     }
     
-    // Show raw text preview
     if (result.raw && result.raw.textContent) {
       statusEl.innerHTML += '<br><details style="margin-top:6px;font-size:11px;color:#666"><summary style="cursor:pointer">查看网页原文摘要</summary><div style="max-height:120px;overflow-y:auto;background:#f7f8fa;padding:8px;border-radius:6px;margin-top:4px;white-space:pre-wrap;word-break:break-all;font-size:11px">' + escHtml(result.raw.textContent.substring(0, 800)) + '...</div></details>';
     }
-    } // end of else (has content to analyze)
+    }
     
   } catch(e) {
     statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 抓取失败：' + escHtml(e.message) + '</span>';
@@ -1197,7 +1090,6 @@ async function fetchCompanyInfo() {
   btn.textContent = '🤖 AI抓取';
 }
 
-// AI Summary - called via backend proxy to avoid CORS
 async function callAISummary(rawData) {
   const response = await fetch('/api/ai-summary', {
     method: 'POST',
@@ -1322,7 +1214,6 @@ function addLog(id) {
   saveToStorage(suppliers);
   input.value = '';
   renderList();
-  // Re-open the card
   setTimeout(() => {
     document.getElementById('body-' + id).classList.add('open');
   }, 50);
@@ -1339,159 +1230,6 @@ function deleteLog(supplierId, logIndex) {
   setTimeout(() => {
     document.getElementById('body-' + supplierId).classList.add('open');
   }, 50);
-}
-
-// Profile management
-const PROFILE_KEY = 'greenhouse_coordinator_profile';
-
-function getProfile() {
-  try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {}; } catch { return {}; }
-}
-
-function toggleProfile() {
-  document.getElementById('profile-body').classList.toggle('open');
-  const icon = document.getElementById('profile-toggle-icon');
-  icon.textContent = document.getElementById('profile-body').classList.contains('open') ? '▲' : '▼';
-}
-
-function loadProfile() {
-  const p = getProfile();
-  document.getElementById('pf-name').value = p.name || '';
-  document.getElementById('pf-avatar').value = p.avatarUrl || '';
-  document.getElementById('pf-avatar-url').value = (p.avatarUrl && !p.avatarUrl.startsWith('data:')) ? p.avatarUrl : '';
-  document.getElementById('pf-phone').value = p.phone || '';
-  document.getElementById('pf-wechat').value = p.wechat || '';
-  document.getElementById('pf-whatsapp').value = p.whatsapp || '';
-  document.getElementById('pf-telegram').value = p.telegram || '';
-  document.getElementById('pf-city').value = p.city || '';
-  document.getElementById('pf-bio').value = p.bio || '';
-  updateProfilePreview(p);
-  updateAvatarPreview(p.avatarUrl);
-}
-
-function updateProfilePreview(p) {
-  const avatarEl = document.getElementById('profile-avatar-preview');
-  const nameEl = document.getElementById('profile-name-preview');
-  if (p.avatarUrl) {
-    avatarEl.innerHTML = '<img src="' + escHtml(p.avatarUrl) + '" alt="">';
-  } else {
-    avatarEl.textContent = (p.name || 'H').charAt(0).toUpperCase();
-  }
-  nameEl.textContent = p.name || '点击设置个人信息';
-}
-
-function updateAvatarPreview(url) {
-  const img = document.getElementById('avatar-preview-img');
-  const placeholder = document.getElementById('avatar-placeholder-text');
-  const area = document.getElementById('avatar-upload-area');
-  if (url) {
-    img.src = url;
-    img.style.display = 'block';
-    placeholder.style.display = 'none';
-    area.classList.add('has-image');
-  } else {
-    img.style.display = 'none';
-    placeholder.style.display = 'block';
-    area.classList.remove('has-image');
-  }
-}
-
-function handleAvatarUpload(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  
-  // Limit file size to 500KB for cloud storage
-  if (file.size > 512000) {
-    alert('图片过大（>500KB），将自动压缩');
-  }
-  
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    // Compress image if needed
-    const img = new Image();
-    img.onload = function() {
-      const canvas = document.createElement('canvas');
-      const maxSize = 200; // 200x200 max for avatar
-      let w = img.width, h = img.height;
-      if (w > h) { h = h * maxSize / w; w = maxSize; }
-      else { w = w * maxSize / h; h = maxSize; }
-      canvas.width = w;
-      canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-      document.getElementById('pf-avatar').value = dataUrl;
-      document.getElementById('pf-avatar-url').value = '';
-      updateAvatarPreview(dataUrl);
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
-}
-
-function handleAvatarUrl(url) {
-  url = url.trim();
-  if (url) {
-    document.getElementById('pf-avatar').value = url;
-    updateAvatarPreview(url);
-  } else if (!document.getElementById('pf-avatar').value.startsWith('data:')) {
-    document.getElementById('pf-avatar').value = '';
-    updateAvatarPreview('');
-  }
-}
-
-async function saveProfile() {
-  const profile = {
-    name: document.getElementById('pf-name').value.trim(),
-    avatarUrl: document.getElementById('pf-avatar').value.trim(),
-    phone: document.getElementById('pf-phone').value.trim(),
-    wechat: document.getElementById('pf-wechat').value.trim(),
-    whatsapp: document.getElementById('pf-whatsapp').value.trim(),
-    telegram: document.getElementById('pf-telegram').value.trim(),
-    city: document.getElementById('pf-city').value.trim(),
-    bio: document.getElementById('pf-bio').value.trim(),
-    updatedAt: Date.now()
-  };
-  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
-  updateProfilePreview(profile);
-
-  // Sync to cloud
-  const statusEl = document.getElementById('profile-save-status');
-  statusEl.innerHTML = '<span style="color:#b86e00">⟳ 同步个人信息到云端...</span>';
-  try {
-    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
-    let cloudData = {suppliers: [], lastUpdated: 0};
-    if (res.ok) cloudData = await res.json();
-    cloudData.coordinatorProfile = profile;
-    cloudData.lastUpdated = Date.now();
-    const putRes = await fetch(CLOUD_URL, {
-      method: 'PUT',
-      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
-      body: JSON.stringify(cloudData)
-    });
-    if (putRes.ok) {
-      statusEl.innerHTML = '<span style="color:#148a4e">✓ 已保存并同步到云端</span>';
-    } else {
-      statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 云端同步失败，已本地保存</span>';
-    }
-  } catch(e) {
-    statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 网络错误，已本地保存</span>';
-  }
-  setTimeout(() => { statusEl.innerHTML = ''; }, 4000);
-}
-
-async function loadProfileFromCloud() {
-  try {
-    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
-    if (res.ok) {
-      const data = await res.json();
-      if (data.coordinatorProfile) {
-        const local = getProfile();
-        if (!local.name && data.coordinatorProfile.name) {
-          localStorage.setItem(PROFILE_KEY, JSON.stringify(data.coordinatorProfile));
-        }
-      }
-    }
-  } catch(e) {}
 }
 
 // Edit History management (client edits)
@@ -1514,10 +1252,8 @@ async function loadEditHistory() {
       
       section.style.display = 'block';
       
-      // Show current version at the top
       const currentHtml = renderProjectInfoCard(currentInfo, '当前版本（最新）');
       
-      // Quiz update history
       let quizHtml = '';
       if (quizHistory.length > 0) {
         quizHtml = `<div style="margin-top:16px;padding-top:12px;border-top:1px solid #e8eaed">
@@ -1528,7 +1264,6 @@ async function loadEditHistory() {
             <span id="quiz-history-toggle" style="font-size:14px;color:#aaa">▼</span>
           </div>
           <div id="quiz-history-body" style="display:none;margin-top:10px;max-height:300px;overflow-y:auto">`;
-        // Reverse to show latest first
         quizHtml += quizHistory.slice().reverse().map(q => {
           const d = new Date(q.time);
           const timeStr = d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
@@ -1546,7 +1281,6 @@ async function loadEditHistory() {
         quizHtml += '</div></div>';
       }
 
-      // Show edit history below
       let historyHtml = '';
       if (history.length > 0) {
         historyHtml = '<div style="margin-top:16px;padding-top:12px;border-top:1px solid #e8eaed"><div style="font-size:12px;color:#888;margin-bottom:10px;font-weight:500">历史修改记录</div>';
@@ -1569,7 +1303,6 @@ async function loadEditHistory() {
       }
       
       listEl.innerHTML = currentHtml + quizHtml + historyHtml;
-      // Auto-translate non-Chinese content to Chinese
       translateAllMarked();
     }
   } catch(e) {
@@ -1634,7 +1367,6 @@ function renderProjectInfoCard(info, label) {
     ]},
   ];
 
-  // Legacy fields (for existing greenhouse projects)
   const legacyFields = [
     {key:'area', label:'温室面积'},
     {key:'structureType', label:'结构类型'},
@@ -1646,12 +1378,10 @@ function renderProjectInfoCard(info, label) {
   let html = `<div style="padding:16px;background:#f7f8fa;border-radius:10px;border:1px solid #e8eaed">
     <div style="font-size:12px;color:#148a4e;font-weight:600;margin-bottom:12px">${escHtml(label)}</div>`;
 
-  // Check if this is a new-format project (has any new fields) or legacy
   const hasNewFields = fieldGroups.some(g => g.fields.some(f => info[f.key]));
   const hasLegacyOnly = !hasNewFields && legacyFields.some(f => info[f.key]);
 
   if (hasNewFields || !hasLegacyOnly) {
-    // New universal format - render by groups
     fieldGroups.forEach(group => {
       html += `<div style="margin-bottom:14px">
         <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px">${group.title}</div>
@@ -1666,7 +1396,6 @@ function renderProjectInfoCard(info, label) {
     });
   }
 
-  // Show legacy fields (always show all, even if empty)
   if (hasLegacyOnly || legacyFields.some(f => info[f.key]) || hasNewFields) {
     if (hasNewFields) {
       html += `<div style="margin-bottom:14px">
@@ -1684,13 +1413,11 @@ function renderProjectInfoCard(info, label) {
     html += '</div></div>';
   }
 
-  // Empty state
   const allEmpty = !hasNewFields && !legacyFields.some(f => info[f.key]);
   if (allEmpty) {
     html += '<div style="color:#ccc;font-size:13px;text-align:center;padding:20px 0">暂无客户信息，等待客户填写或通过 AI 建项提取</div>';
   }
 
-  // 补充信息/备注 — 始终显示
   {
     const val = info.freeformNote || '';
     const displayVal = val || '<span style="color:#ccc">—</span>';
@@ -1705,7 +1432,6 @@ function renderProjectInfoCard(info, label) {
 }
 
 function viewClientVersion(idx) {
-  // Show a modal/popup with the historical version details
   fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}})
     .then(r => r.json())
     .then(data => {
@@ -1715,7 +1441,6 @@ function viewClientVersion(idx) {
       const d = new Date(entry.time);
       const timeStr = d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
       const content = renderProjectInfoCard(entry.previous, '历史版本 — ' + timeStr);
-      // Show in a simple overlay
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px';
       overlay.onclick = (e) => { if (e.target === overlay) overlay.remove(); };
@@ -1889,8 +1614,6 @@ async function loadPhases() {
 // Initialize
 async function init() {
   await loadFromCloud();
-  await loadProfileFromCloud();
-  loadProfile();
   renderList();
   loadEditHistory();
   loadPhases();
