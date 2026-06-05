@@ -117,7 +117,10 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z"
+      "updatedAt": 1780654857567,
+      "url": "https://bojinmachine.en.alibaba.com/company_profile.html",
+      "track": "A-代工",
+      "rating": null
     },
     {
       "id": "89e3t0kosqoe",
@@ -246,5 +249,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654849893
+  "lastUpdated": 1780654858285
 }
