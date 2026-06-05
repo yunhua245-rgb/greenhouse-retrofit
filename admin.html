@@ -813,14 +813,10 @@ function renderSearchResults(data) {
   let html = '';
   suppliers.forEach((s, i) => {
     const name = s.name || s.nameEn || '未知';
-<<<<<<< HEAD
     const platformBadge = { '1688': '🟠 1688', 'alibaba': '🟡 Alibaba', 'madeinchina': '🔵 MIC', 'web': '🌐 网页', 'ai_search': '🟣 AI' }[s.platform] || s.platform;
-    const urlStatusIcon = s.urlStatus === 'dead' ? ' ⚠️链接失效' : s.urlStatus === 'ok' ? ' ✅' : s.url ? '' : '';
-    const urlStatusColor = s.urlStatus === 'dead' ? '#dc2626' : s.urlStatus === 'ok' ? '#148a4e' : '#888';
-=======
-    const platformBadge = { '1688': '🟠 1688', 'alibaba': '🟡 Alibaba', 'madeinchina': '🔵 MIC', 'ai_search': '🟣 AI' }[s.platform] || s.platform;
     const supplierUrl = s.website || s.url || s.homepage || s.link || '';
->>>>>>> 5312c1c (link)
+    const urlStatusIcon = s.urlStatus === 'dead' ? ' ⚠️链接失效' : s.urlStatus === 'ok' ? ' ✅' : supplierUrl ? '' : '';
+    const urlStatusColor = s.urlStatus === 'dead' ? '#dc2626' : s.urlStatus === 'ok' ? '#148a4e' : '#888';
     const relevanceColor = s.relevance >= 80 ? '#148a4e' : s.relevance >= 60 ? '#854f0b' : '#888';
     
     html += `<div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #e8eaed;border-radius:10px;margin-bottom:8px;transition:background 0.15s" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
@@ -836,11 +832,7 @@ function renderSearchResults(data) {
           ${s.location ? `<span>📍 ${escHtml(s.location)}</span>` : ''}
           ${s.specialty ? `<span>⚡ ${escHtml(s.specialty.substring(0, 30))}</span>` : ''}
         </div>
-<<<<<<< HEAD
-        ${s.url ? `<a href="${escHtml(s.url)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block">🔗 查看主页</a><span style="font-size:11px;color:${urlStatusColor};margin-left:4px">${urlStatusIcon}</span>` : ''}
-=======
-        ${supplierUrl ? `<a href="${escHtml(supplierUrl)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block;word-break:break-all">🔗 ${escHtml(supplierUrl.length > 50 ? supplierUrl.substring(0, 50) + '...' : supplierUrl)}</a>` : ''}
->>>>>>> 5312c1c (link)
+        ${supplierUrl ? `<a href="${escHtml(supplierUrl)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block;word-break:break-all">🔗 ${escHtml(supplierUrl.length > 50 ? supplierUrl.substring(0, 50) + '...' : supplierUrl)}</a><span style="font-size:11px;color:${urlStatusColor};margin-left:4px">${urlStatusIcon}</span>` : ''}
       </div>
     </div>`;
   });
