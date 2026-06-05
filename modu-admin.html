@@ -729,7 +729,7 @@ function renderProjectInfoCard(info, label) {
 
   // 补充信息/备注 — 始终显示
   {
-    const val = info.freeformNote || '';
+    const val = info.freeformNote || info.notes || '';
     const displayVal = val || '<span style="color:#ccc">—</span>';
     html += `<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e0e0e0">
       <div style="font-size:11px;color:#e65100;font-weight:600;margin-bottom:6px">💬 补充信息 / 备注</div>
