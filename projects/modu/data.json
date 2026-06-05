@@ -208,7 +208,10 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z"
+      "updatedAt": 1780654824902,
+      "url": "https://yihezhongwei.en.alibaba.com/company_profile.html",
+      "track": "A-代工",
+      "rating": null
     },
     {
       "id": "6p0bamq6sqoe",
@@ -237,5 +240,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654817787
+  "lastUpdated": 1780654826111
 }
