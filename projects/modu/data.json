@@ -89,28 +89,6 @@
       "updatedAt": "2026-06-05T10:11:30.385Z"
     },
     {
-      "id": "o1hkx6ugl7td",
-      "name": "汕头市澄海区华达玩具有限公司",
-      "nameEn": "Shantou Chenghai Huada Toys Co., Ltd.",
-      "website": "https://huadatoy.en.alibaba.com/",
-      "platformUrl": "https://huadatoy.en.alibaba.com/",
-      "location": "广东汕头",
-      "specialty": "注塑玩具OEM/ODM代工，支持产品设计开发，月产能大",
-      "contact": "",
-      "email": "",
-      "export": "unknown",
-      "status": "pending",
-      "notes": "主营: 注塑玩具OEM/ODM代工，支持产品设计开发，月产能大",
-      "logs": [
-        {
-          "time": "2026-06-05T10:11:30.385Z",
-          "text": "已添加供应商"
-        }
-      ],
-      "createdAt": "2026-06-05T10:11:30.385Z",
-      "updatedAt": "2026-06-05T10:11:30.385Z"
-    },
-    {
       "id": "rfxdn7kfl7td",
       "name": "义乌市凯瑞玩具有限公司",
       "nameEn": "Yiwu Kairui Toys Co., Ltd.",
@@ -178,5 +156,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654357551
+  "lastUpdated": 1780654359469
 }
