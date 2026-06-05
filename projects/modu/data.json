@@ -1,5 +1,226 @@
 {
-  "suppliers": [],
+  "suppliers": [
+    {
+      "id": "logdpv1esqoe",
+      "name": "博创智能",
+      "nameEn": "Borch Intelligence",
+      "website": "https://lanson.en.alibaba.com/company_profile.html",
+      "platformUrl": "https://lanson.en.alibaba.com/company_profile.html",
+      "location": "广东广州",
+      "specialty": "中国注塑机品牌三强，擅长二板机及智能生产线",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 中国注塑机品牌三强，擅长二板机及智能生产线",
+      "logs": [
+        {
+          "time": "2026-06-05T10:17:21.422Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:17:21.422Z",
+      "updatedAt": "2026-06-05T10:17:21.422Z"
+    },
+    {
+      "id": "yu0uhp1hsqoe",
+      "name": "伊之密",
+      "nameEn": "Yizumi Precision",
+      "website": "https://yizumi.en.alibaba.com/company_profile.html",
+      "platformUrl": "https://yizumi.en.alibaba.com/company_profile.html",
+      "location": "广东佛山",
+      "specialty": "国际知名品牌，有专门的玩具制造注塑机系列 (UN160A5)",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 国际知名品牌，有专门的玩具制造注塑机系列 (UN160A5)",
+      "logs": [
+        {
+          "time": "2026-06-05T10:17:21.422Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:17:21.422Z",
+      "updatedAt": "2026-06-05T10:17:21.422Z"
+    },
+    {
+      "id": "wbqudx6rsqoe",
+      "name": "力劲塑料机械",
+      "nameEn": "Powerjet",
+      "website": "https://powerjet.en.alibaba.com/company_profile.html",
+      "platformUrl": "https://powerjet.en.alibaba.com/company_profile.html",
+      "location": "广东",
+      "specialty": "16年经验，擅长高速伺服注塑机，特别适合积木玩具",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 16年经验，擅长高速伺服注塑机，特别适合积木玩具",
+      "logs": [
+        {
+          "time": "2026-06-05T10:17:21.422Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:17:21.422Z",
+      "updatedAt": "2026-06-05T10:17:21.422Z"
+    },
+    {
+      "id": "dwjw5r6gsqoe",
+      "name": "海太机械",
+      "nameEn": "Ningbo Haitai",
+      "website": "https://haitai-machine.en.alibaba.com/company_profile.html",
+      "platformUrl": "https://haitai-machine.en.alibaba.com/company_profile.html",
+      "location": "浙江宁波",
+      "specialty": "14年老牌厂家，提供迷你注塑机到大型机台的完整系列",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 14年老牌厂家，提供迷你注塑机到大型机台的完整系列",
+      "logs": [
+        {
+          "time": "2026-06-05T10:17:21.422Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:17:21.422Z",
+      "updatedAt": "2026-06-05T10:17:21.422Z"
+    },
+    {
+      "id": "5k3vtubksqoe",
+      "name": "博锦机械",
+      "nameEn": "Ningbo Bojin",
+      "website": "https://bojinmachine.en.alibaba.com/company_profile.html",
+      "platformUrl": "https://bojinmachine.en.alibaba.com/company_profile.html",
+      "location": "浙江宁波",
+      "specialty": "专注于塑料玩具、儿童座椅及浴缸的注塑方案",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 专注于塑料玩具、儿童座椅及浴缸的注塑方案",
+      "logs": [
+        {
+          "time": "2026-06-05T10:17:21.422Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:17:21.422Z",
+      "updatedAt": "2026-06-05T10:17:21.422Z"
+    },
+    {
+      "id": "89e3t0kosqoe",
+      "name": "海泰克机电",
+      "nameEn": "Shenzhen Ruicheng",
+      "website": "https://rchtm.en.alibaba.com/company_profile.html",
+      "platformUrl": "https://rchtm.en.alibaba.com/company_profile.html",
+      "location": "广东深圳",
+      "specialty": "提供注塑机+模具+CNC加工的一站式工业方案",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 提供注塑机+模具+CNC加工的一站式工业方案",
+      "logs": [
+        {
+          "time": "2026-06-05T10:17:21.422Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:17:21.422Z",
+      "updatedAt": "2026-06-05T10:17:21.422Z"
+    },
+    {
+      "id": "ucv310cosqoe",
+      "name": "申舟机械",
+      "nameEn": "Zhangjiagang Shen Zhou",
+      "website": "https://shshenzhou.en.alibaba.com/company_profile.html",
+      "platformUrl": "https://shshenzhou.en.alibaba.com/company_profile.html",
+      "location": "江苏张家港",
+      "specialty": "23年经验，擅长定制迷你及小型精密注塑模具机",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 23年经验，擅长定制迷你及小型精密注塑模具机",
+      "logs": [
+        {
+          "time": "2026-06-05T10:17:21.422Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:17:21.422Z",
+      "updatedAt": "2026-06-05T10:17:21.422Z"
+    },
+    {
+      "id": "mm4mp1iysqoe",
+      "name": "威速二手机械",
+      "nameEn": "Dongguan Weisu",
+      "website": "https://weisujixie.en.alibaba.com/company_profile.html",
+      "platformUrl": "https://weisujixie.en.alibaba.com/company_profile.html",
+      "location": "广东东莞",
+      "specialty": "二手市场专家，主营海天等知名品牌的九成新机台",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 二手市场专家，主营海天等知名品牌的九成新机台",
+      "logs": [
+        {
+          "time": "2026-06-05T10:17:21.422Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:17:21.422Z",
+      "updatedAt": "2026-06-05T10:17:21.422Z"
+    },
+    {
+      "id": "j9bog9rusqoe",
+      "name": "中伟科技",
+      "nameEn": "Yihezhongwei",
+      "website": "https://yihezhongwei.en.alibaba.com/company_profile.html",
+      "platformUrl": "https://yihezhongwei.en.alibaba.com/company_profile.html",
+      "location": "河北雄安",
+      "specialty": "OEM工厂，擅长从塑料制造到模具开发的全流程配套",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: OEM工厂，擅长从塑料制造到模具开发的全流程配套",
+      "logs": [
+        {
+          "time": "2026-06-05T10:17:21.422Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:17:21.422Z",
+      "updatedAt": "2026-06-05T10:17:21.422Z"
+    },
+    {
+      "id": "6p0bamq6sqoe",
+      "name": "汕头口一口玩具",
+      "nameEn": "Kouyikou Toys",
+      "website": "https://kouyikou.en.alibaba.com/company_profile.html",
+      "platformUrl": "https://kouyikou.en.alibaba.com/company_profile.html",
+      "location": "广东汕头",
+      "specialty": "位于中国玩具之都，提供专门针对玩具注塑的模具报价",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 位于中国玩具之都，提供专门针对玩具注塑的模具报价",
+      "logs": [
+        {
+          "time": "2026-06-05T10:17:21.422Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:17:21.422Z",
+      "updatedAt": "2026-06-05T10:17:21.422Z"
+    }
+  ],
   "projectInfo": {},
   "lastUpdated": 1780654381456
 }
