@@ -1,7 +1,7 @@
 export default async function handler(req, res) {
   const GITHUB_OWNER = 'yunhua245-rgb';
   const GITHUB_REPO = 'greenhouse-retrofit';
-  const GITHUB_FILE = 'modu-data.json';
+  const GITHUB_FILE = 'projects/modu/data.json';
   const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
 
   // CORS
