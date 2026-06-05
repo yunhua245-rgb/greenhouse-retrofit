@@ -604,9 +604,10 @@ async function loadStats() {
     const res = await fetch('/api/data');
     const data = await res.json();
     if (data.suppliers) {
-      document.getElementById('gh-suppliers').textContent = data.suppliers.length;
-      document.getElementById('gh-contacted').textContent = data.suppliers.filter(s => s.status === 'contacted' || s.status === 'replied' || s.status === 'shortlisted').length;
-      document.getElementById('gh-shortlisted').textContent = data.suppliers.filter(s => s.status === 'shortlisted').length;
+      const active = data.suppliers.filter(s => s.status !== 'rejected');
+      document.getElementById('gh-suppliers').textContent = active.length;
+      document.getElementById('gh-contacted').textContent = active.filter(s => s.status === 'contacting' || s.status === 'contacted' || s.status === 'replied' || s.status === 'shortlisted').length;
+      document.getElementById('gh-shortlisted').textContent = active.filter(s => s.status === 'shortlisted').length;
     }
     // Load coordinator profile
     if (data.coordinatorProfile) {
@@ -620,9 +621,10 @@ async function loadStats() {
     const res = await fetch('/api/modu-data');
     const data = await res.json();
     if (data.suppliers) {
-      document.getElementById('modu-suppliers').textContent = data.suppliers.length;
-      document.getElementById('modu-contacted').textContent = data.suppliers.filter(s => s.status === 'contacted' || s.status === 'replied' || s.status === 'shortlisted').length;
-      document.getElementById('modu-shortlisted').textContent = data.suppliers.filter(s => s.status === 'shortlisted').length;
+      const active = data.suppliers.filter(s => s.status !== 'rejected');
+      document.getElementById('modu-suppliers').textContent = active.length;
+      document.getElementById('modu-contacted').textContent = active.filter(s => s.status === 'contacting' || s.status === 'contacted' || s.status === 'replied' || s.status === 'shortlisted').length;
+      document.getElementById('modu-shortlisted').textContent = active.filter(s => s.status === 'shortlisted').length;
     }
   } catch(e) {
     document.getElementById('modu-suppliers').textContent = '0';
