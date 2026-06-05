@@ -43,30 +43,8 @@
       ],
       "createdAt": "2026-06-05T10:11:30.385Z",
       "updatedAt": "2026-06-05T10:11:30.385Z"
-    },
-    {
-      "id": "tp56a973l7td",
-      "name": "浙江金马玩具有限公司",
-      "nameEn": "Zhejiang Jinma Toys Co., Ltd.",
-      "website": "https://jinmatoy.cn.made-in-china.com/",
-      "platformUrl": "https://jinmatoy.cn.made-in-china.com/",
-      "location": "浙江云和",
-      "specialty": "中国制造网认证，注塑玩具代工，产品远销欧美，符合环保标准",
-      "contact": "",
-      "email": "",
-      "export": "unknown",
-      "status": "pending",
-      "notes": "主营: 中国制造网认证，注塑玩具代工，产品远销欧美，符合环保标准",
-      "logs": [
-        {
-          "time": "2026-06-05T10:11:30.385Z",
-          "text": "已添加供应商"
-        }
-      ],
-      "createdAt": "2026-06-05T10:11:30.385Z",
-      "updatedAt": "2026-06-05T10:11:30.385Z"
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654370655
+  "lastUpdated": 1780654373686
 }
