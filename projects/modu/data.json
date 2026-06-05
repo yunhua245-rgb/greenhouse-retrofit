@@ -20,8 +20,10 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z",
-      "track": "B-设备"
+      "updatedAt": 1780654761032,
+      "url": "https://lanson.en.alibaba.com/company_profile.html",
+      "track": "B-设备",
+      "rating": null
     },
     {
       "id": "yu0uhp1hsqoe",
@@ -43,8 +45,7 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z",
-      "track": "B-设备"
+      "updatedAt": "2026-06-05T10:17:21.422Z"
     },
     {
       "id": "wbqudx6rsqoe",
@@ -66,8 +67,7 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z",
-      "track": "B-设备"
+      "updatedAt": "2026-06-05T10:17:21.422Z"
     },
     {
       "id": "dwjw5r6gsqoe",
@@ -89,8 +89,7 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z",
-      "track": "B-设备"
+      "updatedAt": "2026-06-05T10:17:21.422Z"
     },
     {
       "id": "5k3vtubksqoe",
@@ -112,8 +111,7 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z",
-      "track": "C-模具"
+      "updatedAt": "2026-06-05T10:17:21.422Z"
     },
     {
       "id": "89e3t0kosqoe",
@@ -135,8 +133,7 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z",
-      "track": "C-模具"
+      "updatedAt": "2026-06-05T10:17:21.422Z"
     },
     {
       "id": "ucv310cosqoe",
@@ -158,8 +155,7 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z",
-      "track": "C-模具"
+      "updatedAt": "2026-06-05T10:17:21.422Z"
     },
     {
       "id": "mm4mp1iysqoe",
@@ -181,8 +177,7 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z",
-      "track": "B-设备"
+      "updatedAt": "2026-06-05T10:17:21.422Z"
     },
     {
       "id": "j9bog9rusqoe",
@@ -204,8 +199,7 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z",
-      "track": "A-代工"
+      "updatedAt": "2026-06-05T10:17:21.422Z"
     },
     {
       "id": "6p0bamq6sqoe",
@@ -227,10 +221,9 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z",
-      "track": "A-代工"
+      "updatedAt": "2026-06-05T10:17:21.422Z"
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654381456
+  "lastUpdated": 1780654761648
 }
