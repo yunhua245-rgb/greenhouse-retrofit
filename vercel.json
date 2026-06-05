@@ -1,5 +1,11 @@
 {
   "regions": ["hkg1"],
+  "rewrites": [
+    { "source": "/modu-index.html", "destination": "/projects/modu/index.html" },
+    { "source": "/modu-admin.html", "destination": "/projects/modu/admin.html" },
+    { "source": "/projects/greenhouse/admin.html", "destination": "/admin.html" },
+    { "source": "/projects/modu/admin.html", "destination": "/modu-admin.html" }
+  ],
   "functions": {
     "api/data.js": {
       "maxDuration": 30
