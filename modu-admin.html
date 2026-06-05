@@ -575,6 +575,7 @@ function renderList() {
     updateStats();
     return;
   }
+<<<<<<< HEAD
 
   container.innerHTML = suppliers.map(s => {
     const st = statusMap[s.status] || statusMap.new;
@@ -622,10 +623,35 @@ function renderList() {
           <button class="btn btn-outline btn-sm" onclick="editSupplier('${s.id}')">编辑信息</button>
           <button class="btn btn-outline btn-sm" onclick="changeStatus('${s.id}')">更改状态</button>
           <button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')">删除</button>
+=======
+  container.innerHTML = suppliers.map((s, i) => {
+    const supUrl = s.website || s.url || s.homepage || s.link || '';
+    return `
+    <div class="sup-item">
+      <div class="sup-num">${i+1}</div>
+      <div class="sup-info">
+        <div class="sup-name">${s.name || s.nameEn || '未命名'}</div>
+        <div class="sup-meta">
+          ${s.location ? '📍 ' + s.location + ' ' : ''}
+          ${s.track ? '<span class="badge badge-blue">' + s.track + '</span> ' : ''}
+          <span class="badge badge-${s.status==='shortlisted'?'green':s.status==='contacted'||s.status==='replied'?'amber':'gray'}">${s.status || 'new'}</span>
+          ${s.rating ? ' ⭐' + s.rating : ''}
+>>>>>>> 5312c1c (link)
         </div>
+        ${supUrl ? `<a href="${supUrl}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;word-break:break-all;display:block;margin-top:2px">🔗 ${supUrl.length > 50 ? supUrl.substring(0, 50) + '...' : supUrl}</a>` : ''}
       </div>
+<<<<<<< HEAD
     </div>`;
   }).join('');
+=======
+      <div class="sup-actions">
+        <button class="btn btn-outline btn-sm" onclick="editSupplier(${i})">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteSupplier(${i})">🗑️</button>
+      </div>
+    </div>
+  `}).join('');
+}
+>>>>>>> 5312c1c (link)
 
   updateStats();
 }
