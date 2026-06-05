@@ -5,7 +5,116 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MODU Toy Manufacturing — China Sourcing</title>
-<style>*{margin:0;padding:0;box-sizing:border-box}body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}.hero{background:linear-gradient(135deg,#bf360c 0%,#e65100 40%,#ff6d00 100%);color:#fff;padding:52px 24px 60px;text-align:center;position:relative;overflow:hidden}.hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:40px;background:#f7f8fa;border-radius:50% 50% 0 0/100% 100% 0 0}.hero h1{font-size:28px;font-weight:800;margin-bottom:10px;letter-spacing:-0.5px}.hero-sub{font-size:15px;opacity:0.88;max-width:600px;margin:0 auto 16px}.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;font-size:13px}.hero-badge .dot{width:8px;height:8px;border-radius:50%;background:#ffeb3b}.container{max-width:840px;margin:0 auto;padding:0 20px 60px}.lang-switch{display:flex;justify-content:flex-end;gap:8px;margin:20px 0 0}.lang-btn{padding:6px 14px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer;transition:all 0.2s}.lang-btn.active{border-color:#e65100;background:#fff3e0;color:#e65100;font-weight:600}.section{background:#fff;border-radius:16px;border:1px solid #e8eaed;padding:28px;margin-top:22px}.section-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}.section-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}.section-title{font-size:17px;font-weight:700}.section-subtitle{font-size:13px;color:#888;margin-top:2px}.status-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}.st-card{background:#f7f8fa;border:1px solid #e8eaed;border-radius:10px;padding:16px;text-align:center}.st-card .st-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:4px}.st-card .st-value{font-size:18px;font-weight:700}... [truncated]
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
+  
+  .hero{background:linear-gradient(135deg,#bf360c 0%,#e65100 40%,#ff6d00 100%);color:#fff;padding:52px 24px 60px;text-align:center;position:relative;overflow:hidden}
+  .hero::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:40px;background:#f7f8fa;border-radius:50% 50% 0 0/100% 100% 0 0}
+  .hero h1{font-size:28px;font-weight:800;margin-bottom:10px;letter-spacing:-0.5px}
+  .hero-sub{font-size:15px;opacity:0.88;max-width:600px;margin:0 auto 16px}
+  .hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:20px;font-size:13px}
+  .hero-badge .dot{width:8px;height:8px;border-radius:50%;background:#ffeb3b}
+  
+  .container{max-width:840px;margin:0 auto;padding:0 20px 60px}
+  .lang-switch{display:flex;justify-content:flex-end;gap:8px;margin:20px 0 0}
+  .lang-btn{padding:6px 14px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer;transition:all 0.2s}
+  .lang-btn.active{border-color:#e65100;background:#fff3e0;color:#e65100;font-weight:600}
+  
+  .section{background:#fff;border-radius:16px;border:1px solid #e8eaed;padding:28px;margin-top:22px}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+  .section-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+  .section-title{font-size:17px;font-weight:700}
+  .section-subtitle{font-size:13px;color:#888;margin-top:2px}
+  
+  .status-strip{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .st-card{background:#f7f8fa;border:1px solid #e8eaed;border-radius:10px;padding:16px;text-align:center}
+  .st-card .st-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:4px}
+  .st-card .st-value{font-size:18px;font-weight:700}
+  .st-card .st-value.orange{color:#e65100}
+  .st-card .st-value.amber{color:#b86e00}
+  
+  .req-core{background:#fff8f0;border:1px solid #ffe0b2;border-radius:12px;padding:20px;margin-bottom:16px}
+  .req-core h4{font-size:14px;font-weight:700;margin-bottom:8px;color:#e65100}
+  .req-core p{font-size:14px;color:#333}
+  
+  .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+  .info-item{background:#f7f8fa;border-radius:8px;padding:12px 14px}
+  .info-item .info-label{font-size:11px;font-weight:600;text-transform:uppercase;color:#888;margin-bottom:3px}
+  .info-item .info-value{font-size:14px;font-weight:500}
+  
+  /* Sourcing Tracks */
+  .track-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-top:12px}
+  .track-card{border:1.5px solid #e8eaed;border-radius:12px;padding:18px;position:relative;overflow:hidden;transition:all 0.2s}
+  .track-card:hover{border-color:#ff9800;background:#fffdf8}
+  .track-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+  .track-card.track-a::before{background:#1565c0}
+  .track-card.track-b::before{background:#e65100}
+  .track-card.track-c::before{background:#7b1fa2}
+  .track-tag{font-size:12px;font-weight:700;color:#fff;display:inline-block;padding:2px 10px;border-radius:12px;margin-bottom:8px}
+  .track-card.track-a .track-tag{background:#1565c0}
+  .track-card.track-b .track-tag{background:#e65100}
+  .track-card.track-c .track-tag{background:#7b1fa2}
+  .track-card .track-title{font-size:14px;font-weight:600;margin-bottom:4px}
+  .track-card .track-desc{font-size:12px;color:#666;line-height:1.5}
+  .track-items{margin-top:8px;padding-left:16px}
+  .track-items li{font-size:12px;color:#555;margin-bottom:3px}
+  
+  /* Supplier Track Columns */
+  .eval-summary{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:16px}
+  .eval-stat{padding:12px 18px;background:#f7f8fa;border-radius:10px;text-align:center;flex:1;min-width:80px}
+  .eval-stat .es-num{font-size:22px;font-weight:800;color:#e65100}
+  .eval-stat .es-label{font-size:11px;color:#888;margin-top:2px}
+  
+  .track-columns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:12px}
+  .track-col{border:1px solid #e8eaed;border-radius:12px;overflow:hidden;background:#fafbfc}
+  .track-col-header{padding:12px 14px;font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;border-bottom:1px solid #e8eaed}
+  .track-col-header.track-col-a{background:#e3f2fd;color:#1565c0}
+  .track-col-header.track-col-b{background:#fff3e0;color:#e65100}
+  .track-col-header.track-col-c{background:#f3e5f5;color:#7b1fa2}
+  .track-col-icon{font-size:15px}
+  .track-col-body{padding:10px;display:flex;flex-direction:column;gap:8px;min-height:60px}
+  .col-empty{text-align:center;padding:16px 8px;color:#bbb;font-size:12px;font-style:italic}
+  
+  .sup-item{background:#fff;border:1px solid #e8eaed;border-radius:8px;padding:10px 12px;transition:all 0.2s}
+  .sup-item:hover{border-color:#ff9800;box-shadow:0 2px 6px rgba(230,81,0,0.08)}
+  .sup-item .sup-name{font-size:13px;font-weight:600;color:#1a1a2e;margin-bottom:3px}
+  .sup-item .sup-detail{font-size:11px;color:#666;margin-bottom:4px}
+  .sup-item .sup-status .badge{font-size:10px}
+  
+  .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge-green{background:#e8f5ee;color:#0a6e3a}
+  .badge-amber{background:#fff3e0;color:#b86e00}
+  .badge-blue{background:#e3f2fd;color:#1565c0}
+  .badge-purple{background:#f3e5f5;color:#7b1fa2}
+  .badge-gray{background:#f0f0f0;color:#666}
+  
+  /* Coordinator */
+  .coordinator-avatar{width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#e65100,#ff6d00);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:20px;overflow:hidden;flex-shrink:0}
+  .coordinator-avatar img{width:100%;height:100%;object-fit:cover}
+  .contact-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+  .contact-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:#f7f8fa;border:1px solid #e8eaed;border-radius:8px;font-size:12px;color:#555;text-decoration:none;transition:all 0.2s}
+  .contact-chip:hover{background:#fff3e0;border-color:#e65100;color:#e65100}
+  
+  .role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .role-item{display:flex;align-items:flex-start;gap:8px;font-size:13px}
+  .role-item .ri-icon{font-size:15px;flex-shrink:0}
+  .role-item .ri-label{font-weight:600;font-size:12px;color:#555}
+  
+  .update-bar{background:#fff;border:1px solid #e8eaed;border-radius:10px;padding:12px 18px;margin-top:22px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#888}
+  .update-bar .dot{width:7px;height:7px;background:#4caf50;border-radius:50%;display:inline-block;margin-right:6px}
+  .footer{text-align:center;padding:30px 20px;font-size:11px;color:#bbb}
+  
+  @media(max-width:600px){
+    .hero h1{font-size:22px}
+    .status-strip{grid-template-columns:1fr 1fr}
+    .info-grid{grid-template-columns:1fr}
+    .track-grid{grid-template-columns:1fr}
+    .track-columns{grid-template-columns:1fr}
+    .role-grid{grid-template-columns:1fr}
+    .section{padding:20px}
+  }
+</style>
 </head>
 <body>
 <div class="hero"><h1 id="hero-title">MODU Modular Toys</h1><p class="hero-sub" id="hero-desc">Sourcing Chinese injection molding factories, equipment suppliers, and mold makers for Danish MODU brand</p><span class="hero-badge"><span class="dot"></span><span id="badge-phase">Project Kickoff</span></span></div>
