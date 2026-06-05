@@ -12,6 +12,18 @@
     },
     "api/ai-summary.js": {
       "maxDuration": 30
+    },
+    "api/search-suppliers.js": {
+      "maxDuration": 30
+    },
+    "api/search-official-website.js": {
+      "maxDuration": 30
+    },
+    "api/ai-keywords.js": {
+      "maxDuration": 30
+    },
+    "api/batch-add-suppliers.js": {
+      "maxDuration": 30
     }
   }
 }

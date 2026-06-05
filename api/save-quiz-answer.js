@@ -18,8 +18,23 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'slot and value are required' });
   }
 
-  // Allowed slots that can be updated from quiz
-  const allowedSlots = ['area', 'structureType', 'infrastructure', 'crops', 'scope', 'budget', 'timeline', 'location', 'freeformNote'];
+  // Allowed slots that can be updated from quiz / client-edit
+  const allowedSlots = [
+    // === 客户基本信息 ===
+    'clientCompany', 'contactPerson', 'contactMethod', 'location', 'companyType', 'companyScale',
+    // === 产品需求 ===
+    'productName', 'productUsage', 'specifications', 'quantity', 'certifications', 'sampleDrawing', 'packagingReq',
+    // === 价格与预算 ===
+    'budget', 'currency', 'tradeTerms', 'paymentTerms',
+    // === 物流与交期 ===
+    'destination', 'timeline', 'shippingMethod', 'customsClearance',
+    // === 供应商要求 ===
+    'supplierType', 'supplierRegion', 'factoryAudit', 'sampleNeeded', 'oemOdm',
+    // === 售后与其他 ===
+    'warranty', 'afterSales', 'cooperationIntent', 'freeformNote',
+    // === 旧字段兼容 ===
+    'area', 'structureType', 'infrastructure', 'crops', 'scope'
+  ];
   if (!allowedSlots.includes(slot)) {
     return res.status(400).json({ error: 'Invalid slot: ' + slot });
   }
@@ -44,6 +59,14 @@ module.exports = async function handler(req, res) {
     // Update projectInfo slot
     if (!currentData.projectInfo) currentData.projectInfo = {};
     currentData.projectInfo[slot] = value;
+
+    // Append to quizHistory for admin tracking
+    if (!currentData.quizHistory) currentData.quizHistory = [];
+    currentData.quizHistory.push({
+      slot,
+      value,
+      time: new Date().toISOString()
+    });
 
     // Save back
     const content = Buffer.from(JSON.stringify(currentData, null, 2)).toString('base64');

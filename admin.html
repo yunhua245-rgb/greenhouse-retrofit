@@ -255,7 +255,62 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 
   <div class="toolbar">
     <div style="font-size:14px;color:#555">管理你找到的供应商，记录对接进展</div>
-    <button class="btn btn-primary" onclick="openAddModal()">+ 添加供应商</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="openSearchPanel()" style="background:linear-gradient(135deg,#1d9e75,#0f6e56);color:#fff;border:none;display:flex;align-items:center;gap:6px">🔍 搜索供应商</button>
+      <button class="btn btn-primary" onclick="openAddModal()">+ 添加供应商</button>
+    </div>
+  </div>
+
+  <!-- Search Suppliers Panel -->
+  <div id="search-panel" style="display:none;background:#fff;border-radius:14px;border:1px solid #e8eaed;padding:24px;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,0.05)">
+    <div id="search-step1">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">🔍 多平台搜索供应商</div>
+        <button onclick="closeSearchPanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>
+      </div>
+      <p style="font-size:13px;color:#666;margin-bottom:12px;line-height:1.5">根据项目需求自动构造关键词，从 1688、阿里国际站、中国制造网三大平台搜索匹配供应商。</p>
+      
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:#888;font-weight:500;display:block;margin-bottom:4px">搜索关键词</label>
+        <div style="display:flex;gap:8px">
+          <input id="search-keywords" type="text" placeholder="输入产品关键词，如：温室补光灯 LED grow light" style="flex:1;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px">
+          <button onclick="autoFillKeywords()" style="padding:8px 14px;border:1px solid #d0d5dd;border-radius:8px;background:#f9fafb;font-size:12px;cursor:pointer;white-space:nowrap" title="从项目信息自动提取">✨ 自动提取</button>
+        </div>
+      </div>
+      
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;color:#888;font-weight:500;display:block;margin-bottom:6px">搜索平台</label>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="chk-1688" checked> 1688</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="chk-alibaba" checked> 阿里国际站</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="chk-madeinchina" checked> 中国制造网</label>
+        </div>
+      </div>
+      
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="closeSearchPanel()" style="padding:10px 16px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer">取消</button>
+        <button onclick="startSearch()" id="search-btn" style="padding:10px 20px;border:none;border-radius:8px;background:linear-gradient(135deg,#1d9e75,#0f6e56);color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">🚀 开始搜索</button>
+      </div>
+      <div id="search-error" style="display:none;margin-top:10px;padding:10px 14px;background:#fff5f5;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#dc2626"></div>
+    </div>
+
+    <!-- Step 2: Search results -->
+    <div id="search-step2" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">📋 搜索结果</div>
+        <button onclick="closeSearchPanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>
+      </div>
+      <div id="search-status" style="font-size:12px;color:#888;margin-bottom:10px"></div>
+      <div id="search-results" style="max-height:400px;overflow-y:auto;margin-bottom:14px"></div>
+      <div style="display:flex;gap:10px;justify-content:space-between;align-items:center">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="select-all" onchange="toggleSelectAll()"> 全选</label>
+        <div style="display:flex;gap:10px">
+          <button onclick="backToSearch()" style="padding:10px 16px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer">← 重新搜索</button>
+          <button onclick="batchAddSuppliers()" id="batch-add-btn" style="padding:10px 20px;border:none;border-radius:8px;background:#148a4e;color:#fff;font-size:13px;font-weight:600;cursor:pointer">✅ 添加选中 (<span id="selected-count">0</span>)</button>
+        </div>
+      </div>
+      <div id="batch-status" style="display:none;margin-top:10px;font-size:12px"></div>
+    </div>
   </div>
 
   <div id="supplier-list"></div>
@@ -335,6 +390,129 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 const STORAGE_KEY = 'greenhouse_suppliers';
 const CLOUD_URL = '/api/data';
 let syncStatus = 'idle'; // idle | syncing | error
+
+// --- Translation utility (MyMemory API, auto-translate to Chinese) ---
+const _transCache = {};
+
+// Greenhouse industry terminology dictionary (Quiz option values → Chinese)
+const _termDict = {
+  // Structure types (structureType)
+  'Блочная': '连栋温室', 'блочная': '连栋温室',
+  'Арочная': '拱形温室', 'арочная': '拱形温室',
+  'Односкатная': '单坡温室', 'односкатная': '单坡温室',
+  'Двускатная': '双坡温室', 'двускатная': '双坡温室',
+  'Multi-span': '连栋温室', 'multi-span': '连栋温室',
+  'Single-span': '单栋温室', 'single-span': '单栋温室',
+  'Gothic arch': '哥特拱形温室', 'Venlo': '文洛型温室',
+  'Film greenhouse': '薄膜温室', 'Glass greenhouse': '玻璃温室',
+  'Polycarbonate': '阳光板温室',
+  // Area
+  'Over 5000 sq m': '5000平方米以上', 'over 5000 sq m': '5000平方米以上',
+  '1000-5000 sq m': '1000-5000平方米', '500-1000 sq m': '500-1000平方米',
+  'Under 500 sq m': '500平方米以下', 'under 500 sq m': '500平方米以下',
+  'Более 5000 кв.м': '5000平方米以上', 'более 5000 кв.м': '5000平方米以上',
+  '1000-5000 кв.м': '1000-5000平方米', '500-1000 кв.м': '500-1000平方米',
+  'Менее 500 кв.м': '500平方米以下',
+  // Infrastructure
+  'Partial automation': '部分自动化', 'partial automation': '部分自动化',
+  'Full automation': '全自动化', 'full automation': '全自动化',
+  'No automation': '无自动化', 'no automation': '无自动化',
+  'Manual': '手动', 'manual': '手动',
+  'Частичная автоматизация': '部分自动化', 'частичная автоматизация': '部分自动化',
+  'Полная автоматизация': '全自动化', 'Без автоматизации': '无自动化',
+  // Crops
+  'Tomatoes': '番茄', 'Cucumbers': '黄瓜', 'Lettuce': '生菜',
+  'Flowers': '花卉', 'Herbs': '香草', 'Strawberries': '草莓',
+  'Помидоры': '番茄', 'Огурцы': '黄瓜', 'Салат': '生菜',
+  'Цветы': '花卉', 'Травы': '香草', 'Клубника': '草莓',
+  // Scope
+  'Full retrofit': '全面改造', 'full retrofit': '全面改造',
+  'Heating system': '供暖系统', 'heating system': '供暖系统',
+  'Lighting': '补光系统', 'lighting': '补光系统',
+  'Irrigation': '灌溉系统', 'irrigation': '灌溉系统',
+  'Climate control': '环控系统', 'climate control': '环控系统',
+  'Ventilation': '通风系统', 'ventilation': '通风系统',
+  'Полная модернизация': '全面改造', 'Отопление': '供暖系统',
+  'Освещение': '补光系统', 'Полив': '灌溉系统',
+  'Климат-контроль': '环控系统', 'Вентиляция': '通风系统',
+  // Budget
+  'Under $50k': '5万美元以下', '$50k-200k': '5-20万美元',
+  '$200k-500k': '20-50万美元', 'Over $500k': '50万美元以上',
+  // Timeline
+  'ASAP': '尽快', '3-6 months': '3-6个月', '6-12 months': '6-12个月',
+  'Over 1 year': '1年以上', 'Flexible': '灵活',
+  // General
+  'Russia': '俄罗斯', 'China': '中国',
+};
+
+function _isNonChinese(text) {
+  if (!text || !text.trim()) return false;
+  const zhChars = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+  return zhChars < text.trim().length * 0.3;
+}
+function _detectSource(text) {
+  if (/[\u0400-\u04FF]/.test(text)) return 'ru-RU';
+  return 'en-GB';
+}
+async function translateToZh(text) {
+  if (!text || !text.trim() || !_isNonChinese(text)) return text;
+  const cacheKey = text.trim();
+  if (_transCache[cacheKey]) return _transCache[cacheKey];
+  // Check terminology dictionary first
+  if (_termDict[cacheKey]) {
+    _transCache[cacheKey] = _termDict[cacheKey];
+    return _termDict[cacheKey];
+  }
+  // Try partial match for compound terms (e.g., "Блочная, стекло")
+  const parts = cacheKey.split(/[,;，；]+/).map(p => p.trim());
+  if (parts.length > 1) {
+    const translated = parts.map(p => _termDict[p] || p);
+    if (translated.some((t, i) => t !== parts[i])) {
+      // At least one part was found in dict, translate rest via API
+      const needsApi = [];
+      translated.forEach((t, i) => { if (t === parts[i] && _isNonChinese(parts[i])) needsApi.push(i); });
+      for (const idx of needsApi) {
+        translated[idx] = await _apiTranslate(parts[idx]);
+      }
+      const result = translated.join('、');
+      _transCache[cacheKey] = result;
+      return result;
+    }
+  }
+  // Fallback to API
+  const result = await _apiTranslate(cacheKey);
+  _transCache[cacheKey] = result;
+  return result;
+}
+async function _apiTranslate(text) {
+  try {
+    const src = _detectSource(text);
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.substring(0,500))}&langpair=${src}|zh-CN`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.responseData && data.responseData.translatedText) {
+        return data.responseData.translatedText;
+      }
+    }
+  } catch(e) { console.log('Trans error:', e); }
+  return text;
+}
+async function translateAllMarked() {
+  const els = document.querySelectorAll('[data-needs-translate]');
+  const tasks = [];
+  els.forEach(el => {
+    const original = el.getAttribute('data-needs-translate');
+    tasks.push(translateToZh(original).then(translated => {
+      if (translated !== original) {
+        el.innerHTML = escHtml(translated) + ` <span style="font-size:11px;color:#aaa">(${escHtml(original)})</span>`;
+      }
+      el.removeAttribute('data-needs-translate');
+    }));
+  });
+  await Promise.all(tasks);
+}
+// --- End translation utility ---
 
 function getSuppliers() {
   try {
@@ -522,6 +700,331 @@ function toggleCard(id) {
   const body = document.getElementById('body-' + id);
   body.classList.toggle('open');
 }
+
+// === Search Suppliers Functionality ===
+let searchResults = [];
+
+function openSearchPanel() {
+  document.getElementById('search-panel').style.display = 'block';
+  document.getElementById('search-step1').style.display = 'block';
+  document.getElementById('search-step2').style.display = 'none';
+  document.getElementById('search-error').style.display = 'none';
+  autoFillKeywords();
+}
+
+function closeSearchPanel() {
+  document.getElementById('search-panel').style.display = 'none';
+  searchResults = [];
+}
+
+function backToSearch() {
+  document.getElementById('search-step1').style.display = 'block';
+  document.getElementById('search-step2').style.display = 'none';
+}
+
+async function autoFillKeywords() {
+  // Use AI to summarize all project info into optimal Chinese search keywords
+  const inputEl = document.getElementById('search-keywords');
+  inputEl.value = '✨ AI 正在分析客户需求...';
+  inputEl.disabled = true;
+
+  try {
+    const res = await fetch(CLOUD_URL, { headers: { 'Accept': 'application/json' } });
+    const data = await res.json();
+    const info = data.projectInfo || {};
+    const freeform = info.freeformNote || '';
+
+    // Build a summary of all available info
+    const allInfo = JSON.stringify(info, null, 2);
+
+    // Call AI to generate optimal search keywords
+    const aiRes = await fetch('/api/ai-keywords', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ projectInfo: info })
+    });
+    const aiData = await aiRes.json();
+
+    if (aiData.success && aiData.keywords) {
+      inputEl.value = aiData.keywords;
+    } else {
+      // Fallback: simple extraction with dict translation
+      const parts = [];
+      if (info.crops) parts.push(info.crops);
+      if (info.scope) parts.push(info.scope);
+      if (info.structureType) parts.push(info.structureType);
+      if (info.infrastructure) parts.push(info.infrastructure);
+      const raw = parts.join(' ');
+      inputEl.value = raw ? (await translateToZh(raw)) : '温室设备';
+    }
+  } catch(e) {
+    console.log('autoFillKeywords error:', e);
+    inputEl.value = '温室设备';
+  } finally {
+    inputEl.disabled = false;
+  }
+}
+
+async function startSearch() {
+  const keywords = document.getElementById('search-keywords').value.trim();
+  if (!keywords) { alert('请输入搜索关键词'); return; }
+
+  const platforms = [];
+  if (document.getElementById('chk-1688').checked) platforms.push('1688');
+  if (document.getElementById('chk-alibaba').checked) platforms.push('alibaba');
+  if (document.getElementById('chk-madeinchina').checked) platforms.push('madeinchina');
+  
+  if (platforms.length === 0) { alert('请至少选择一个平台'); return; }
+
+  const btn = document.getElementById('search-btn');
+  const errEl = document.getElementById('search-error');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ 搜索中（约15秒）...';
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/search-suppliers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ keywords, platforms })
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.error || '搜索失败');
+    }
+
+    searchResults = data.suppliers || [];
+    
+    if (searchResults.length === 0) {
+      errEl.textContent = '⚠️ 未找到匹配的供应商。建议换一组关键词重试。';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    // Show results
+    renderSearchResults(data);
+    document.getElementById('search-step1').style.display = 'none';
+    document.getElementById('search-step2').style.display = 'block';
+
+  } catch(e) {
+    errEl.textContent = '❌ ' + e.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🚀 开始搜索';
+  }
+}
+
+function renderSearchResults(data) {
+  const { suppliers, platformStatus } = data;
+  
+  // Status line
+  let statusParts = [];
+  for (const [p, s] of Object.entries(platformStatus || {})) {
+    const pLabels = { '1688': '1688', 'alibaba': '阿里国际站', 'madeinchina': '中国制造网', 'ai_search': 'AI搜索' };
+    const label = pLabels[p] || p;
+    statusParts.push(s.success ? `${label} ✅${s.count}条` : `${label} ❌`);
+  }
+  document.getElementById('search-status').innerHTML = 
+    `共找到 <strong>${suppliers.length}</strong> 家供应商 | ${statusParts.join(' · ')}`;
+
+  // Result cards
+  let html = '';
+  suppliers.forEach((s, i) => {
+    const name = s.name || s.nameEn || '未知';
+    const platformBadge = { '1688': '🟠 1688', 'alibaba': '🟡 Alibaba', 'madeinchina': '🔵 MIC', 'ai_search': '🟣 AI' }[s.platform] || s.platform;
+    const relevanceColor = s.relevance >= 80 ? '#148a4e' : s.relevance >= 60 ? '#854f0b' : '#888';
+    
+    html += `<div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #e8eaed;border-radius:10px;margin-bottom:8px;transition:background 0.15s" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
+      <input type="checkbox" class="search-cb" data-idx="${i}" onchange="updateSelectedCount()" checked style="margin-top:3px">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:600;color:#333">${escHtml(name)}</span>
+          <span style="font-size:11px;padding:2px 6px;background:#f3f4f6;border-radius:4px;color:#666">${platformBadge}</span>
+          ${s.relevance ? `<span style="font-size:11px;font-weight:600;color:${relevanceColor}">${s.relevance}%</span>` : ''}
+        </div>
+        <div style="font-size:12px;color:#666;display:flex;gap:12px;flex-wrap:wrap">
+          ${s.product ? `<span>📦 ${escHtml(s.product.substring(0, 40))}</span>` : ''}
+          ${s.location ? `<span>📍 ${escHtml(s.location)}</span>` : ''}
+          ${s.specialty ? `<span>⚡ ${escHtml(s.specialty.substring(0, 30))}</span>` : ''}
+        </div>
+        ${s.url ? `<a href="${escHtml(s.url)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block">🔗 查看主页</a>` : ''}
+      </div>
+    </div>`;
+  });
+  
+  document.getElementById('search-results').innerHTML = html;
+  document.getElementById('select-all').checked = true;
+  updateSelectedCount();
+}
+
+function toggleSelectAll() {
+  const checked = document.getElementById('select-all').checked;
+  document.querySelectorAll('.search-cb').forEach(cb => cb.checked = checked);
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  const count = document.querySelectorAll('.search-cb:checked').length;
+  document.getElementById('selected-count').textContent = count;
+}
+
+async function batchAddSuppliers() {
+  const selected = [];
+  document.querySelectorAll('.search-cb:checked').forEach(cb => {
+    const idx = parseInt(cb.dataset.idx);
+    if (searchResults[idx]) selected.push(searchResults[idx]);
+  });
+
+  if (selected.length === 0) { alert('请选择要添加的供应商'); return; }
+
+  const btn = document.getElementById('batch-add-btn');
+  const statusEl = document.getElementById('batch-status');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ 正在查询官网 & 添加...';
+  statusEl.style.display = 'block';
+  statusEl.innerHTML = '<span style="color:#888">📡 正在查询供应商官网并提取详细信息...</span>';
+
+  try {
+    // Step 1: Enrich suppliers with company info (fetch official websites)
+    const enriched = await enrichSuppliersWithWebsite(selected, statusEl);
+
+    // Step 2: Save enriched suppliers to backend
+    statusEl.innerHTML = '<span style="color:#888">💾 正在保存到管理后台...</span>';
+    const res = await fetch('/api/batch-add-suppliers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ suppliers: enriched })
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.error || '添加失败');
+    }
+
+    statusEl.innerHTML = `<span style="color:#148a4e">✅ 成功添加 ${data.added} 家供应商！正在同步到列表...</span>`;
+    
+    // Step 3: Force reload from cloud to sync localStorage
+    setTimeout(async () => {
+      await forceReloadFromCloud();
+      renderList();
+      closeSearchPanel();
+    }, 1500);
+
+  } catch(e) {
+    statusEl.innerHTML = `<span style="color:#dc2626">❌ ${escHtml(e.message)}</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✅ 添加选中 (<span id="selected-count">' + document.querySelectorAll('.search-cb:checked').length + '</span>)';
+  }
+}
+
+// Force reload suppliers from cloud data into localStorage
+async function forceReloadFromCloud() {
+  try {
+    const res = await fetch(CLOUD_URL, { headers: { 'Accept': 'application/json' } });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.suppliers) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
+      }
+    }
+  } catch(e) {
+    console.log('forceReloadFromCloud error:', e);
+  }
+}
+
+// Enrich suppliers by querying their official websites
+async function enrichSuppliersWithWebsite(suppliers, statusEl) {
+  const enriched = [];
+  let completed = 0;
+
+  // Process in parallel batches of 3 (to avoid overloading)
+  const batchSize = 3;
+  for (let i = 0; i < suppliers.length; i += batchSize) {
+    const batch = suppliers.slice(i, i + batchSize);
+    const promises = batch.map(async (s) => {
+      const enrichedItem = { ...s };
+
+      // Try to find official website if we have a company name
+      const companyName = s.name || s.nameEn || '';
+      if (!companyName) return enrichedItem;
+
+      try {
+        // Use AI to search for the company's official website
+        const searchRes = await fetch('/api/fetch-company', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: await findOfficialWebsite(companyName, s.url) })
+        });
+
+        if (searchRes.ok) {
+          const result = await searchRes.json();
+          if (result.success && result.data) {
+            const d = result.data;
+            // 优先使用官网抓取的数据（搜索结果仅定位用，不保证准确）
+            if (d.name) enrichedItem.name = d.name;
+            if (d.nameEn) enrichedItem.nameEn = d.nameEn;
+            if (d.location) enrichedItem.location = d.location;
+            if (d.specialty) enrichedItem.specialty = d.specialty;
+            if (d.contact) enrichedItem.contact = d.contact;
+            if (d.email) enrichedItem.email = d.email;
+            if (d.website) enrichedItem.officialWebsite = d.website;
+          }
+        }
+      } catch(e) {
+        // Enrichment failed, continue with basic info
+        console.log('Enrich failed for:', companyName, e.message);
+      }
+
+      return enrichedItem;
+    });
+
+    const results = await Promise.allSettled(promises);
+    results.forEach(r => {
+      enriched.push(r.status === 'fulfilled' ? r.value : batch[enriched.length - (i)]);
+      completed++;
+    });
+
+    if (statusEl) {
+      statusEl.innerHTML = `<span style="color:#888">📡 正在查询官网 (${completed}/${suppliers.length})...</span>`;
+    }
+  }
+
+  return enriched;
+}
+
+// Find official website for a company name
+async function findOfficialWebsite(companyName, platformUrl) {
+  // If we already have a platform URL that's a company homepage (not a product page), use it
+  if (platformUrl) {
+    try {
+      const u = new URL(platformUrl);
+      // 1688 shop pages or alibaba supplier pages are not official websites
+      // but they can be crawled for info
+      if (u.hostname.includes('1688.com') || u.hostname.includes('alibaba.com') || u.hostname.includes('made-in-china.com')) {
+        // Try to find official website via AI search
+        const aiRes = await fetch('/api/search-official-website', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyName })
+        });
+        if (aiRes.ok) {
+          const data = await aiRes.json();
+          if (data.website) return data.website;
+        }
+        // Fallback: use platform URL for info extraction
+        return platformUrl;
+      }
+      // Non-platform URL, might be official website already
+      return platformUrl;
+    } catch(e) {}
+  }
+  // No URL at all, return empty (won't fetch)
+  return '';
+}
+// === End Search Suppliers ===
 
 function openAddModal() {
   document.getElementById('modal-title').textContent = '添加供应商';
@@ -994,6 +1497,7 @@ async function loadEditHistory() {
     if (res.ok) {
       const data = await res.json();
       const history = data.editHistory || [];
+      const quizHistory = data.quizHistory || [];
       const currentInfo = data.projectInfo || {};
       const section = document.getElementById('edit-history-section');
       const listEl = document.getElementById('edit-history-list');
@@ -1003,7 +1507,36 @@ async function loadEditHistory() {
       // Show current version at the top
       const currentHtml = renderProjectInfoCard(currentInfo, '当前版本（最新）');
       
-      // Show history below
+      // Quiz update history
+      let quizHtml = '';
+      if (quizHistory.length > 0) {
+        quizHtml = `<div style="margin-top:16px;padding-top:12px;border-top:1px solid #e8eaed">
+          <div style="display:flex;align-items:center;justify-content:space-between;cursor:pointer" onclick="toggleQuizHistory()">
+            <div style="font-size:12px;color:#148a4e;font-weight:600;display:flex;align-items:center;gap:6px">
+              <span>📋</span> Quiz 更新记录 <span style="font-weight:400;color:#888">(${quizHistory.length}条)</span>
+            </div>
+            <span id="quiz-history-toggle" style="font-size:14px;color:#aaa">▼</span>
+          </div>
+          <div id="quiz-history-body" style="display:none;margin-top:10px;max-height:300px;overflow-y:auto">`;
+        // Reverse to show latest first
+        quizHtml += quizHistory.slice().reverse().map(q => {
+          const d = new Date(q.time);
+          const timeStr = d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
+          const slotLabels = {area:'温室面积',structureType:'结构类型',infrastructure:'现有设施',crops:'种植作物',scope:'改造范围',budget:'预算',timeline:'时间要求',location:'所在地',freeformNote:'补充说明'};
+          const slotName = slotLabels[q.slot] || q.slot;
+          const valNeedsTrans = _isNonChinese(q.value) ? ` data-needs-translate="${escHtml(q.value)}"` : '';
+          return `<div style="padding:8px 10px;background:#f0faf4;border-radius:8px;margin-bottom:6px;font-size:12px;border:1px solid #e0f0e8">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+              <span style="color:#148a4e;font-weight:600">${escHtml(slotName)}</span>
+              <span style="color:#999;font-size:11px">${timeStr}</span>
+            </div>
+            <div style="color:#333;line-height:1.5;white-space:pre-wrap"${valNeedsTrans}>${escHtml(q.value)}</div>
+          </div>`;
+        }).join('');
+        quizHtml += '</div></div>';
+      }
+
+      // Show edit history below
       let historyHtml = '';
       if (history.length > 0) {
         historyHtml = '<div style="margin-top:16px;padding-top:12px;border-top:1px solid #e8eaed"><div style="font-size:12px;color:#888;margin-bottom:10px;font-weight:500">历史修改记录</div>';
@@ -1025,33 +1558,143 @@ async function loadEditHistory() {
         historyHtml += '</div>';
       }
       
-      listEl.innerHTML = currentHtml + historyHtml;
+      listEl.innerHTML = currentHtml + quizHtml + historyHtml;
+      // Auto-translate non-Chinese content to Chinese
+      translateAllMarked();
     }
   } catch(e) {
     console.log('Failed to load edit history:', e);
   }
 }
 
+function toggleQuizHistory() {
+  const body = document.getElementById('quiz-history-body');
+  const icon = document.getElementById('quiz-history-toggle');
+  if (body.style.display === 'none') {
+    body.style.display = 'block';
+    icon.textContent = '▲';
+  } else {
+    body.style.display = 'none';
+    icon.textContent = '▼';
+  }
+}
+
 function renderProjectInfoCard(info, label) {
-  const fields = [
-    {key:'location', label:'所在地', defaultVal:'Russia'},
+  const fieldGroups = [
+    { title: '👤 客户基本信息', fields: [
+      {key:'clientCompany', label:'公司名称'},
+      {key:'contactPerson', label:'联系人'},
+      {key:'contactMethod', label:'联系方式'},
+      {key:'location', label:'国家/城市'},
+      {key:'companyType', label:'公司类型'},
+      {key:'companyScale', label:'公司规模'},
+    ]},
+    { title: '📦 产品需求', fields: [
+      {key:'productName', label:'产品名称/类别'},
+      {key:'productUsage', label:'用途/场景'},
+      {key:'specifications', label:'规格参数'},
+      {key:'quantity', label:'采购数量'},
+      {key:'certifications', label:'认证要求'},
+      {key:'sampleDrawing', label:'样品/图纸'},
+      {key:'packagingReq', label:'包装要求'},
+    ]},
+    { title: '💰 价格与预算', fields: [
+      {key:'budget', label:'目标价格/预算'},
+      {key:'currency', label:'币种'},
+      {key:'tradeTerms', label:'贸易条款'},
+      {key:'paymentTerms', label:'付款方式'},
+    ]},
+    { title: '🚚 物流与交期', fields: [
+      {key:'destination', label:'目的港/收货地'},
+      {key:'timeline', label:'期望交期'},
+      {key:'shippingMethod', label:'运输方式'},
+      {key:'customsClearance', label:'清关协助'},
+    ]},
+    { title: '🏭 供应商要求', fields: [
+      {key:'supplierType', label:'供应商类型'},
+      {key:'supplierRegion', label:'地区偏好'},
+      {key:'factoryAudit', label:'验厂需求'},
+      {key:'sampleNeeded', label:'打样需求'},
+      {key:'oemOdm', label:'OEM/ODM'},
+    ]},
+    { title: '🔧 售后与其他', fields: [
+      {key:'warranty', label:'质保要求'},
+      {key:'afterSales', label:'售后支持'},
+      {key:'cooperationIntent', label:'合作意向'},
+    ]},
+  ];
+
+  // Legacy fields (for existing greenhouse projects)
+  const legacyFields = [
     {key:'area', label:'温室面积'},
     {key:'structureType', label:'结构类型'},
     {key:'infrastructure', label:'现有设施'},
     {key:'crops', label:'种植作物'},
     {key:'scope', label:'改造范围'},
-    {key:'budget', label:'预算'},
-    {key:'timeline', label:'时间要求'},
-    {key:'notes', label:'其他备注'}
   ];
+
   let html = `<div style="padding:16px;background:#f7f8fa;border-radius:10px;border:1px solid #e8eaed">
-    <div style="font-size:12px;color:#148a4e;font-weight:600;margin-bottom:10px">${escHtml(label)}</div>
-    <div style="display:grid;grid-template-columns:80px 1fr;gap:6px 12px;font-size:13px">`;
-  fields.forEach(f => {
-    const val = info[f.key] || f.defaultVal || '';
-    html += `<div style="color:#888">${f.label}</div><div style="color:${val ? '#333' : '#ccc'}">${val ? escHtml(val) : '未填写'}</div>`;
-  });
-  html += '</div></div>';
+    <div style="font-size:12px;color:#148a4e;font-weight:600;margin-bottom:12px">${escHtml(label)}</div>`;
+
+  // Check if this is a new-format project (has any new fields) or legacy
+  const hasNewFields = fieldGroups.some(g => g.fields.some(f => info[f.key]));
+  const hasLegacyOnly = !hasNewFields && legacyFields.some(f => info[f.key]);
+
+  if (hasNewFields || !hasLegacyOnly) {
+    // New universal format - render by groups
+    fieldGroups.forEach(group => {
+      // Only show groups that have at least one filled field
+      const filledFields = group.fields.filter(f => info[f.key]);
+      if (filledFields.length === 0) return;
+
+      html += `<div style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px">${group.title}</div>
+        <div style="display:grid;grid-template-columns:90px 1fr;gap:5px 12px;font-size:13px">`;
+      group.fields.forEach(f => {
+        const val = info[f.key] || '';
+        if (!val) return; // Skip empty fields in display
+        const needsTrans = val && _isNonChinese(val) ? ` data-needs-translate="${escHtml(val)}"` : '';
+        html += `<div style="color:#888;font-size:12px">${f.label}</div><div style="color:#333"${needsTrans}>${escHtml(val)}</div>`;
+      });
+      html += '</div></div>';
+    });
+  }
+
+  // Show legacy fields if they have data
+  if (hasLegacyOnly || legacyFields.some(f => info[f.key])) {
+    const filledLegacy = legacyFields.filter(f => info[f.key]);
+    if (filledLegacy.length > 0 && hasNewFields) {
+      html += `<div style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px">🌿 温室项目专属</div>`;
+    } else if (hasLegacyOnly) {
+      html += '<div style="margin-bottom:14px">';
+    }
+    if (filledLegacy.length > 0) {
+      html += `<div style="display:grid;grid-template-columns:90px 1fr;gap:5px 12px;font-size:13px">`;
+      filledLegacy.forEach(f => {
+        const val = info[f.key] || '';
+        const needsTrans = val && _isNonChinese(val) ? ` data-needs-translate="${escHtml(val)}"` : '';
+        html += `<div style="color:#888;font-size:12px">${f.label}</div><div style="color:#333"${needsTrans}>${escHtml(val)}</div>`;
+      });
+      html += '</div></div>';
+    }
+  }
+
+  // Empty state
+  const allEmpty = !hasNewFields && !legacyFields.some(f => info[f.key]);
+  if (allEmpty) {
+    html += '<div style="color:#ccc;font-size:13px;text-align:center;padding:20px 0">暂无客户信息，等待客户填写或通过 AI 建项提取</div>';
+  }
+
+  // Quiz 自由文本补充信息
+  if (info.freeformNote) {
+    const fnNeedsTrans = _isNonChinese(info.freeformNote) ? ` data-needs-translate="${escHtml(info.freeformNote)}"` : '';
+    html += `<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e0e0e0">
+      <div style="font-size:11px;color:#148a4e;font-weight:600;margin-bottom:6px">💬 补充信息</div>
+      <div style="font-size:13px;color:#333;line-height:1.6;white-space:pre-wrap"${fnNeedsTrans}>${escHtml(info.freeformNote)}</div>
+    </div>`;
+  }
+  html += '</div>';
   return html;
 }
 

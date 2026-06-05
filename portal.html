@@ -159,6 +159,45 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
     <h3 id="section-projects">📋 <span data-i18n="projects">进行中的项目</span> <span class="count">2</span></h3>
   </div>
 
+  <!-- Add Project Button -->
+  <div style="margin-bottom:16px">
+    <button onclick="showAddProject()" style="padding:10px 20px;border-radius:10px;border:1.5px dashed #6c5ce7;background:#fff;color:#6c5ce7;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px" onmouseover="this.style.background='#f5f0ff'" onmouseout="this.style.background='#fff'">
+      ➕ 添加新项目
+    </button>
+  </div>
+
+  <!-- Add Project Modal -->
+  <div id="add-project-modal" style="display:none;background:#fff;border-radius:16px;border:1px solid #e8eaed;padding:28px;margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,0.06)">
+    <!-- Step 1: Input -->
+    <div id="ap-step1">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px">✨ AI 智能建项</div>
+        <button onclick="hideAddProject()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>
+      </div>
+      <p style="font-size:13px;color:#666;margin-bottom:14px;line-height:1.6">粘贴客户发给你的消息（邮件、聊天记录等），AI 会自动识别需求并创建项目。支持中文、英文、俄文。</p>
+      <textarea id="ap-input" rows="8" placeholder="在这里粘贴客户发来的消息内容...&#10;&#10;例如：Hi, we are looking for Chinese manufacturers of LED grow lights for our greenhouse facilities in Moscow. We need 500 units of full-spectrum LED panels, 200W each, with waterproof rating IP65. Budget around $50-80 per unit. Delivery needed by Q3 2026." style="width:100%;padding:14px;border:1.5px solid #d0d5dd;border-radius:10px;font-size:14px;resize:vertical;font-family:inherit;line-height:1.6"></textarea>
+      <div style="display:flex;gap:10px;margin-top:14px;justify-content:flex-end">
+        <button onclick="hideAddProject()" style="padding:10px 18px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer">取消</button>
+        <button onclick="extractRequirements()" id="ap-extract-btn" style="padding:10px 20px;border:none;border-radius:8px;background:linear-gradient(135deg,#4a3f8a,#6c5ce7);color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">🤖 AI 识别需求</button>
+      </div>
+      <div id="ap-error" style="display:none;margin-top:10px;padding:10px 14px;background:#fff5f5;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#dc2626"></div>
+    </div>
+
+    <!-- Step 2: Preview & Confirm -->
+    <div id="ap-step2" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div style="font-size:16px;font-weight:700;display:flex;align-items:center;gap:8px">📋 确认项目信息</div>
+        <button onclick="hideAddProject()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>
+      </div>
+      <div id="ap-preview" style="margin-bottom:16px"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="backToStep1()" style="padding:10px 18px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer">← 重新输入</button>
+        <button onclick="confirmProject()" id="ap-confirm-btn" style="padding:10px 20px;border:none;border-radius:8px;background:#148a4e;color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">✅ 确认创建项目</button>
+      </div>
+      <div id="ap-create-status" style="display:none;margin-top:10px;font-size:12px"></div>
+    </div>
+  </div>
+
   <div class="projects-grid">
     <!-- Project 1: Greenhouse -->
     <div class="project-card greenhouse">
@@ -387,6 +426,177 @@ async function saveProfile() {
     statusEl.innerHTML = '<span style="color:#d32f2f">保存失败: ' + e.message + '</span>';
   }
 }
+
+// --- Add Project functionality ---
+let extractedProject = null;
+
+function showAddProject() {
+  document.getElementById('add-project-modal').style.display = 'block';
+  document.getElementById('ap-step1').style.display = 'block';
+  document.getElementById('ap-step2').style.display = 'none';
+  document.getElementById('ap-error').style.display = 'none';
+  document.getElementById('ap-input').focus();
+}
+
+function hideAddProject() {
+  document.getElementById('add-project-modal').style.display = 'none';
+  extractedProject = null;
+}
+
+function backToStep1() {
+  document.getElementById('ap-step1').style.display = 'block';
+  document.getElementById('ap-step2').style.display = 'none';
+}
+
+async function extractRequirements() {
+  const text = document.getElementById('ap-input').value.trim();
+  if (!text) { alert('请粘贴客户消息内容'); return; }
+  
+  const btn = document.getElementById('ap-extract-btn');
+  const errEl = document.getElementById('ap-error');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ AI 分析中...';
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/extract-requirements', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ text })
+    });
+    const data = await res.json();
+    
+    if (!data.success || !data.project) {
+      throw new Error(data.error || data.raw || 'AI 识别失败');
+    }
+
+    extractedProject = data.project;
+    renderPreview(extractedProject);
+    document.getElementById('ap-step1').style.display = 'none';
+    document.getElementById('ap-step2').style.display = 'block';
+
+  } catch(e) {
+    errEl.textContent = '❌ ' + e.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🤖 AI 识别需求';
+  }
+}
+
+function renderPreview(p) {
+  const color = p.themeColor || '#4a3f8a';
+  let specsHtml = '';
+  if (p.keySpecs && Object.keys(p.keySpecs).length > 0) {
+    specsHtml = '<div style="margin-top:10px"><div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:600">关键规格</div><div style="display:grid;grid-template-columns:80px 1fr;gap:4px 10px;font-size:12px">';
+    for (const [k, v] of Object.entries(p.keySpecs)) {
+      if (v) specsHtml += `<div style="color:#888">${escHtml(k)}</div><div style="color:#333">${escHtml(v)}</div>`;
+    }
+    specsHtml += '</div></div>';
+  }
+
+  let tracksHtml = '';
+  if (p.sourcingTracks && p.sourcingTracks.length > 0) {
+    tracksHtml = '<div style="margin-top:10px"><div style="font-size:11px;color:#888;margin-bottom:4px;font-weight:600">寻源方向</div><div style="display:flex;flex-wrap:wrap;gap:6px">';
+    p.sourcingTracks.forEach(t => {
+      tracksHtml += `<span style="padding:4px 10px;background:${color}15;color:${color};border-radius:6px;font-size:12px;font-weight:500">${escHtml(t)}</span>`;
+    });
+    tracksHtml += '</div></div>';
+  }
+
+  const confidence = {high:'🟢 高', medium:'🟡 中', low:'🔴 低'}[p.confidence] || '🟡 中';
+
+  document.getElementById('ap-preview').innerHTML = `
+    <div style="border:1px solid #e8eaed;border-radius:12px;overflow:hidden">
+      <div style="background:${color};padding:14px 18px;color:#fff;display:flex;align-items:center;gap:10px">
+        <span style="font-size:24px">${p.emoji || '📦'}</span>
+        <div>
+          <div style="font-size:15px;font-weight:700">${escHtml(p.projectName || '')}</div>
+          <div style="font-size:12px;opacity:0.85">${escHtml(p.clientInfo || '')}</div>
+        </div>
+      </div>
+      <div style="padding:16px 18px">
+        <div style="font-size:13px;color:#333;line-height:1.6;margin-bottom:10px">${escHtml(p.requirements || '')}</div>
+        <div style="display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:#666">
+          <span>📦 ${escHtml(p.productCategory || '')}</span>
+          <span>🌍 ${escHtml(p.clientCountry || '')}</span>
+          <span>置信度: ${confidence}</span>
+        </div>
+        ${tracksHtml}
+        ${specsHtml}
+      </div>
+    </div>
+  `;
+}
+
+async function confirmProject() {
+  if (!extractedProject) return;
+  
+  const btn = document.getElementById('ap-confirm-btn');
+  const statusEl = document.getElementById('ap-create-status');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ 创建中...';
+  statusEl.style.display = 'block';
+  statusEl.innerHTML = '<span style="color:#888">正在创建项目数据文件...</span>';
+
+  try {
+    const res = await fetch('/api/create-project', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ project: extractedProject })
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.error || '创建失败');
+    }
+
+    statusEl.innerHTML = `<span style="color:#148a4e">✅ 项目「${escHtml(data.project.name)}」创建成功！数据文件：${data.dataFile}</span>`;
+    
+    // Add project card to the page dynamically
+    addProjectCard(data.project, data.slug);
+    
+    setTimeout(() => { hideAddProject(); }, 2000);
+
+  } catch(e) {
+    statusEl.innerHTML = `<span style="color:#dc2626">❌ ${escHtml(e.message)}</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✅ 确认创建项目';
+  }
+}
+
+function addProjectCard(project, slug) {
+  const grid = document.querySelector('.projects-grid');
+  const color = project.themeColor || '#4a3f8a';
+  const card = document.createElement('div');
+  card.className = 'project-card';
+  card.style.cssText = 'position:relative;overflow:hidden';
+  card.innerHTML = `
+    <div style="position:absolute;top:0;left:0;right:0;height:3px;background:${color}"></div>
+    <div class="pc-header">
+      <div class="pc-icon" style="background:${color}20">${project.emoji || '📦'}</div>
+      <span class="pc-badge new">新项目</span>
+    </div>
+    <div class="pc-title">${escHtml(project.name)}</div>
+    <div class="pc-desc">${escHtml(project.requirements || '').substring(0, 80)}${(project.requirements||'').length > 80 ? '...' : ''}</div>
+    <div class="pc-stats">
+      <div class="pc-stat"><div class="num">0</div><div class="lbl">供应商</div></div>
+      <div class="pc-stat"><div class="num">0</div><div class="lbl">已联系</div></div>
+      <div class="pc-stat"><div class="num">0</div><div class="lbl">候选</div></div>
+    </div>
+    <div class="pc-client">客户：<span>${escHtml(project.clientInfo || '')}</span></div>
+  `;
+  grid.appendChild(card);
+  
+  // Update count
+  const countEl = document.querySelector('.section-header .count');
+  countEl.textContent = grid.querySelectorAll('.project-card').length;
+}
+
+function escHtml(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+// --- End Add Project ---
 
 // Load greenhouse stats
 async function loadStats() {
