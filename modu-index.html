@@ -440,7 +440,7 @@ async function fetchData() {
   renderSuppliers();
   renderCoordinator();
   renderDynamicProjectInfo();
-  if (currentLang !== 'zh') switchLang(currentLang);
+  switchLang(currentLang);
 }
 
 function renderSuppliers() {
@@ -462,14 +462,13 @@ function renderSuppliers() {
   
   const emptyText = i18n[currentLang]['col-empty'] || '暂无';
   
-  // Categorize suppliers by track
-  const trackA = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'A' || s.track === 'a' || /代工|OEM|contract|manufacturing/i.test(s.track||'')));
-  const trackB = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'B' || s.track === 'b' || /设备|equipment|machine/i.test(s.track||'')));
+  // Categorize suppliers by track (exact match first, then pattern, mutually exclusive)
+  const trackA = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'A' || s.track === 'a' || /代工|OEM|contract/i.test(s.track||'')));
+  const trackB = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'B' || s.track === 'b' || /设备|机器|machine/i.test(s.track||'')));
   const trackC = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'C' || s.track === 'c' || /模具|mold|mould/i.test(s.track||'')));
-  // Unclassified go to all columns evenly or show in A
-  const classified = new Set([...trackA, ...trackB, ...trackC]);
-  const unclassified = suppliers.filter(s => s.status !== 'rejected' && !classified.has(s));
-  // Put unclassified into track A for now
+  // Unclassified go to track A
+  const classifiedIds = new Set([...trackA, ...trackB, ...trackC].map(s => s.id));
+  const unclassified = suppliers.filter(s => s.status !== 'rejected' && !classifiedIds.has(s.id));
   trackA.push(...unclassified);
   
   function renderCol(items) {
@@ -479,7 +478,7 @@ function renderSuppliers() {
       const badgeCls = s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':s.status==='shortlisted'?'badge-green':'badge-amber';
       return `<div class="sup-item">
         <div style="font-weight:600;font-size:13px;color:#1a1a1a;margin-bottom:4px">${escHtml(s.name||s.displayName||s.nameEn||s.nameCn||'')}</div>
-        <div style="font-size:11px;color:#999;margin-bottom:4px">${escHtml(s.track||'')} · #${s.id||''}</div>
+        <div style="font-size:11px;color:#999;margin-bottom:4px">${escHtml(s.track||'')} · #${escHtml(s.id||'')}</div>
         ${s.specialty||s.location ? '<div class="sup-detail">'+escHtml(s.location||'')+( s.specialty?' · '+escHtml(s.specialty):'')+'</div>' : ''}
         <div class="sup-status"><span class="badge ${badgeCls}">${stLabel}</span></div>
       </div>`;
