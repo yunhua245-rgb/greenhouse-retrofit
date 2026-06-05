@@ -111,28 +111,6 @@
       "updatedAt": "2026-06-05T10:11:30.385Z"
     },
     {
-      "id": "pygdgdhel7td",
-      "name": "东莞市宏盛塑胶玩具有限公司",
-      "nameEn": "Dongguan Hongsheng Plastic Toys Co., Ltd.",
-      "website": "https://hongshengtoys.en.alibaba.com/",
-      "platformUrl": "https://hongshengtoys.en.alibaba.com/",
-      "location": "广东东莞",
-      "specialty": "专注注塑玩具代工，拥有先进注塑设备，可承接大批量订单",
-      "contact": "",
-      "email": "",
-      "export": "unknown",
-      "status": "pending",
-      "notes": "主营: 专注注塑玩具代工，拥有先进注塑设备，可承接大批量订单",
-      "logs": [
-        {
-          "time": "2026-06-05T10:11:30.385Z",
-          "text": "已添加供应商"
-        }
-      ],
-      "createdAt": "2026-06-05T10:11:30.385Z",
-      "updatedAt": "2026-06-05T10:11:30.385Z"
-    },
-    {
       "id": "rfxdn7kfl7td",
       "name": "义乌市凯瑞玩具有限公司",
       "nameEn": "Yiwu Kairui Toys Co., Ltd.",
@@ -200,5 +178,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654355128
+  "lastUpdated": 1780654357551
 }
