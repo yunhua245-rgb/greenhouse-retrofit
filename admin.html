@@ -1653,41 +1653,35 @@ function renderProjectInfoCard(info, label) {
   if (hasNewFields || !hasLegacyOnly) {
     // New universal format - render by groups
     fieldGroups.forEach(group => {
-      // Only show groups that have at least one filled field
-      const filledFields = group.fields.filter(f => info[f.key]);
-      if (filledFields.length === 0) return;
-
       html += `<div style="margin-bottom:14px">
         <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px">${group.title}</div>
         <div style="display:grid;grid-template-columns:90px 1fr;gap:5px 12px;font-size:13px">`;
       group.fields.forEach(f => {
         const val = info[f.key] || '';
-        if (!val) return; // Skip empty fields in display
+        const displayVal = val || '<span style="color:#ccc">—</span>';
         const needsTrans = val && _isNonChinese(val) ? ` data-needs-translate="${escHtml(val)}"` : '';
-        html += `<div style="color:#888;font-size:12px">${f.label}</div><div style="color:#333"${needsTrans}>${escHtml(val)}</div>`;
+        html += `<div style="color:#888;font-size:12px">${f.label}</div><div style="color:#333"${needsTrans}>${val ? escHtml(val) : displayVal}</div>`;
       });
       html += '</div></div>';
     });
   }
 
-  // Show legacy fields if they have data
-  if (hasLegacyOnly || legacyFields.some(f => info[f.key])) {
-    const filledLegacy = legacyFields.filter(f => info[f.key]);
-    if (filledLegacy.length > 0 && hasNewFields) {
+  // Show legacy fields (always show all, even if empty)
+  if (hasLegacyOnly || legacyFields.some(f => info[f.key]) || hasNewFields) {
+    if (hasNewFields) {
       html += `<div style="margin-bottom:14px">
         <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px">🌿 温室项目专属</div>`;
     } else if (hasLegacyOnly) {
       html += '<div style="margin-bottom:14px">';
     }
-    if (filledLegacy.length > 0) {
-      html += `<div style="display:grid;grid-template-columns:90px 1fr;gap:5px 12px;font-size:13px">`;
-      filledLegacy.forEach(f => {
-        const val = info[f.key] || '';
-        const needsTrans = val && _isNonChinese(val) ? ` data-needs-translate="${escHtml(val)}"` : '';
-        html += `<div style="color:#888;font-size:12px">${f.label}</div><div style="color:#333"${needsTrans}>${escHtml(val)}</div>`;
-      });
-      html += '</div></div>';
-    }
+    html += `<div style="display:grid;grid-template-columns:90px 1fr;gap:5px 12px;font-size:13px">`;
+    legacyFields.forEach(f => {
+      const val = info[f.key] || '';
+      const displayVal = val || '<span style="color:#ccc">—</span>';
+      const needsTrans = val && _isNonChinese(val) ? ` data-needs-translate="${escHtml(val)}"` : '';
+      html += `<div style="color:#888;font-size:12px">${f.label}</div><div style="color:#333"${needsTrans}>${val ? escHtml(val) : displayVal}</div>`;
+    });
+    html += '</div></div>';
   }
 
   // Empty state
