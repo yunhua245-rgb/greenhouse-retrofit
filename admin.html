@@ -245,7 +245,7 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
         <div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">🔍 多平台搜索供应商</div>
         <button onclick="closeSearchPanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>
       </div>
-      <p style="font-size:13px;color:#666;margin-bottom:12px;line-height:1.5">根据项目需求自动构造关键词，从 1688、阿里国际站、中国制造网三大平台搜索匹配供应商。</p>
+      <p style="font-size:13px;color:#666;margin-bottom:12px;line-height:1.5">根据项目需求自动构造关键词，从1688、阿里国际站、中国制造网和网络搜索引擎中查找匹配供应商。勾选即搜索，不勾选则跳过。</p>
       
       <div style="margin-bottom:12px">
         <label style="font-size:12px;color:#888;font-weight:500;display:block;margin-bottom:4px">搜索关键词</label>
@@ -261,6 +261,7 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
           <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="chk-1688" checked> 1688</label>
           <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="chk-alibaba" checked> 阿里国际站</label>
           <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="chk-madeinchina" checked> 中国制造网</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="chk-web" checked> 🌐 网络搜索</label>
         </div>
       </div>
       
@@ -754,6 +755,7 @@ async function startSearch() {
   if (document.getElementById('chk-1688').checked) platforms.push('1688');
   if (document.getElementById('chk-alibaba').checked) platforms.push('alibaba');
   if (document.getElementById('chk-madeinchina').checked) platforms.push('madeinchina');
+  if (document.getElementById('chk-web').checked) platforms.push('web');
   
   if (platforms.length === 0) { alert('请至少选择一个平台'); return; }
 
@@ -801,7 +803,7 @@ function renderSearchResults(data) {
   
   let statusParts = [];
   for (const [p, s] of Object.entries(platformStatus || {})) {
-    const pLabels = { '1688': '1688', 'alibaba': '阿里国际站', 'madeinchina': '中国制造网', 'ai_search': 'AI搜索' };
+    const pLabels = { '1688': '1688', 'alibaba': '阿里国际站', 'madeinchina': '中国制造网', 'web': '网络搜索', 'ai_search': 'AI搜索' };
     const label = pLabels[p] || p;
     statusParts.push(s.success ? `${label} ✅${s.count}条` : `${label} ❌`);
   }
@@ -811,7 +813,9 @@ function renderSearchResults(data) {
   let html = '';
   suppliers.forEach((s, i) => {
     const name = s.name || s.nameEn || '未知';
-    const platformBadge = { '1688': '🟠 1688', 'alibaba': '🟡 Alibaba', 'madeinchina': '🔵 MIC', 'ai_search': '🟣 AI' }[s.platform] || s.platform;
+    const platformBadge = { '1688': '🟠 1688', 'alibaba': '🟡 Alibaba', 'madeinchina': '🔵 MIC', 'web': '🌐 网页', 'ai_search': '🟣 AI' }[s.platform] || s.platform;
+    const urlStatusIcon = s.urlStatus === 'dead' ? ' ⚠️链接失效' : s.urlStatus === 'ok' ? ' ✅' : s.url ? '' : '';
+    const urlStatusColor = s.urlStatus === 'dead' ? '#dc2626' : s.urlStatus === 'ok' ? '#148a4e' : '#888';
     const relevanceColor = s.relevance >= 80 ? '#148a4e' : s.relevance >= 60 ? '#854f0b' : '#888';
     
     html += `<div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #e8eaed;border-radius:10px;margin-bottom:8px;transition:background 0.15s" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
@@ -827,7 +831,7 @@ function renderSearchResults(data) {
           ${s.location ? `<span>📍 ${escHtml(s.location)}</span>` : ''}
           ${s.specialty ? `<span>⚡ ${escHtml(s.specialty.substring(0, 30))}</span>` : ''}
         </div>
-        ${s.url ? `<a href="${escHtml(s.url)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block">🔗 查看主页</a>` : ''}
+        ${s.url ? `<a href="${escHtml(s.url)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block">🔗 查看主页</a><span style="font-size:11px;color:${urlStatusColor};margin-left:4px">${urlStatusIcon}</span>` : ''}
       </div>
     </div>`;
   });
