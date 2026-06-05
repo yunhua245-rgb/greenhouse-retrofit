@@ -95,7 +95,10 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z"
+      "updatedAt": 1780654866149,
+      "url": "https://haitai-machine.en.alibaba.com/company_profile.html",
+      "track": "B-设备",
+      "rating": null
     },
     {
       "id": "5k3vtubksqoe",
@@ -249,5 +252,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654858285
+  "lastUpdated": 1780654867015
 }
