@@ -283,8 +283,25 @@
       "updatedAt": 1780667858026,
       "logs": [],
       "createdAt": 1780667858026
+    },
+    {
+      "id": "mq0zobh8tlegt",
+      "url": "https://www.haichen-machine.com/",
+      "name": "海辰机器",
+      "nameEn": "Haichen Machine",
+      "location": "",
+      "specialty": "",
+      "contact": "",
+      "email": "",
+      "track": "",
+      "status": "new",
+      "rating": null,
+      "notes": "",
+      "updatedAt": 1780667872028,
+      "logs": [],
+      "createdAt": 1780667872028
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780667859304
+  "lastUpdated": 1780667873988
 }
