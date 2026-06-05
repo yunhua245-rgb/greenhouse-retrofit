@@ -727,30 +727,27 @@ function renderProjectInfoCard(info, label) {
   let html = `<div style="padding:16px;background:#f7f8fa;border-radius:10px;border:1px solid #e8eaed;margin-bottom:12px">
     <div style="font-size:12px;color:#e65100;font-weight:600;margin-bottom:12px">${escHtml(label)}</div>`;
 
-  const hasNewFields = fieldGroups.some(g => g.fields.some(f => info[f.key]));
-  const allEmpty = !hasNewFields;
-
-  if (allEmpty) {
-    html += '<div style="color:#ccc;font-size:13px;text-align:center;padding:20px 0">暂无客户信息，等待客户填写或通过 AI 建项提取</div>';
-  } else {
-    fieldGroups.forEach(group => {
-      html += `<div style="margin-bottom:14px">
-        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px">${group.title}</div>
-        <div style="display:grid;grid-template-columns:90px 1fr;gap:5px 12px;font-size:13px">`;
-      group.fields.forEach(f => {
-        const val = info[f.key] || '';
-        const displayVal = val || '<span style="color:#ccc">—</span>';
-        const needsTrans = val && _isNonChinese(val) ? ` data-needs-translate="${escHtml(val)}"` : '';
-        html += `<div style="color:#888;font-size:12px">${f.label}</div><div style="color:#333"${needsTrans}>${val ? escHtml(val) : displayVal}</div>`;
-      });
-      html += '</div></div>';
+  // Always render all field groups, empty fields show "—"
+  fieldGroups.forEach(group => {
+    html += `<div style="margin-bottom:14px">
+      <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px">${group.title}</div>
+      <div style="display:grid;grid-template-columns:90px 1fr;gap:5px 12px;font-size:13px">`;
+    group.fields.forEach(f => {
+      const val = info[f.key] || '';
+      const displayVal = val || '<span style="color:#ccc">—</span>';
+      const needsTrans = val && _isNonChinese(val) ? ` data-needs-translate="${escHtml(val)}"` : '';
+      html += `<div style="color:#888;font-size:12px">${f.label}</div><div style="color:#333"${needsTrans}>${val ? escHtml(val) : displayVal}</div>`;
     });
-  }
+    html += '</div></div>';
+  });
 
-  if (info.freeformNote) {
+  // 补充信息/备注 — 始终显示
+  {
+    const val = info.freeformNote || '';
+    const displayVal = val || '<span style="color:#ccc">—</span>';
     html += `<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e0e0e0">
-      <div style="font-size:11px;color:#e65100;font-weight:600;margin-bottom:6px">💬 补充信息</div>
-      <div style="font-size:13px;color:#333;line-height:1.6;white-space:pre-wrap">${escHtml(info.freeformNote)}</div>
+      <div style="font-size:11px;color:#e65100;font-weight:600;margin-bottom:6px">💬 补充信息 / 备注</div>
+      <div style="font-size:13px;color:#333;line-height:1.6;white-space:pre-wrap">${val ? escHtml(val) : displayVal}</div>
     </div>`;
   }
   html += '</div>';
