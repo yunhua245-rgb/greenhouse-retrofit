@@ -155,11 +155,11 @@
     <div class="status-strip">
       <div class="st-card">
         <div class="st-label" data-i18n="s1-type-l">Project Type</div>
-        <div class="st-value green" data-i18n="s1-type-v">Retrofit</div>
+        <div class="st-value green" id="st-project-type" data-i18n="s1-type-v">Retrofit</div>
       </div>
       <div class="st-card">
         <div class="st-label" data-i18n="s1-phase-l">Current Phase</div>
-        <div class="st-value amber" data-i18n="s1-phase-v">Supplier Research</div>
+        <div class="st-value amber" id="st-current-phase" data-i18n="s1-phase-v">Supplier Research</div>
       </div>
       <div class="st-card">
         <div class="st-label" data-i18n="s1-suppliers-l">Suppliers Found</div>
@@ -178,8 +178,8 @@
     </div>
     
     <div class="req-core">
-      <h4 data-i18n="s2-core-t">Core Need</h4>
-      <p data-i18n="s2-core-d">Find a Chinese company that provides robotic equipment to automate and upgrade an existing greenhouse. This is a retrofit project — not building a new smart greenhouse from scratch.</p>
+      <h4 id="req-core-title" data-i18n="s2-core-t">Core Need</h4>
+      <p id="req-core-desc" data-i18n="s2-core-d">Find a Chinese company that provides robotic equipment to automate and upgrade an existing greenhouse. This is a retrofit project — not building a new smart greenhouse from scratch.</p>
     </div>
     
     <div class="info-grid" id="project-info-grid">
@@ -482,6 +482,24 @@ function renderProjectInfo() {
   
   if (projectInfo.infrastructure) { infraEl.textContent = projectInfo.infrastructure; infraEl.classList.remove('tbd'); infraEl.setAttribute('data-translate',''); infraEl.setAttribute('data-original', projectInfo.infrastructure); }
   else { infraEl.textContent = tbdText; infraEl.classList.add('tbd'); infraEl.removeAttribute('data-translate'); }
+
+  // Apply custom display content from admin (override i18n)
+  if (projectInfo.projectType) {
+    const el = document.getElementById('st-project-type');
+    if (el) el.textContent = projectInfo.projectType;
+  }
+  if (projectInfo.currentPhase) {
+    const el = document.getElementById('st-current-phase');
+    if (el) el.textContent = projectInfo.currentPhase;
+  }
+  if (projectInfo.coreRequirementTitle) {
+    const el = document.getElementById('req-core-title');
+    if (el) el.textContent = projectInfo.coreRequirementTitle;
+  }
+  if (projectInfo.coreRequirementDesc) {
+    const el = document.getElementById('req-core-desc');
+    if (el) el.textContent = projectInfo.coreRequirementDesc;
+  }
 }
 
 function renderSuppliers() {
