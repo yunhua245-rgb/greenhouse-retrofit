@@ -708,7 +708,7 @@ async function autoFillKeywords() {
     const res = await fetch(CLOUD_URL, { headers: { 'Accept': 'application/json' } });
     const data = await res.json();
     const info = data.projectInfo || {};
-    const freeform = info.freeformNote || '';
+    const freeform = info.freeformNote || info.notes || '';
 
     const translatedInfo = {};
     for (const [key, val] of Object.entries(info)) {
@@ -1468,7 +1468,7 @@ function renderProjectInfoCard(info, label) {
   }
 
   {
-    const val = info.freeformNote || '';
+    const val = info.freeformNote || info.notes || '';
     const displayVal = val || '<span style="color:#ccc">—</span>';
     const fnNeedsTrans = val && _isNonChinese(val) ? ` data-needs-translate="${escHtml(val)}"` : '';
     html += `<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e0e0e0">
