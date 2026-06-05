@@ -734,14 +734,24 @@ async function autoFillKeywords() {
     const info = data.projectInfo || {};
     const freeform = info.freeformNote || '';
 
-    // Build a summary of all available info
-    const allInfo = JSON.stringify(info, null, 2);
+    // Pre-translate Russian/English fields to Chinese before sending to AI
+    // (so AI sees "连栋温室" not "Блочная" → "阻止")
+    const translatedInfo = {};
+    for (const [key, val] of Object.entries(info)) {
+      if (typeof val === 'string' && val.trim()) {
+        translatedInfo[key] = await translateToZh(val);
+      } else if (typeof val === 'string') {
+        translatedInfo[key] = val;
+      } else if (val != null) {
+        translatedInfo[key] = val;
+      }
+    }
 
-    // Call AI to generate optimal search keywords
+    // Call AI to generate optimal search keywords (with pre-translated info)
     const aiRes = await fetch('/api/ai-keywords', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectInfo: info })
+      body: JSON.stringify({ projectInfo: translatedInfo })
     });
     const aiData = await aiRes.json();
 
