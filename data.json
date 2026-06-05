@@ -316,7 +316,7 @@
     }
   ],
   "projectInfo": {
-    "area": "2000-5000平方米",
+    "area": "大于5000平方米",
     "structureType": "Блочная",
     "infrastructure": "Partial automation"
   },
@@ -325,6 +325,11 @@
       "slot": "area",
       "value": "2000-5000平方米",
       "time": "2026-06-05T09:53:45.905Z"
+    },
+    {
+      "slot": "area",
+      "value": "大于5000平方米",
+      "time": "2026-06-05T09:53:47.498Z"
     }
   ]
 }
