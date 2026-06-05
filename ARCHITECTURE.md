@@ -7,19 +7,35 @@
 ## 一、分层结构
 
 ```
-┌─ portal.html ─────────────── 项目总览入口 + 协调人名片统一管理
+├─ portal.html ─────────────── 项目总览入口 + 协调人名片统一管理
 │
-├─ {project}-index.html ────── 展示页（客户看） → 由通用模块 + 扩展模块组成
-├─ {project}-admin.html ────── 管理后台（内部） → 由通用模块 + 扩展模块组成
+├─ projects/
+│   ├─ greenhouse/
+│   │   ├─ index.html ──────── 展示页（客户看）
+│   │   ├─ admin.html ──────── 管理后台（内部）- Vercel rewrite → 根 /admin.html
+│   │   └─ data.json ───────── 项目数据（温室供应商 + 项目信息）
+│   └─ modu/
+│       ├─ index.html ──────── 展示页（客户看）
+│       ├─ admin.html ──────── 管理后台（内部）- Vercel rewrite → 根 /modu-admin.html
+│       └─ data.json ───────── 项目数据（MODU供应商 + 项目信息）
+│
+├─ admin.html ──────────────── 温室管理后台（根目录，被 Vercel rewrite 映射）
+├─ modu-admin.html ─────────── MODU管理后台（根目录，被 Vercel rewrite 映射）
+├─ client-edit.html ─────────── 客户自助编辑页
 │
 ├─ api/
-│   ├─ {project}-data.js ──── 项目数据 CRUD（统一接口规范）
+│   ├─ data.js ────────────── 温室项目数据 CRUD（读 projects/greenhouse/data.json）
+│   ├─ modu-data.js ───────── MODU项目数据 CRUD（读 projects/modu/data.json）
 │   ├─ fetch-company.js ───── AI 抓取引擎（共享）
 │   ├─ ai-summary.js ─────── AI 摘要提取（共享）
-│   ├─ generate-questions.js ─ Quiz 问题生成（扩展模块）
-│   └─ save-quiz-answer.js ── Quiz 答案保存（扩展模块）
+│   ├─ ai-keywords.js ────── AI 关键词生成（共享）
+│   ├─ search-suppliers.js ── 多平台供应商搜索（共享）
+│   ├─ batch-add-suppliers.js 批量添加（共享）
+│   ├─ search-official-website.js 官网搜索（共享）
+│   ├─ generate-questions.js ─ Quiz 问题生成
+│   └─ save-quiz-answer.js ── Quiz 答案保存
 │
-└─ client-edit.html ─────────── 客户自助编辑页（扩展模块）
+└─ vercel.json ─────────────── 部署配置 + URL rewrites
 ```
 
 ---
@@ -177,17 +193,20 @@ function switchLang(lang) {
 
 创建新项目时，按此步骤：
 
-1. **创建数据文件** `api/{project}-data.js` — 复制模板，改数据文件名
-2. **创建展示页** `{project}-index.html` — 从模板复制，配置：
+1. **创建项目目录** `projects/{project-name}/`
+2. **创建展示页** `projects/{project-name}/index.html` — 参考其他项目模板，配置：
    - 主题色（改 CSS 变量）
    - 启用哪些模块
    - i18n 字典内容
    - 项目信息字段定义
-3. **创建管理后台** `{project}-admin.html` — 从模板复制，配置：
+3. **创建管理后台** 根目录 `{project-name}-admin.html`，参考其他 admin，配置：
    - 表单字段（是否有 track）
    - 启用哪些扩展模块
-4. **注册到 portal.html** — 添加项目卡片 + 链接
-5. **部署** — push 即自动部署
+4. **创建数据 API** `api/{project-name}-data.js`，配置 GITHUB_FILE 指向 `projects/{project-name}/data.json`
+5. **创建数据文件** `projects/{project-name}/data.json`（初始空数据）
+6. **配置 vercel.json** 添加 maxDuration + 可选 rewrite
+7. **注册到 portal.html** — 添加项目卡片 + 链接到 `projects/{project-name}/index.html`
+8. **部署** — push 即自动部署
 
 ---
 
