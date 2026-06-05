@@ -161,7 +161,10 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z"
+      "updatedAt": 1780654836916,
+      "url": "https://shshenzhou.en.alibaba.com/company_profile.html",
+      "track": "B-设备",
+      "rating": null
     },
     {
       "id": "mm4mp1iysqoe",
@@ -240,5 +243,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654826111
+  "lastUpdated": 1780654838594
 }
