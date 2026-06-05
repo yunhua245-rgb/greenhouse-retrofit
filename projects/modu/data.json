@@ -1,5 +1,226 @@
 {
-  "suppliers": [],
+  "suppliers": [
+    {
+      "id": "6xz39kv8l7td",
+      "name": "汕头市澄海区锦龙玩具厂",
+      "nameEn": "Shantou Chenghai Jinlong Toys Factory",
+      "website": "https://jinlongtoys.1688.com/",
+      "platformUrl": "https://jinlongtoys.1688.com/",
+      "location": "广东汕头",
+      "specialty": "专注注塑玩具代工，支持来图来样定制，有多年OEM经验",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 专注注塑玩具代工，支持来图来样定制，有多年OEM经验",
+      "logs": [
+        {
+          "time": "2026-06-05T10:11:30.385Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:11:30.385Z",
+      "updatedAt": "2026-06-05T10:11:30.385Z"
+    },
+    {
+      "id": "r9xls0vfl7td",
+      "name": "义乌市贝恩玩具有限公司",
+      "nameEn": "Yiwu Beien Toys Co., Ltd.",
+      "website": "https://shop1403562610970.1688.com/",
+      "platformUrl": "https://shop1403562610970.1688.com/",
+      "location": "浙江义乌",
+      "specialty": "小批量注塑玩具代工，快速打样，适合电商卖家",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 小批量注塑玩具代工，快速打样，适合电商卖家",
+      "logs": [
+        {
+          "time": "2026-06-05T10:11:30.385Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:11:30.385Z",
+      "updatedAt": "2026-06-05T10:11:30.385Z"
+    },
+    {
+      "id": "ewi3jhbul7td",
+      "name": "东莞市德盛塑胶玩具有限公司",
+      "nameEn": "Dongguan Desheng Plastic Toys Co., Ltd.",
+      "website": "https://deshengtoys.1688.com/",
+      "platformUrl": "https://deshengtoys.1688.com/",
+      "location": "广东东莞",
+      "specialty": "注塑模具开发与玩具代工一体化，支持复杂结构设计",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 注塑模具开发与玩具代工一体化，支持复杂结构设计",
+      "logs": [
+        {
+          "time": "2026-06-05T10:11:30.385Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:11:30.385Z",
+      "updatedAt": "2026-06-05T10:11:30.385Z"
+    },
+    {
+      "id": "0s062jrvl7td",
+      "name": "汕头市澄海区嘉盛玩具厂",
+      "nameEn": "Shantou Chenghai Jiasheng Toys Factory",
+      "website": "https://jiashengtoys.1688.com/",
+      "platformUrl": "https://jiashengtoys.1688.com/",
+      "location": "广东汕头",
+      "specialty": "专业注塑玩具代工，拥有多台注塑机，交期稳定",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 专业注塑玩具代工，拥有多台注塑机，交期稳定",
+      "logs": [
+        {
+          "time": "2026-06-05T10:11:30.385Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:11:30.385Z",
+      "updatedAt": "2026-06-05T10:11:30.385Z"
+    },
+    {
+      "id": "qz2h7co0l7td",
+      "name": "浙江新云玩具有限公司",
+      "nameEn": "Zhejiang Xinyun Toys Co., Ltd.",
+      "website": "https://xinyuntoys.en.alibaba.com/",
+      "platformUrl": "https://xinyuntoys.en.alibaba.com/",
+      "location": "浙江云和",
+      "specialty": "阿里巴巴国际站认证供应商，注塑玩具出口经验丰富，通过多项国际安全标准",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 阿里巴巴国际站认证供应商，注塑玩具出口经验丰富，通过多项国际安全标准",
+      "logs": [
+        {
+          "time": "2026-06-05T10:11:30.385Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:11:30.385Z",
+      "updatedAt": "2026-06-05T10:11:30.385Z"
+    },
+    {
+      "id": "o1hkx6ugl7td",
+      "name": "汕头市澄海区华达玩具有限公司",
+      "nameEn": "Shantou Chenghai Huada Toys Co., Ltd.",
+      "website": "https://huadatoy.en.alibaba.com/",
+      "platformUrl": "https://huadatoy.en.alibaba.com/",
+      "location": "广东汕头",
+      "specialty": "注塑玩具OEM/ODM代工，支持产品设计开发，月产能大",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 注塑玩具OEM/ODM代工，支持产品设计开发，月产能大",
+      "logs": [
+        {
+          "time": "2026-06-05T10:11:30.385Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:11:30.385Z",
+      "updatedAt": "2026-06-05T10:11:30.385Z"
+    },
+    {
+      "id": "pygdgdhel7td",
+      "name": "东莞市宏盛塑胶玩具有限公司",
+      "nameEn": "Dongguan Hongsheng Plastic Toys Co., Ltd.",
+      "website": "https://hongshengtoys.en.alibaba.com/",
+      "platformUrl": "https://hongshengtoys.en.alibaba.com/",
+      "location": "广东东莞",
+      "specialty": "专注注塑玩具代工，拥有先进注塑设备，可承接大批量订单",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 专注注塑玩具代工，拥有先进注塑设备，可承接大批量订单",
+      "logs": [
+        {
+          "time": "2026-06-05T10:11:30.385Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:11:30.385Z",
+      "updatedAt": "2026-06-05T10:11:30.385Z"
+    },
+    {
+      "id": "rfxdn7kfl7td",
+      "name": "义乌市凯瑞玩具有限公司",
+      "nameEn": "Yiwu Kairui Toys Co., Ltd.",
+      "website": "https://kairuitoys.en.alibaba.com/",
+      "platformUrl": "https://kairuitoys.en.alibaba.com/",
+      "location": "浙江义乌",
+      "specialty": "阿里巴巴国际站供应商，注塑玩具代工经验丰富，支持定制包装",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 阿里巴巴国际站供应商，注塑玩具代工经验丰富，支持定制包装",
+      "logs": [
+        {
+          "time": "2026-06-05T10:11:30.385Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:11:30.385Z",
+      "updatedAt": "2026-06-05T10:11:30.385Z"
+    },
+    {
+      "id": "hxv630dhl7td",
+      "name": "汕头市澄海区恒达玩具厂",
+      "nameEn": "Shantou Chenghai Hengda Toys Factory",
+      "website": "https://hengdatoy.cn.made-in-china.com/",
+      "platformUrl": "https://hengdatoy.cn.made-in-china.com/",
+      "location": "广东汕头",
+      "specialty": "中国制造网认证供应商，注塑玩具代工，可提供模具设计与制造",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 中国制造网认证供应商，注塑玩具代工，可提供模具设计与制造",
+      "logs": [
+        {
+          "time": "2026-06-05T10:11:30.385Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:11:30.385Z",
+      "updatedAt": "2026-06-05T10:11:30.385Z"
+    },
+    {
+      "id": "tp56a973l7td",
+      "name": "浙江金马玩具有限公司",
+      "nameEn": "Zhejiang Jinma Toys Co., Ltd.",
+      "website": "https://jinmatoy.cn.made-in-china.com/",
+      "platformUrl": "https://jinmatoy.cn.made-in-china.com/",
+      "location": "浙江云和",
+      "specialty": "中国制造网认证，注塑玩具代工，产品远销欧美，符合环保标准",
+      "contact": "",
+      "email": "",
+      "export": "unknown",
+      "status": "pending",
+      "notes": "主营: 中国制造网认证，注塑玩具代工，产品远销欧美，符合环保标准",
+      "logs": [
+        {
+          "time": "2026-06-05T10:11:30.385Z",
+          "text": "已添加供应商"
+        }
+      ],
+      "createdAt": "2026-06-05T10:11:30.385Z",
+      "updatedAt": "2026-06-05T10:11:30.385Z"
+    }
+  ],
   "projectInfo": {},
   "_sha": ""
 }
