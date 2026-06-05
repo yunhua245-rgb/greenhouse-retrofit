@@ -169,23 +169,7 @@
       <p data-i18n="s2-core-d">MODU (modutoy.com) — 丹麦品牌，真人尺寸模块化儿童玩具，由泡沫块、连接栓和轮子组成。目标年龄 6个月~6岁。需要寻找中国合作伙伴完成代工生产、设备采购和模具制造。</p>
     </div>
     
-    <div class="info-grid">
-      <div class="info-item">
-        <div class="info-label" data-i18n="s2-mat-l">主要材料</div>
-        <div class="info-value" data-i18n="s2-mat-v">聚丙烯 (PP) + 其他塑料</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label" data-i18n="s2-parts-l">零件类型</div>
-        <div class="info-value" data-i18n="s2-parts-v">连接件、轮子、衬套</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label" data-i18n="s2-process-l">生产工艺</div>
-        <div class="info-value" data-i18n="s2-process-v">注塑成型</div>
-      </div>
-      <div class="info-item">
-        <div class="info-label" data-i18n="s2-pkg-l">包装</div>
-        <div class="info-value" data-i18n="s2-pkg-v">纸板包装盒（单独采购）</div>
-      </div>
+    <div class="info-grid" id="project-info-grid">
     </div>
   </div>
 
@@ -427,24 +411,25 @@ function switchLang(lang) {
   });
   renderSuppliers();
   renderCoordinator();
+  renderDynamicProjectInfo();
 }
 
 // Cloud data
 let suppliersData = [];
 let coordinatorProfile = {};
+let projectInfo = {};
 
 async function fetchData() {
   try {
-    // Load MODU suppliers
     const moduRes = await fetch('/api/modu-data');
     if (moduRes.ok) {
       const moduData = await moduRes.json();
       suppliersData = moduData.suppliers || [];
+      projectInfo = moduData.projectInfo || {};
     }
   } catch(e) { console.log('MODU data fetch failed'); }
   
   try {
-    // Load coordinator profile from main data source
     const res = await fetch('/api/data');
     if (res.ok) {
       const data = await res.json();
@@ -454,7 +439,7 @@ async function fetchData() {
   
   renderSuppliers();
   renderCoordinator();
-  // Apply URL language param
+  renderDynamicProjectInfo();
   if (currentLang !== 'zh') switchLang(currentLang);
 }
 
@@ -548,6 +533,45 @@ function renderCoordinator() {
 }
 
 function escHtml(str) { const d=document.createElement('div'); d.textContent=str||''; return d.innerHTML; }
+
+// Dynamic project info
+function renderDynamicProjectInfo() {
+  const info = projectInfo;
+  if (!info || Object.keys(info).length === 0) return;
+  
+  const fieldMap = [
+    { key: 'productName', zh: '产品名称', en: 'Product Name', ru: 'Название продукта' },
+    { key: 'productUsage', zh: '用途/场景', en: 'Usage', ru: 'Назначение' },
+    { key: 'specifications', zh: '规格参数', en: 'Specifications', ru: 'Спецификации' },
+    { key: 'quantity', zh: '采购数量', en: 'Quantity', ru: 'Количество' },
+    { key: 'certifications', zh: '认证要求', en: 'Certifications', ru: 'Сертификация' },
+    { key: 'budget', zh: '目标预算', en: 'Budget', ru: 'Бюджет' },
+    { key: 'currency', zh: '币种', en: 'Currency', ru: 'Валюта' },
+    { key: 'tradeTerms', zh: '贸易条款', en: 'Trade Terms', ru: 'Условия торговли' },
+    { key: 'paymentTerms', zh: '付款方式', en: 'Payment Terms', ru: 'Условия оплаты' },
+    { key: 'destination', zh: '收货地', en: 'Destination', ru: 'Пункт назначения' },
+    { key: 'timeline', zh: '期望交期', en: 'Timeline', ru: 'Сроки' },
+    { key: 'supplierType', zh: '供应商类型', en: 'Supplier Type', ru: 'Тип поставщика' },
+    { key: 'supplierRegion', zh: '地区偏好', en: 'Region', ru: 'Регион' },
+    { key: 'oemOdm', zh: 'OEM/ODM', en: 'OEM/ODM', ru: 'OEM/ODM' },
+    { key: 'factoryAudit', zh: '验厂需求', en: 'Factory Audit', ru: 'Аудит завода' },
+    { key: 'sampleNeeded', zh: '打样需求', en: 'Samples', ru: 'Образцы' },
+  ];
+  
+  const lang = currentLang;
+  const filledFields = fieldMap.filter(f => info[f.key]);
+  if (filledFields.length === 0) return;
+  
+  const grid = document.getElementById('project-info-grid');
+  grid.innerHTML = filledFields.map(f => {
+    const label = f[lang] || f.zh;
+    const val = info[f.key];
+    return `<div class="info-item">
+      <div class="info-label">${escHtml(label)}</div>
+      <div class="info-value">${escHtml(val)}</div>
+    </div>`;
+  }).join('');
+}
 
 fetchData();
 </script>
