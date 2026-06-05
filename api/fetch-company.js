@@ -62,9 +62,17 @@ module.exports = async function handler(req, res) {
     }
     
     if (!homepage.ok) {
-      // Website unreachable — try AI web search as fallback
+      // Website unreachable — try web search + AI as fallback (parallel, more time)
       const domain = new URL(url).hostname.replace(/^www\./, '');
-      const searchResult = await searchCompanyByAI(domain, url);
+      const [webResult, aiResult] = await Promise.allSettled([
+        searchCompanyByWeb(domain, url),
+        searchCompanyByAI(domain, url)
+      ]);
+      
+      // Prefer web search (real data), fall back to AI
+      const searchResult = (webResult.status === 'fulfilled' && webResult.value) ? webResult.value :
+                           (aiResult.status === 'fulfilled' && aiResult.value) ? aiResult.value : null;
+      
       if (searchResult && (searchResult.name || searchResult.nameEn)) {
         return res.status(200).json({
           success: true,
@@ -73,7 +81,7 @@ module.exports = async function handler(req, res) {
           note: '⚠️ 网站无法直接访问，以上信息通过搜索引擎获取，请核实后确认。'
         });
       }
-      // Search also failed — report error
+      // All fallbacks failed — report error
       const reason = homepage.error || '';
       let userMsg = `无法访问该网站 (HTTP ${homepage.status || '超时'})`;
       if (reason.includes('abort') || reason.includes('timeout') || homepage.status === 0) {
@@ -521,6 +529,51 @@ function extractContact(html, text) {
 }
 
 // --- Helper: Render SPA page via internal /api/render-spa endpoint ---
+// --- Helper: Search company info via web search (Bing) ---
+async function searchCompanyByWeb(domain, fullUrl) {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 10000);
+    
+    const query = encodeURIComponent(`"${domain}" 公司 主营`);
+    const res = await fetch(`https://www.bing.com/search?q=${query}&setlang=zh-cn`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept-Language': 'zh-CN,zh;q=0.9'
+      },
+      signal: controller.signal
+    });
+    
+    clearTimeout(timeout);
+    if (!res.ok) return null;
+    
+    const html = await res.text();
+    const text = html.replace(/<script[\s\S]*?<\/script>/gi, '').replace(/<style[\s\S]*?<\/style>/gi, '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ');
+    
+    // Extract company name from search results
+    const companyMatch = text.match(/([\u4e00-\u9fa5]{2,}(?:智能|自动化|农业|温室|园艺|物联|数据|信息|网络)?[\u4e00-\u9fa5]*(?:科技|设备|机械|集团|技术|数据|信息|网络)(?:有限|股份)?公司)/);
+    const name = companyMatch ? companyMatch[1] : '';
+    
+    if (!name) return null;
+    
+    // Try to extract more info from snippets
+    const specialtyMatch = text.match(/(?:主营|专注|从事|提供|致力于|专业)[：:\s]*([\u4e00-\u9fa5，、\w]{5,80})/);
+    const locationMatch = text.match(/([\u4e00-\u9fa5]{2,5}(?:省|市|区)[\u4e00-\u9fa5]{0,10}(?:市|区|县)?)/);
+    
+    return {
+      name: name,
+      nameEn: '',
+      location: locationMatch ? locationMatch[1] : '',
+      specialty: specialtyMatch ? specialtyMatch[1].substring(0, 60) : '',
+      contact: '',
+      email: '',
+      website: fullUrl
+    };
+  } catch (e) {
+    return null;
+  }
+}
+
 // --- Helper: Search company info using AI (with web search capability) ---
 async function searchCompanyByAI(domain, fullUrl, pageTitle) {
   const apiKey = process.env.AI_API_KEY || 'sk-f2a6af8a39d848a5ade70105fb27c208';
@@ -546,7 +599,7 @@ async function searchCompanyByAI(domain, fullUrl, pageTitle) {
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => controller.abort(), 15000);
     
     const res = await fetch(`${apiBase}/v1/chat/completions`, {
       method: 'POST',
