@@ -45,7 +45,10 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z"
+      "updatedAt": 1780654775065,
+      "url": "https://yizumi.en.alibaba.com/company_profile.html",
+      "track": "B-设备",
+      "rating": null
     },
     {
       "id": "wbqudx6rsqoe",
@@ -225,5 +228,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654761648
+  "lastUpdated": 1780654776292
 }
