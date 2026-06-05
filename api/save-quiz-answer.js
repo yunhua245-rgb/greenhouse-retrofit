@@ -19,7 +19,7 @@ module.exports = async function handler(req, res) {
   }
 
   // Allowed slots that can be updated from quiz
-  const allowedSlots = ['area', 'structureType', 'infrastructure', 'crops', 'scope', 'budget', 'timeline', 'location'];
+  const allowedSlots = ['area', 'structureType', 'infrastructure', 'crops', 'scope', 'budget', 'timeline', 'location', 'freeformNote'];
   if (!allowedSlots.includes(slot)) {
     return res.status(400).json({ error: 'Invalid slot: ' + slot });
   }
