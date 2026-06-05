@@ -1690,12 +1690,14 @@ function renderProjectInfoCard(info, label) {
     html += '<div style="color:#ccc;font-size:13px;text-align:center;padding:20px 0">暂无客户信息，等待客户填写或通过 AI 建项提取</div>';
   }
 
-  // Quiz 自由文本补充信息
-  if (info.freeformNote) {
-    const fnNeedsTrans = _isNonChinese(info.freeformNote) ? ` data-needs-translate="${escHtml(info.freeformNote)}"` : '';
+  // 补充信息/备注 — 始终显示
+  {
+    const val = info.freeformNote || '';
+    const displayVal = val || '<span style="color:#ccc">—</span>';
+    const fnNeedsTrans = val && _isNonChinese(val) ? ` data-needs-translate="${escHtml(val)}"` : '';
     html += `<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e0e0e0">
-      <div style="font-size:11px;color:#148a4e;font-weight:600;margin-bottom:6px">💬 补充信息</div>
-      <div style="font-size:13px;color:#333;line-height:1.6;white-space:pre-wrap"${fnNeedsTrans}>${escHtml(info.freeformNote)}</div>
+      <div style="font-size:11px;color:#148a4e;font-weight:600;margin-bottom:6px">💬 补充信息 / 备注</div>
+      <div style="font-size:13px;color:#333;line-height:1.6;white-space:pre-wrap"${fnNeedsTrans}>${val ? escHtml(val) : displayVal}</div>
     </div>`;
   }
   html += '</div>';
