@@ -139,7 +139,10 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z"
+      "updatedAt": 1780654848932,
+      "url": "https://rchtm.en.alibaba.com/company_profile.html",
+      "track": "A-代工",
+      "rating": null
     },
     {
       "id": "ucv310cosqoe",
@@ -243,5 +246,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654838594
+  "lastUpdated": 1780654849893
 }
