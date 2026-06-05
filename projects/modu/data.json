@@ -70,7 +70,10 @@
         }
       ],
       "createdAt": "2026-06-05T10:17:21.422Z",
-      "updatedAt": "2026-06-05T10:17:21.422Z"
+      "updatedAt": 1780654796884,
+      "url": "https://powerjet.en.alibaba.com/company_profile.html",
+      "track": "B-设备",
+      "rating": null
     },
     {
       "id": "dwjw5r6gsqoe",
@@ -228,5 +231,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654776292
+  "lastUpdated": 1780654797579
 }
