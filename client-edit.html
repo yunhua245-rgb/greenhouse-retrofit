@@ -43,7 +43,7 @@
 
 <div class="header">
   <h1 id="page-title">📝 Update Project Details</h1>
-  <a href="index.html" class="back-link" id="back-link">← Back to project page</a>
+  <a href="/projects/greenhouse/index.html" class="back-link" id="back-link">← Back to project page</a>
 </div>
 
 <div class="container">
@@ -213,7 +213,7 @@ function switchLang(lang) {
   const L = labels[lang];
   document.getElementById('page-title').textContent = L.pageTitle;
   document.getElementById('back-link').textContent = L.backLink;
-  document.getElementById('back-link').href = 'index.html?lang=' + lang;
+  document.getElementById('back-link').href = '/projects/greenhouse/index.html?lang=' + lang;
   document.getElementById('lbl-greenhouse').textContent = L.greenhouse;
   document.getElementById('lbl-location').textContent = L.location;
   document.getElementById('hint-location').textContent = L.locationHint;
