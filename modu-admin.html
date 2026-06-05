@@ -28,44 +28,91 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 .stat .num{font-size:24px;font-weight:700;color:#e65100}
 .stat .lbl{font-size:11px;color:#888;text-transform:uppercase;letter-spacing:0.5px;margin-top:2px}
 
-/* Add/Edit Form */
-.form-panel{background:#fff;border-radius:14px;border:1px solid #e8eaed;padding:24px;margin-bottom:24px;display:none}
-.form-panel.show{display:block}
-.form-panel h3{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
-.form-group{display:flex;flex-direction:column;gap:4px}
-.form-group.full{grid-column:1/-1}
-.form-group label{font-size:12px;font-weight:600;color:#555}
-.form-group input,.form-group textarea,.form-group select{padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit;transition:border-color 0.2s}
-.form-group input:focus,.form-group textarea:focus,.form-group select:focus{outline:none;border-color:#e65100}
-.form-group textarea{resize:vertical;min-height:60px}
+/* Supplier Cards */
+.supplier-card{background:#fff;border-radius:14px;border:1px solid #e8eaed;margin-bottom:16px;overflow:hidden;transition:box-shadow 0.2s}
+.supplier-card:hover{box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+.supplier-header{padding:20px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.supplier-header:hover{background:#fafbfc}
+.supplier-info{display:flex;align-items:center;gap:14px}
+.supplier-avatar{width:40px;height:40px;border-radius:10px;background:#fff3e0;color:#e65100;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px}
+.supplier-name{font-size:15px;font-weight:600}
+.supplier-meta{font-size:12px;color:#888;margin-top:2px}
+.status-badge{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:0.3px}
+.status-new{background:#f0f0f0;color:#666}
+.status-contacted{background:#fff3e0;color:#b86e00}
+.status-replied{background:#e3f2fd;color:#1565c0}
+.status-shortlisted{background:#e8f5ee;color:#0a6e3a}
+.status-rejected{background:#fcebeb;color:#a32d2d}
 
-.url-row{display:flex;gap:8px;align-items:flex-end}
-.url-row .form-group{flex:1}
-.fetch-btn{padding:10px 16px;border-radius:8px;border:1.5px solid #e65100;background:#fff3e0;color:#e65100;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;transition:all 0.2s;height:42px}
-.fetch-btn:hover{background:#e65100;color:#fff}
+.supplier-body{border-top:1px solid #f0f0f0;padding:20px 24px;display:none}
+.supplier-body.open{display:block}
 
-.status-msg{margin:12px 0;padding:10px 14px;border-radius:8px;background:#f7f8fa;font-size:13px;line-height:1.5}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.info-item{font-size:13px}
+.info-item .lbl{color:#888;font-size:11px;text-transform:uppercase;letter-spacing:0.4px}
+.info-item .val{margin-top:2px;font-weight:500}
 
-/* Supplier List */
-.supplier-list{display:flex;flex-direction:column;gap:12px}
-.sup-item{background:#fff;border-radius:12px;border:1px solid #e8eaed;padding:16px 20px;display:flex;align-items:center;gap:14px;transition:all 0.2s}
-.sup-item:hover{border-color:#ff9800;box-shadow:0 2px 8px rgba(230,81,0,0.06)}
-.sup-num{width:28px;height:28px;border-radius:50%;background:#fff3e0;color:#e65100;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex-shrink:0}
-.sup-info{flex:1;min-width:0}
-.sup-name{font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sup-meta{font-size:12px;color:#666;margin-top:2px}
-.sup-actions{display:flex;gap:6px;flex-shrink:0}
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600}
-.badge-green{background:#e8f5ee;color:#0a6e3a}
-.badge-amber{background:#fff3e0;color:#e65100}
-.badge-blue{background:#e3f2fd;color:#1565c0}
-.badge-gray{background:#f0f0f0;color:#666}
-.badge-purple{background:#f3e5f5;color:#7b1fa2}
+.log-section{margin-top:16px}
+.log-title{font-size:13px;font-weight:600;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.log-list{list-style:none;padding:0}
+.log-item{padding:10px 14px;background:#f7f8fa;border-radius:8px;margin-bottom:8px;font-size:13px;position:relative}
+.log-item .log-date{font-size:11px;color:#888;margin-bottom:2px}
+.log-item .log-text{color:#333}
+.log-item .log-delete{position:absolute;top:8px;right:10px;background:none;border:none;color:#ccc;cursor:pointer;font-size:14px}
+.log-item .log-delete:hover{color:#e24b4a}
+
+.add-log{display:flex;gap:8px;margin-top:10px}
+.add-log input{flex:1;padding:8px 12px;border:1.5px solid #e8eaed;border-radius:8px;font-size:13px;outline:none;transition:border 0.2s}
+.add-log input:focus{border-color:#e65100}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:28px}
+.modal h2{font-size:18px;font-weight:700;margin-bottom:20px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#555;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:6px}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1.5px solid #e8eaed;border-radius:10px;font-size:14px;outline:none;transition:border 0.2s;font-family:inherit}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:#e65100}
+.form-group textarea{resize:vertical;min-height:80px}
+.form-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}
+
+/* Profile & History Sections */
+.profile-section{background:#fff;border-radius:14px;border:1px solid #e8eaed;margin-bottom:24px;overflow:hidden}
+.profile-header{padding:18px 24px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:background 0.2s}
+.profile-header:hover{background:#fafbfc}
+.profile-avatar{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,#e65100,#bf360c);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;overflow:hidden}
+.profile-avatar img{width:100%;height:100%;object-fit:cover}
+.profile-body{border-top:1px solid #f0f0f0;padding:20px 24px;display:none}
+.profile-body.open{display:block}
+.profile-form .pf-row{display:flex;gap:12px}
+@media(max-width:600px){.profile-form .pf-row{flex-direction:column}}
+
+.avatar-upload-area{width:80px;height:80px;border:2px dashed #d0d5dd;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.2s;overflow:hidden}
+.avatar-upload-area:hover{border-color:#e65100;background:#fff3e0}
+.avatar-upload-area.has-image{border-style:solid;border-color:#e65100}
+.avatar-preview{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.avatar-placeholder{text-align:center;font-size:12px;color:#888;line-height:1.3}
+
+.empty-state{text-align:center;padding:60px 20px;color:#888}
+.empty-state .icon{font-size:48px;margin-bottom:16px}
+.empty-state .title{font-size:16px;font-weight:600;color:#333;margin-bottom:6px}
+.empty-state .desc{font-size:13px}
+
+.supplier-actions{display:flex;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid #f0f0f0}
+
+.edit-history-item{padding:12px 16px;background:#f7f8fa;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.edit-history-item .eh-summary{font-weight:500;font-size:13px;color:#333}
+.edit-history-item .eh-time{font-size:11px;color:#888}
+.edit-history-item .eh-restore{font-size:11px;color:#555;cursor:pointer;background:#e8eaed;border:none;margin-left:8px;padding:4px 10px;border-radius:4px}
+.edit-history-item .eh-restore:hover{background:#d0d2d5}
+.edit-history-empty{text-align:center;padding:20px;color:#aaa;font-size:13px}
 
 @media(max-width:600px){
-  .form-row{grid-template-columns:1fr}
-  .sup-item{flex-direction:column;align-items:flex-start}
+  .info-grid{grid-template-columns:1fr}
+  .toolbar{flex-direction:column;align-items:stretch}
+  .stats-bar{grid-template-columns:1fr 1fr}
+  .modal{padding:20px}
 }
 </style>
 </head>
@@ -73,48 +120,208 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 
 <div class="header">
   <h1>🧸 MODU 玩具制造 — 供应商管理</h1>
-  <a class="back-link" href="portal.html">← 返回总览</a>
+  <div style="display:flex;align-items:center;gap:16px">
+    <span id="sync-status" style="font-size:12px;color:#888">⟳ 连接中...</span>
+    <a href="modu-index.html" class="back-link">← 查看展示页面</a>
+  </div>
 </div>
 
 <div class="container">
-  <div class="stats-bar">
+
+  <!-- 个人信息管理 -->
+  <div class="profile-section">
+    <div class="profile-header" onclick="toggleProfile()">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="profile-avatar" id="profile-avatar-preview">H</div>
+        <div>
+          <div style="font-size:15px;font-weight:600" id="profile-name-preview">点击设置个人信息</div>
+          <div style="font-size:12px;color:#888">名片信息将显示在展示页面的"协调人"板块</div>
+        </div>
+      </div>
+      <span style="font-size:18px;color:#aaa" id="profile-toggle-icon">▼</span>
+    </div>
+    <div class="profile-body" id="profile-body">
+      <div class="profile-form">
+        <div class="pf-row">
+          <div class="form-group" style="flex:1">
+            <label>姓名 / Name</label>
+            <input type="text" id="pf-name" placeholder="例：HUA">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>头像 / Avatar</label>
+            <div class="avatar-upload-area" id="avatar-upload-area" onclick="document.getElementById('pf-avatar-file').click()">
+              <div class="avatar-preview" id="avatar-preview-box">
+                <span class="avatar-placeholder" id="avatar-placeholder-text">点击上传<br><span style="font-size:11px;color:#aaa">支持 JPG/PNG</span></span>
+                <img id="avatar-preview-img" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px">
+              </div>
+            </div>
+            <input type="file" id="pf-avatar-file" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+            <input type="hidden" id="pf-avatar">
+            <div style="margin-top:6px;font-size:11px;color:#aaa">或输入图片URL：</div>
+            <input type="text" id="pf-avatar-url" placeholder="https://..." style="margin-top:4px;padding:6px 10px;font-size:12px;border:1px solid #e8eaed;border-radius:6px;width:100%" oninput="handleAvatarUrl(this.value)">
+          </div>
+        </div>
+        <div class="pf-row">
+          <div class="form-group" style="flex:1">
+            <label>手机号 / Phone</label>
+            <input type="text" id="pf-phone" placeholder="+86 138xxxx">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>微信 / WeChat</label>
+            <input type="text" id="pf-wechat" placeholder="微信号">
+          </div>
+        </div>
+        <div class="pf-row">
+          <div class="form-group" style="flex:1">
+            <label>WhatsApp</label>
+            <input type="text" id="pf-whatsapp" placeholder="+86 138xxxx">
+          </div>
+          <div class="form-group" style="flex:1">
+            <label>Telegram</label>
+            <input type="text" id="pf-telegram" placeholder="@username">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>所在城市 / City</label>
+          <input type="text" id="pf-city" placeholder="例：Beijing, China">
+        </div>
+        <div class="form-group">
+          <label>个人简介 / Bio（可选）</label>
+          <textarea id="pf-bio" placeholder="简短自我介绍..." style="min-height:60px"></textarea>
+        </div>
+        <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
+          <button class="btn btn-primary" onclick="saveProfile()">保存个人信息</button>
+        </div>
+        <div id="profile-save-status" style="font-size:12px;margin-top:8px;text-align:right"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 客户项目信息 -->
+  <div class="profile-section" id="edit-history-section">
+    <div class="profile-header" onclick="toggleEditHistory()">
+      <div style="display:flex;align-items:center;gap:12px">
+        <div style="width:42px;height:42px;border-radius:50%;background:#e3f2fd;color:#1565c0;display:flex;align-items:center;justify-content:center;font-size:18px">📝</div>
+        <div>
+          <div style="font-size:15px;font-weight:600">客户项目信息</div>
+          <div style="font-size:12px;color:#888">客户填写的项目信息及修改历史</div>
+        </div>
+      </div>
+      <span style="font-size:18px;color:#aaa" id="history-toggle-icon">▼</span>
+    </div>
+    <div class="profile-body" id="edit-history-body">
+      <div id="edit-history-list" style="font-size:13px;color:#555">加载中...</div>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="stats-bar">
     <div class="stat"><div class="num" id="stat-total">0</div><div class="lbl">总供应商</div></div>
-    <div class="stat"><div class="num" id="stat-contacted">0</div><div class="lbl">已联系</div></div>
+    <div class="stat"><div class="num" id="stat-contacted">0</div><div class="lbl">沟通中</div></div>
     <div class="stat"><div class="num" id="stat-shortlisted">0</div><div class="lbl">候选</div></div>
-    <div class="stat"><div class="num" id="stat-tracks">3</div><div class="lbl">寻源方向</div></div>
+    <div class="stat"><div class="num" id="stat-tracks">4</div><div class="lbl">寻源方向</div></div>
   </div>
 
   <div class="toolbar">
-    <button class="btn btn-primary" onclick="showForm()">➕ 添加供应商</button>
-    <button class="btn btn-outline" onclick="exportData()">📥 导出数据</button>
+    <div style="font-size:14px;color:#555">管理你找到的供应商，记录对接进展</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" onclick="openSearchPanel()" style="background:linear-gradient(135deg,#e65100,#bf360c);color:#fff;border:none;display:flex;align-items:center;gap:6px">🔍 搜索供应商</button>
+      <button class="btn btn-primary" onclick="openAddModal()">+ 添加供应商</button>
+    </div>
   </div>
 
-  <!-- Add/Edit Form -->
-  <div class="form-panel" id="form-panel">
-    <h3>🏭 <span id="form-title">添加供应商</span></h3>
-    <div class="url-row">
-      <div class="form-group">
-        <label>公司网址</label>
-        <input type="url" id="f-url" placeholder="https://example.com">
+  <!-- Search Suppliers Panel -->
+  <div id="search-panel" style="display:none;background:#fff;border-radius:14px;border:1px solid #e8eaed;padding:24px;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,0.05)">
+    <div id="search-step1">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">🔍 多平台搜索供应商</div>
+        <button onclick="closeSearchPanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>
       </div>
-      <button class="fetch-btn" onclick="fetchCompanyInfo()">🤖 AI抓取</button>
+      <p style="font-size:13px;color:#666;margin-bottom:12px;line-height:1.5">根据项目需求自动构造关键词，从 Bing、Baidu、1688、阿里国际站、中国制造网搜索匹配供应商。</p>
+      
+      <div style="margin-bottom:12px">
+        <label style="font-size:12px;color:#888;font-weight:500;display:block;margin-bottom:4px">搜索关键词</label>
+        <div style="display:flex;gap:8px">
+          <input id="search-keywords" type="text" placeholder="输入产品关键词，如：注塑 玩具 代工" style="flex:1;padding:10px 14px;border:1.5px solid #d0d5dd;border-radius:8px;font-size:14px">
+          <button onclick="autoFillKeywords()" style="padding:8px 14px;border:1px solid #d0d5dd;border-radius:8px;background:#f9fafb;font-size:12px;cursor:pointer;white-space:nowrap" title="从项目信息自动提取">✨ 自动提取</button>
+        </div>
+      </div>
+      
+      <div style="margin-bottom:14px">
+        <label style="font-size:12px;color:#888;font-weight:500;display:block;margin-bottom:6px">搜索平台</label>
+        <div style="display:flex;gap:12px;flex-wrap:wrap">
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="chk-1688" checked> 1688</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="chk-alibaba" checked> 阿里国际站</label>
+          <label style="display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer"><input type="checkbox" id="chk-madeinchina" checked> 中国制造网</label>
+        </div>
+      </div>
+      
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="closeSearchPanel()" style="padding:10px 16px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer">取消</button>
+        <button onclick="startSearch()" id="search-btn" style="padding:10px 20px;border:none;border-radius:8px;background:linear-gradient(135deg,#e65100,#bf360c);color:#fff;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px">🚀 开始搜索</button>
+      </div>
+      <div id="search-error" style="display:none;margin-top:10px;padding:10px 14px;background:#fff5f5;border:1px solid #fecaca;border-radius:8px;font-size:12px;color:#dc2626"></div>
     </div>
-    <div class="status-msg" id="fetch-status" style="display:none"></div>
-    
-    <div class="form-row">
+
+    <!-- Step 2: Search results -->
+    <div id="search-step2" style="display:none">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px">📋 搜索结果</div>
+        <button onclick="closeSearchPanel()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">×</button>
+      </div>
+      <div id="search-status" style="font-size:12px;color:#888;margin-bottom:10px"></div>
+      <div id="search-results" style="max-height:400px;overflow-y:auto;margin-bottom:14px"></div>
+      <div style="display:flex;gap:10px;justify-content:space-between;align-items:center">
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer"><input type="checkbox" id="select-all" onchange="toggleSelectAll()"> 全选</label>
+        <div style="display:flex;gap:10px">
+          <button onclick="backToSearch()" style="padding:10px 16px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:13px;cursor:pointer">← 重新搜索</button>
+          <button onclick="batchAddSuppliers()" id="batch-add-btn" style="padding:10px 20px;border:none;border-radius:8px;background:#e65100;color:#fff;font-size:13px;font-weight:600;cursor:pointer">✅ 添加选中 (<span id="selected-count">0</span>)</button>
+        </div>
+      </div>
+      <div id="batch-status" style="display:none;margin-top:10px;font-size:12px"></div>
+    </div>
+  </div>
+
+  <div id="supplier-list"></div>
+
+</div>
+
+<!-- Add/Edit Modal -->
+<div class="modal-overlay" id="modal-overlay" onclick="closeModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h2 id="modal-title">添加供应商</h2>
+    <form id="supplier-form" onsubmit="saveSupplier(event)">
+      <input type="hidden" id="edit-id">
       <div class="form-group">
-        <label>公司名称（中文）</label>
-        <input type="text" id="f-name" placeholder="如：宁波海天集团">
+        <label>公司官网（填入后可AI自动抓取信息）</label>
+        <div style="display:flex;gap:8px">
+          <input type="url" id="f-url" placeholder="https://www.example.com" style="flex:1">
+          <button type="button" class="btn btn-primary btn-sm" onclick="fetchCompanyInfo()" id="btn-fetch" style="white-space:nowrap;padding:8px 14px">🤖 AI抓取</button>
+        </div>
+        <div id="fetch-status" style="font-size:12px;margin-top:6px"></div>
+      </div>
+      <div class="form-group">
+        <label>公司名称（中文） *</label>
+        <input type="text" id="f-name" required placeholder="例：宁波海天集团">
       </div>
       <div class="form-group">
         <label>公司名称（英文）</label>
-        <input type="text" id="f-nameEn" placeholder="如：Haitian International">
+        <input type="text" id="f-nameEn" placeholder="例：Haitian International">
       </div>
-    </div>
-    <div class="form-row">
       <div class="form-group">
         <label>所在地区</label>
-        <input type="text" id="f-location" placeholder="如：中国浙江省宁波市">
+        <input type="text" id="f-location" placeholder="例：中国浙江省宁波市">
+      </div>
+      <div class="form-group">
+        <label>专长/主营产品</label>
+        <textarea id="f-specialty" placeholder="例：专业注塑成型加工，PP/PE/ABS等材料&#10;可分行填写多个产品" rows="3" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;line-height:1.5"></textarea>
+      </div>
+      <div class="form-group">
+        <label>联系方式</label>
+        <textarea id="f-contact" placeholder="例：张经理 138xxxx&#10;可分行填写多个联系人" rows="3" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;line-height:1.5"></textarea>
+      </div>
+      <div class="form-group">
+        <label>邮箱</label>
+        <textarea id="f-email" placeholder="例：sales@company.com&#10;可分行填写多个邮箱" rows="2" style="width:100%;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;box-sizing:border-box;line-height:1.5"></textarea>
       </div>
       <div class="form-group">
         <label>寻源方向</label>
@@ -126,26 +333,8 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
           <option value="包装">包装 - 纸板包装盒</option>
         </select>
       </div>
-    </div>
-    <div class="form-row">
       <div class="form-group">
-        <label>联系方式</label>
-        <textarea id="f-contact" rows="2" placeholder="电话号码（可多个）"></textarea>
-      </div>
-      <div class="form-group">
-        <label>邮箱</label>
-        <textarea id="f-email" rows="2" placeholder="邮箱地址（可多个）"></textarea>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group full">
-        <label>专长 / 产品描述（面向客户展示）</label>
-        <textarea id="f-specialty" rows="3" placeholder="如：专业注塑成型加工，PP/PE/ABS等材料，可提供模具设计与制造一体化服务"></textarea>
-      </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group">
-        <label>状态</label>
+        <label>当前状态</label>
         <select id="f-status">
           <option value="new">新发现</option>
           <option value="contacted">已联系</option>
@@ -158,185 +347,731 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
         <label>评分 (1-5)</label>
         <input type="number" id="f-rating" min="1" max="5" placeholder="1-5">
       </div>
-    </div>
-    <div class="form-row">
-      <div class="form-group full">
+      <div class="form-group">
         <label>备注（内部，不展示给客户）</label>
-        <textarea id="f-notes" rows="2" placeholder="内部笔记"></textarea>
+        <textarea id="f-notes" placeholder="任何补充信息..."></textarea>
       </div>
-    </div>
-    <div style="display:flex;gap:10px;margin-top:16px">
-      <button class="btn btn-primary" onclick="saveSupplier()">💾 保存</button>
-      <button class="btn btn-outline" onclick="hideForm()">取消</button>
-    </div>
-    <input type="hidden" id="f-edit-idx" value="-1">
-  </div>
-
-  <!-- Supplier List -->
-  <div class="supplier-list" id="supplier-list">
-    <div style="text-align:center;padding:40px;color:#888">
-      <div style="font-size:40px;margin-bottom:12px">🔍</div>
-      <p>暂无供应商，点击"添加供应商"开始</p>
-    </div>
+      <div class="form-actions">
+        <button type="button" class="btn btn-outline" onclick="closeModal()">取消</button>
+        <button type="submit" class="btn btn-primary">保存</button>
+      </div>
+    </form>
   </div>
 </div>
 
 <script>
-const GITHUB_OWNER = 'yunhua245-rgb';
-const GITHUB_REPO = 'greenhouse-retrofit';
-const GITHUB_FILE = 'modu-data.json';
-const GITHUB_TOKEN = ''; // Set via env if needed
-
-let suppliers = [];
+const STORAGE_KEY = 'modu_suppliers';
+const CLOUD_URL = '/api/modu-data';
+let syncStatus = 'idle';
 let dataSha = '';
 
-async function loadData() {
+// --- Translation utility (MyMemory API, auto-translate to Chinese) ---
+const _transCache = {};
+
+// Toy/Manufacturing industry terminology dictionary
+const _termDict = {
+  // Common terms
+  'Injection Molding': '注塑成型', 'injection molding': '注塑成型',
+  'Injection Mold': '注塑模具', 'injection mold': '注塑模具',
+  'Contract Manufacturing': '合同制造', 'contract manufacturing': '合同制造',
+  'OEM': '代工生产', 'oem': '代工生产',
+  'ODM': '设计代工', 'odm': '设计代工',
+  'Polypropylene': '聚丙烯', 'PP': '聚丙烯',
+  'ABS': 'ABS塑料', 'Polyethylene': '聚乙烯',
+  'Tooling': '模具制造', 'tooling': '模具制造',
+  'Mold Maker': '模具制造商', 'mold maker': '模具制造商',
+  'Plastic Injection': '塑料注塑', 'plastic injection': '塑料注塑',
+  'Sprue': '注塑浇口', 'Gate': '浇口',
+  'Denmark': '丹麦', 'denmark': '丹麦',
+  'Danish': '丹麦', 'danish': '丹麦',
+  'Cardboard': '纸板', 'cardboard': '纸板',
+  'Packaging': '包装', 'packaging': '包装',
+  'Assembly': '组装', 'assembly': '组装',
+  'Quality Control': '质量控制', 'quality control': '质量控制',
+};
+
+function _isNonChinese(text) {
+  if (!text || !text.trim()) return false;
+  const zhChars = (text.match(/[\u4e00-\u9fff]/g) || []).length;
+  return zhChars < text.trim().length * 0.3;
+}
+function _detectSource(text) {
+  if (/[\u0400-\u04FF]/.test(text)) return 'ru-RU';
+  return 'en-GB';
+}
+async function translateToZh(text) {
+  if (!text || !text.trim() || !_isNonChinese(text)) return text;
+  const cacheKey = text.trim();
+  if (_transCache[cacheKey]) return _transCache[cacheKey];
+  if (_termDict[cacheKey]) {
+    _transCache[cacheKey] = _termDict[cacheKey];
+    return _termDict[cacheKey];
+  }
+  const parts = cacheKey.split(/[,;，；]+/).map(p => p.trim());
+  if (parts.length > 1) {
+    const translated = parts.map(p => _termDict[p] || p);
+    if (translated.some((t, i) => t !== parts[i])) {
+      const needsApi = [];
+      translated.forEach((t, i) => { if (t === parts[i] && _isNonChinese(parts[i])) needsApi.push(i); });
+      for (const idx of needsApi) {
+        translated[idx] = await _apiTranslate(parts[idx]);
+      }
+      const result = translated.join('、');
+      _transCache[cacheKey] = result;
+      return result;
+    }
+  }
+  const result = await _apiTranslate(cacheKey);
+  _transCache[cacheKey] = result;
+  return result;
+}
+async function _apiTranslate(text) {
   try {
-    const res = await fetch('/api/modu-data');
-    const data = await res.json();
-    suppliers = data.suppliers || [];
-    dataSha = data._sha || '';
-    renderList();
-    updateStats();
-  } catch(e) {
-    suppliers = [];
-    renderList();
+    const src = _detectSource(text);
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.substring(0,500))}&langpair=${src}|zh-CN`;
+    const res = await fetch(url);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.responseData && data.responseData.translatedText) {
+        return data.responseData.translatedText;
+      }
+    }
+  } catch(e) { console.log('Trans error:', e); }
+  return text;
+}
+async function translateAllMarked() {
+  const els = document.querySelectorAll('[data-needs-translate]');
+  const tasks = [];
+  els.forEach(el => {
+    const original = el.getAttribute('data-needs-translate');
+    tasks.push(translateToZh(original).then(translated => {
+      if (translated !== original) {
+        el.innerHTML = escHtml(translated) + ` <span style="font-size:11px;color:#aaa">(${escHtml(original)})</span>`;
+      }
+      el.removeAttribute('data-needs-translate');
+    }));
+  });
+  await Promise.all(tasks);
+}
+
+// Data management
+function getSuppliers() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; } catch { return []; }
+}
+
+function saveToStorage(suppliers) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(suppliers));
+  syncToCloud(suppliers);
+}
+
+async function syncToCloud(suppliers) {
+  syncStatus = 'syncing';
+  updateSyncIndicator();
+  try {
+    let cloudData = {suppliers: [], lastUpdated: 0};
+    try {
+      const getRes = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+      if (getRes.ok) cloudData = await getRes.json();
+    } catch(e) {}
+    
+    cloudData.suppliers = suppliers;
+    cloudData.lastUpdated = Date.now();
+    if (dataSha) cloudData._sha = dataSha;
+    
+    const res = await fetch(CLOUD_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify(cloudData)
+    });
+    if (res.ok) {
+      const updated = await res.json();
+      if (updated._sha) dataSha = updated._sha;
+      syncStatus = 'idle';
+    } else {
+      syncStatus = 'error';
+    }
+  } catch (e) {
+    console.error('Cloud sync failed:', e);
+    syncStatus = 'error';
+  }
+  updateSyncIndicator();
+}
+
+async function loadFromCloud() {
+  try {
+    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+    if (res.ok) {
+      const data = await res.json();
+      if (data._sha) dataSha = data._sha;
+      if (data.suppliers && data.suppliers.length > 0) {
+        const local = getSuppliers();
+        if (local.length === 0) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
+        }
+      }
+    }
+  } catch(e) { console.error('Failed to load from cloud:', e); }
+}
+
+async function forceReloadFromCloud() {
+  try {
+    const res = await fetch(CLOUD_URL, { headers: { 'Accept': 'application/json' } });
+    if (res.ok) {
+      const data = await res.json();
+      if (data._sha) dataSha = data._sha;
+      if (data.suppliers) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
+      }
+    }
+  } catch(e) { console.log('forceReloadFromCloud error:', e); }
+}
+
+function updateSyncIndicator() {
+  const el = document.getElementById('sync-status');
+  if (!el) return;
+  if (syncStatus === 'syncing') {
+    el.innerHTML = '<span style="color:#b86e00">⟳ 同步中...</span>';
+  } else if (syncStatus === 'error') {
+    el.innerHTML = '<span style="color:#e24b4a">⚠ 同步失败（数据已本地保存）</span>';
+  } else {
+    el.innerHTML = '<span style="color:#148a4e">✓ 已同步到云端</span>';
   }
 }
 
+function genId() {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+}
+
+function formatDate(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('zh-CN', {month:'short', day:'numeric', hour:'2-digit', minute:'2-digit'});
+}
+
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+const statusMap = {
+  new: {label:'新发现', cls:'status-new'},
+  contacted: {label:'已联系', cls:'status-contacted'},
+  replied: {label:'已回复', cls:'status-replied'},
+  shortlisted: {label:'候选', cls:'status-shortlisted'},
+  rejected: {label:'不合适', cls:'status-rejected'}
+};
+
+const trackLabels = {
+  'A-代工': '🔧 代工', 'A': '🔧 代工',
+  'B-设备': '⚙️ 设备', 'B': '⚙️ 设备',
+  'C-模具': '🛠️ 模具', 'C': '🛠️ 模具',
+  '包装': '📦 包装'
+};
+
 function updateStats() {
+  const suppliers = getSuppliers();
   document.getElementById('stat-total').textContent = suppliers.length;
   document.getElementById('stat-contacted').textContent = suppliers.filter(s => ['contacted','replied','shortlisted'].includes(s.status)).length;
   document.getElementById('stat-shortlisted').textContent = suppliers.filter(s => s.status === 'shortlisted').length;
 }
 
 function renderList() {
+  const suppliers = getSuppliers();
   const container = document.getElementById('supplier-list');
+
   if (suppliers.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:40px;color:#888"><div style="font-size:40px;margin-bottom:12px">🔍</div><p>暂无供应商，点击"添加供应商"开始</p></div>';
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">🧸</div>
+        <div class="title">还没有供应商</div>
+        <div class="desc">点击上方"搜索供应商"或"添加供应商"开始寻源</div>
+      </div>`;
+    updateStats();
     return;
   }
-  container.innerHTML = suppliers.map((s, i) => `
-    <div class="sup-item">
-      <div class="sup-num">${i+1}</div>
-      <div class="sup-info">
-        <div class="sup-name">${s.name || s.nameEn || '未命名'}</div>
-        <div class="sup-meta">
-          ${s.location ? '📍 ' + s.location + ' ' : ''}
-          ${s.track ? '<span class="badge badge-blue">' + s.track + '</span> ' : ''}
-          <span class="badge badge-${s.status==='shortlisted'?'green':s.status==='contacted'||s.status==='replied'?'amber':'gray'}">${s.status || 'new'}</span>
-          ${s.rating ? ' ⭐' + s.rating : ''}
+
+  container.innerHTML = suppliers.map(s => {
+    const st = statusMap[s.status] || statusMap.new;
+    const logs = (s.logs || []).map((log, i) => `
+      <div class="log-item">
+        <button class="log-delete" onclick="deleteLog('${s.id}', ${i})" title="删除">×</button>
+        <div class="log-date">${formatDate(log.time)}</div>
+        <div class="log-text">${escHtml(log.text)}</div>
+      </div>
+    `).reverse().join('');
+
+    return `
+    <div class="supplier-card" id="card-${s.id}">
+      <div class="supplier-header" onclick="toggleCard('${s.id}')">
+        <div class="supplier-info">
+          <div class="supplier-avatar">${(s.name||s.nameEn||'?').charAt(0)}</div>
+          <div>
+            <div class="supplier-name">${escHtml(s.name || s.nameEn || '未命名')}</div>
+            <div class="supplier-meta">${s.nameEn && s.name && s.name !== s.nameEn ? escHtml(s.nameEn) + ' · ' : ''}${escHtml(s.location || '未填写地区')} · ${s.track ? trackLabels[s.track] || s.track : ''} ${s.rating ? '⭐' + s.rating : ''}</div>
+          </div>
+        </div>
+        <span class="status-badge ${st.cls}">${st.label}</span>
+      </div>
+      <div class="supplier-body" id="body-${s.id}">
+        <div class="info-grid">
+          <div class="info-item"><div class="lbl">公司官网</div><div class="val">${s.url ? '<a href="'+escHtml(s.url)+'" target="_blank" style="color:#e65100">'+escHtml(s.url)+'</a>' : '未填写'}</div></div>
+          <div class="info-item"><div class="lbl">联系方式</div><div class="val" style="white-space:pre-line">${escHtml(s.contact || '未填写')}</div></div>
+          <div class="info-item"><div class="lbl">邮箱</div><div class="val" style="white-space:pre-line">${escHtml(s.email || '未填写')}</div></div>
+          <div class="info-item"><div class="lbl">寻源方向</div><div class="val">${s.track ? trackLabels[s.track]||s.track : '未分类'}</div></div>
+          <div class="info-item"><div class="lbl">添加时间</div><div class="val">${formatDate(s.createdAt)}</div></div>
+          <div class="info-item"><div class="lbl">备注</div><div class="val">${escHtml(s.notes || '无')}</div></div>
+          <div class="info-item"><div class="lbl">专长/产品</div><div class="val" style="white-space:pre-line">${escHtml((s.specialty || '未填写').substring(0,200))}</div></div>
+        </div>
+
+        <div class="log-section">
+          <div class="log-title"><span>对接记录 (${(s.logs||[]).length})</span></div>
+          <div class="log-list">${logs || '<div style="font-size:13px;color:#aaa;padding:8px 0">暂无记录</div>'}</div>
+          <div class="add-log">
+            <input type="text" id="log-input-${s.id}" placeholder="记录最新对接情况..." onkeydown="if(event.key==='Enter')addLog('${s.id}')">
+            <button class="btn btn-outline btn-sm" onclick="addLog('${s.id}')">添加</button>
+          </div>
+        </div>
+
+        <div class="supplier-actions">
+          <button class="btn btn-outline btn-sm" onclick="editSupplier('${s.id}')">编辑信息</button>
+          <button class="btn btn-outline btn-sm" onclick="changeStatus('${s.id}')">更改状态</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')">删除</button>
         </div>
       </div>
-      <div class="sup-actions">
-        <button class="btn btn-outline btn-sm" onclick="editSupplier(${i})">✏️</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteSupplier(${i})">🗑️</button>
-      </div>
-    </div>
-  `).join('');
-}
+    </div>`;
+  }).join('');
 
-function showForm() {
-  document.getElementById('form-panel').classList.add('show');
-  document.getElementById('form-title').textContent = '添加供应商';
-  document.getElementById('f-edit-idx').value = '-1';
-  clearForm();
-}
-
-function hideForm() {
-  document.getElementById('form-panel').classList.remove('show');
-}
-
-function clearForm() {
-  ['f-url','f-name','f-nameEn','f-location','f-contact','f-email','f-specialty','f-notes','f-rating'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-status').value = 'new';
-  document.getElementById('f-track').value = '';
-  document.getElementById('fetch-status').style.display = 'none';
-}
-
-function editSupplier(idx) {
-  const s = suppliers[idx];
-  document.getElementById('form-panel').classList.add('show');
-  document.getElementById('form-title').textContent = '编辑供应商';
-  document.getElementById('f-edit-idx').value = idx;
-  document.getElementById('f-url').value = s.url || '';
-  document.getElementById('f-name').value = s.name || '';
-  document.getElementById('f-nameEn').value = s.nameEn || '';
-  document.getElementById('f-location').value = s.location || '';
-  document.getElementById('f-contact').value = s.contact || '';
-  document.getElementById('f-email').value = s.email || '';
-  document.getElementById('f-specialty').value = s.specialty || '';
-  document.getElementById('f-notes').value = s.notes || '';
-  document.getElementById('f-status').value = s.status || 'new';
-  document.getElementById('f-track').value = s.track || '';
-  document.getElementById('f-rating').value = s.rating || '';
-}
-
-async function saveSupplier() {
-  const idx = parseInt(document.getElementById('f-edit-idx').value);
-  const supplier = {
-    url: document.getElementById('f-url').value.trim(),
-    name: document.getElementById('f-name').value.trim(),
-    nameEn: document.getElementById('f-nameEn').value.trim(),
-    location: document.getElementById('f-location').value.trim(),
-    contact: document.getElementById('f-contact').value.trim(),
-    email: document.getElementById('f-email').value.trim(),
-    specialty: document.getElementById('f-specialty').value.trim(),
-    notes: document.getElementById('f-notes').value.trim(),
-    status: document.getElementById('f-status').value,
-    track: document.getElementById('f-track').value,
-    rating: document.getElementById('f-rating').value ? parseInt(document.getElementById('f-rating').value) : null,
-    updatedAt: new Date().toISOString()
-  };
-  
-  if (idx >= 0) {
-    suppliers[idx] = { ...suppliers[idx], ...supplier };
-  } else {
-    supplier.createdAt = new Date().toISOString();
-    suppliers.push(supplier);
-  }
-  
-  await saveToServer();
-  renderList();
-  updateStats();
-  hideForm();
-}
-
-async function deleteSupplier(idx) {
-  if (!confirm('确定删除此供应商？')) return;
-  suppliers.splice(idx, 1);
-  await saveToServer();
-  renderList();
   updateStats();
 }
 
-async function saveToServer() {
+function toggleCard(id) {
+  const body = document.getElementById('body-' + id);
+  body.classList.toggle('open');
+}
+
+// === Edit History & Project Info ===
+function toggleEditHistory() {
+  document.getElementById('edit-history-body').classList.toggle('open');
+  const icon = document.getElementById('history-toggle-icon');
+  icon.textContent = document.getElementById('edit-history-body').classList.contains('open') ? '▲' : '▼';
+  loadEditHistory();
+}
+
+async function loadEditHistory() {
   try {
-    const res = await fetch('/api/modu-data', {
+    const res = await fetch(CLOUD_URL, { headers: { 'Accept': 'application/json' } });
+    const data = await res.json();
+    const history = data.editHistory || [];
+    const currentInfo = data.projectInfo || {};
+    const section = document.getElementById('edit-history-section');
+    const listEl = document.getElementById('edit-history-list');
+    
+    // Show current version at the top
+    const currentHtml = renderProjectInfoCard(currentInfo, '当前版本（最新）');
+    
+    let historyHtml = '';
+    if (history.length === 0) {
+      historyHtml = '<div class="edit-history-empty">暂无修改历史，等待客户填写信息</div>';
+    } else {
+      historyHtml = history.slice().reverse().map((entry, i) => {
+        const d = new Date(entry.time);
+        const timeStr = d.toLocaleDateString('zh-CN') + ' ' + d.toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'});
+        return `<div class="edit-history-item">
+          <div>
+            <div class="eh-summary">历史版本 — ${timeStr}</div>
+            <div class="eh-time">修改了 ${escHtml(entry.changedKeys ? entry.changedKeys.join('、') : '—')}</div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    
+    listEl.innerHTML = currentHtml + historyHtml;
+    translateAllMarked();
+  } catch(e) {
+    document.getElementById('edit-history-list').innerHTML = '<div style="color:#888">加载失败</div>';
+  }
+}
+
+function renderProjectInfoCard(info, label) {
+  const fieldGroups = [
+    { title: '👤 客户基本信息', fields: [
+      {key:'clientCompany', label:'公司名称'}, {key:'contactPerson', label:'联系人'},
+      {key:'contactMethod', label:'联系方式'}, {key:'location', label:'国家/城市'},
+      {key:'companyType', label:'公司类型'}, {key:'companyScale', label:'公司规模'},
+    ]},
+    { title: '📦 产品需求', fields: [
+      {key:'productName', label:'产品名称/类别'}, {key:'productUsage', label:'用途/场景'},
+      {key:'specifications', label:'规格参数'}, {key:'quantity', label:'采购数量'},
+      {key:'certifications', label:'认证要求'}, {key:'sampleDrawing', label:'样品/图纸'},
+      {key:'packagingReq', label:'包装要求'},
+    ]},
+    { title: '💰 价格与预算', fields: [
+      {key:'budget', label:'目标价格/预算'}, {key:'currency', label:'币种'},
+      {key:'tradeTerms', label:'贸易条款'}, {key:'paymentTerms', label:'付款方式'},
+    ]},
+    { title: '🚚 物流与交期', fields: [
+      {key:'destination', label:'目的港/收货地'}, {key:'timeline', label:'期望交期'},
+      {key:'shippingMethod', label:'运输方式'}, {key:'customsClearance', label:'清关协助'},
+    ]},
+    { title: '🏭 供应商要求', fields: [
+      {key:'supplierType', label:'供应商类型'}, {key:'supplierRegion', label:'地区偏好'},
+      {key:'factoryAudit', label:'验厂需求'}, {key:'sampleNeeded', label:'打样需求'},
+      {key:'oemOdm', label:'OEM/ODM'},
+    ]},
+    { title: '🔧 售后与其他', fields: [
+      {key:'warranty', label:'质保要求'}, {key:'afterSales', label:'售后支持'},
+      {key:'cooperationIntent', label:'合作意向'},
+    ]},
+  ];
+
+  let html = `<div style="padding:16px;background:#f7f8fa;border-radius:10px;border:1px solid #e8eaed;margin-bottom:12px">
+    <div style="font-size:12px;color:#e65100;font-weight:600;margin-bottom:12px">${escHtml(label)}</div>`;
+
+  const hasNewFields = fieldGroups.some(g => g.fields.some(f => info[f.key]));
+  const allEmpty = !hasNewFields;
+
+  if (allEmpty) {
+    html += '<div style="color:#ccc;font-size:13px;text-align:center;padding:20px 0">暂无客户信息，等待客户填写或通过 AI 建项提取</div>';
+  } else {
+    fieldGroups.forEach(group => {
+      html += `<div style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:600;color:#555;margin-bottom:8px;border-bottom:1px solid #eee;padding-bottom:4px">${group.title}</div>
+        <div style="display:grid;grid-template-columns:90px 1fr;gap:5px 12px;font-size:13px">`;
+      group.fields.forEach(f => {
+        const val = info[f.key] || '';
+        const displayVal = val || '<span style="color:#ccc">—</span>';
+        const needsTrans = val && _isNonChinese(val) ? ` data-needs-translate="${escHtml(val)}"` : '';
+        html += `<div style="color:#888;font-size:12px">${f.label}</div><div style="color:#333"${needsTrans}>${val ? escHtml(val) : displayVal}</div>`;
+      });
+      html += '</div></div>';
+    });
+  }
+
+  if (info.freeformNote) {
+    html += `<div style="margin-top:12px;padding-top:12px;border-top:1px dashed #e0e0e0">
+      <div style="font-size:11px;color:#e65100;font-weight:600;margin-bottom:6px">💬 补充信息</div>
+      <div style="font-size:13px;color:#333;line-height:1.6;white-space:pre-wrap">${escHtml(info.freeformNote)}</div>
+    </div>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+// === Search Suppliers Functionality ===
+let searchResults = [];
+
+function openSearchPanel() {
+  document.getElementById('search-panel').style.display = 'block';
+  document.getElementById('search-step1').style.display = 'block';
+  document.getElementById('search-step2').style.display = 'none';
+  document.getElementById('search-error').style.display = 'none';
+  autoFillKeywords();
+}
+
+function closeSearchPanel() {
+  document.getElementById('search-panel').style.display = 'none';
+  searchResults = [];
+}
+
+function backToSearch() {
+  document.getElementById('search-step1').style.display = 'block';
+  document.getElementById('search-step2').style.display = 'none';
+}
+
+async function autoFillKeywords() {
+  const inputEl = document.getElementById('search-keywords');
+  inputEl.value = '✨ AI 正在分析客户需求...';
+  inputEl.disabled = true;
+
+  try {
+    const res = await fetch(CLOUD_URL, { headers: { 'Accept': 'application/json' } });
+    const data = await res.json();
+    const info = data.projectInfo || {};
+
+    // Pre-translate fields to Chinese before sending to AI
+    const translatedInfo = {};
+    for (const [key, val] of Object.entries(info)) {
+      if (typeof val === 'string' && val.trim()) {
+        translatedInfo[key] = await translateToZh(val);
+      } else if (typeof val === 'string') {
+        translatedInfo[key] = val;
+      } else if (val != null) {
+        translatedInfo[key] = val;
+      }
+    }
+
+    const aiRes = await fetch('/api/ai-keywords', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ suppliers, _sha: dataSha })
+      body: JSON.stringify({ projectInfo: translatedInfo })
     });
-    const data = await res.json();
-    if (data._sha) dataSha = data._sha;
+    const aiData = await aiRes.json();
+
+    if (aiData.success && aiData.keywords) {
+      inputEl.value = aiData.keywords;
+    } else {
+      // Fallback
+      const parts = [];
+      if (info.productName) parts.push(info.productName);
+      if (info.productUsage) parts.push(info.productUsage);
+      if (info.supplierType) parts.push(info.supplierType);
+      const raw = parts.join(' ');
+      inputEl.value = raw ? (await translateToZh(raw)) : '注塑 玩具 代工';
+    }
   } catch(e) {
-    alert('保存失败: ' + e.message);
+    console.log('autoFillKeywords error:', e);
+    inputEl.value = '注塑 玩具 代工';
+  } finally {
+    inputEl.disabled = false;
   }
 }
 
+async function startSearch() {
+  const keywords = document.getElementById('search-keywords').value.trim();
+  if (!keywords) { alert('请输入搜索关键词'); return; }
+
+  const platforms = [];
+  if (document.getElementById('chk-1688').checked) platforms.push('1688');
+  if (document.getElementById('chk-alibaba').checked) platforms.push('alibaba');
+  if (document.getElementById('chk-madeinchina').checked) platforms.push('madeinchina');
+  
+  if (platforms.length === 0) { alert('请至少选择一个平台'); return; }
+
+  const btn = document.getElementById('search-btn');
+  const errEl = document.getElementById('search-error');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ 搜索中（约15秒）...';
+  errEl.style.display = 'none';
+
+  try {
+    const res = await fetch('/api/search-suppliers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ keywords, platforms })
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.error || '搜索失败');
+    }
+
+    searchResults = data.suppliers || [];
+    
+    if (searchResults.length === 0) {
+      errEl.textContent = '⚠️ 未找到匹配的供应商。建议换一组关键词重试。';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    renderSearchResults(data);
+    document.getElementById('search-step1').style.display = 'none';
+    document.getElementById('search-step2').style.display = 'block';
+
+  } catch(e) {
+    errEl.textContent = '❌ ' + e.message;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '🚀 开始搜索';
+  }
+}
+
+function renderSearchResults(data) {
+  const { suppliers, platformStatus } = data;
+  
+  let statusParts = [];
+  for (const [p, s] of Object.entries(platformStatus || {})) {
+    const pLabels = { '1688': '1688', 'alibaba': '阿里国际站', 'madeinchina': '中国制造网', 'ai_search': 'AI搜索' };
+    const label = pLabels[p] || p;
+    statusParts.push(s.success ? `${label} ✅${s.count}条` : `${label} ❌`);
+  }
+  document.getElementById('search-status').innerHTML = 
+    `共找到 <strong>${suppliers.length}</strong> 家供应商 | ${statusParts.join(' · ')}`;
+
+  let html = '';
+  suppliers.forEach((s, i) => {
+    const name = s.name || s.nameEn || '未知';
+    const platformBadge = { '1688': '🟠 1688', 'alibaba': '🟡 Alibaba', 'madeinchina': '🔵 MIC', 'ai_search': '🟣 AI' }[s.platform] || s.platform;
+    const relevanceColor = s.relevance >= 80 ? '#148a4e' : s.relevance >= 60 ? '#854f0b' : '#888';
+    
+    html += `<div style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid #e8eaed;border-radius:10px;margin-bottom:8px;transition:background 0.15s" onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
+      <input type="checkbox" class="search-cb" data-idx="${i}" onchange="updateSelectedCount()" checked style="margin-top:3px">
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+          <span style="font-size:13px;font-weight:600;color:#333">${escHtml(name)}</span>
+          <span style="font-size:11px;padding:2px 6px;background:#f3f4f6;border-radius:4px;color:#666">${platformBadge}</span>
+          ${s.relevance ? `<span style="font-size:11px;font-weight:600;color:${relevanceColor}">${s.relevance}%</span>` : ''}
+        </div>
+        <div style="font-size:12px;color:#666;display:flex;gap:12px;flex-wrap:wrap">
+          ${s.product ? `<span>📦 ${escHtml(s.product.substring(0, 40))}</span>` : ''}
+          ${s.location ? `<span>📍 ${escHtml(s.location)}</span>` : ''}
+          ${s.specialty ? `<span>⚡ ${escHtml(s.specialty.substring(0, 30))}</span>` : ''}
+        </div>
+        ${s.url ? `<a href="${escHtml(s.url)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block">🔗 查看主页</a>` : ''}
+      </div>
+    </div>`;
+  });
+  
+  document.getElementById('search-results').innerHTML = html;
+  document.getElementById('select-all').checked = true;
+  updateSelectedCount();
+}
+
+function toggleSelectAll() {
+  const checked = document.getElementById('select-all').checked;
+  document.querySelectorAll('.search-cb').forEach(cb => cb.checked = checked);
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  const count = document.querySelectorAll('.search-cb:checked').length;
+  document.getElementById('selected-count').textContent = count;
+}
+
+async function batchAddSuppliers() {
+  const selected = [];
+  document.querySelectorAll('.search-cb:checked').forEach(cb => {
+    const idx = parseInt(cb.dataset.idx);
+    if (searchResults[idx]) selected.push(searchResults[idx]);
+  });
+
+  if (selected.length === 0) { alert('请选择要添加的供应商'); return; }
+
+  const btn = document.getElementById('batch-add-btn');
+  const statusEl = document.getElementById('batch-status');
+  btn.disabled = true;
+  btn.innerHTML = '⏳ 正在查询官网 & 添加...';
+  statusEl.style.display = 'block';
+  statusEl.innerHTML = '<span style="color:#888">📡 正在查询供应商官网并提取详细信息...</span>';
+
+  try {
+    const enriched = await enrichSuppliersWithWebsite(selected, statusEl);
+
+    statusEl.innerHTML = '<span style="color:#888">💾 正在保存到管理后台...</span>';
+    const res = await fetch('/api/batch-add-suppliers', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ suppliers: enriched })
+    });
+    const data = await res.json();
+
+    if (!data.success) {
+      throw new Error(data.error || '添加失败');
+    }
+
+    statusEl.innerHTML = `<span style="color:#148a4e">✅ 成功添加 ${data.added} 家供应商！正在同步到列表...</span>`;
+    
+    setTimeout(async () => {
+      await forceReloadFromCloud();
+      renderList();
+      closeSearchPanel();
+    }, 1500);
+
+  } catch(e) {
+    statusEl.innerHTML = `<span style="color:#dc2626">❌ ${escHtml(e.message)}</span>`;
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '✅ 添加选中 (<span id="selected-count">' + document.querySelectorAll('.search-cb:checked').length + '</span>)';
+  }
+}
+
+async function enrichSuppliersWithWebsite(suppliers, statusEl) {
+  const enriched = [];
+  let completed = 0;
+  const batchSize = 3;
+  for (let i = 0; i < suppliers.length; i += batchSize) {
+    const batch = suppliers.slice(i, i + batchSize);
+    const promises = batch.map(async (s) => {
+      const enrichedItem = { ...s };
+      const companyName = s.name || s.nameEn || '';
+      if (!companyName) return enrichedItem;
+      try {
+        const searchTarget = await findOfficialWebsite(companyName, s.url);
+        if (!searchTarget) return enrichedItem;
+        const searchRes = await fetch('/api/fetch-company', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: searchTarget })
+        });
+        if (searchRes.ok) {
+          const result = await searchRes.json();
+          if (result.success && result.data) {
+            const d = result.data;
+            if (d.name) enrichedItem.name = d.name;
+            if (d.nameEn) enrichedItem.nameEn = d.nameEn;
+            if (d.location) enrichedItem.location = d.location;
+            if (d.specialty) enrichedItem.specialty = d.specialty;
+            if (d.contact) enrichedItem.contact = d.contact;
+            if (d.email) enrichedItem.email = d.email;
+          }
+        }
+      } catch(e) {}
+      return enrichedItem;
+    });
+    const results = await Promise.allSettled(promises);
+    results.forEach(r => {
+      enriched.push(r.status === 'fulfilled' ? r.value : batch[enriched.length - i]);
+      completed++;
+    });
+    if (statusEl) {
+      statusEl.innerHTML = `<span style="color:#888">📡 正在查询官网 (${completed}/${suppliers.length})...</span>`;
+    }
+  }
+  return enriched;
+}
+
+async function findOfficialWebsite(companyName, platformUrl) {
+  if (platformUrl) {
+    try {
+      const u = new URL(platformUrl);
+      if (u.hostname.includes('1688.com') || u.hostname.includes('alibaba.com') || u.hostname.includes('made-in-china.com')) {
+        const aiRes = await fetch('/api/search-official-website', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ companyName })
+        });
+        if (aiRes.ok) {
+          const data = await aiRes.json();
+          if (data.website) return data.website;
+        }
+        return platformUrl;
+      }
+      return platformUrl;
+    } catch(e) {}
+  }
+  return '';
+}
+// === End Search Suppliers ===
+
+// Modal operations
+function openAddModal() {
+  document.getElementById('modal-title').textContent = '添加供应商';
+  document.getElementById('edit-id').value = '';
+  document.getElementById('supplier-form').reset();
+  document.getElementById('fetch-status').innerHTML = '';
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('show');
+}
+
+// AI Fetch company info
 async function fetchCompanyInfo() {
   let url = document.getElementById('f-url').value.trim();
-  if (!url) { alert('请先输入公司网址'); return; }
-  
-  // Auto-prepend https:// if user only typed domain
+  if (!url) { alert('请先填入公司官网地址'); return; }
   if (!/^https?:\/\//i.test(url)) {
     url = 'https://' + url;
     document.getElementById('f-url').value = url;
   }
+  try { new URL(url); } catch(e) { alert('网址格式有误，请检查'); return; }
   
   const statusEl = document.getElementById('fetch-status');
-  statusEl.style.display = 'block';
-  statusEl.innerHTML = '⏳ 正在抓取网页信息...';
+  const btn = document.getElementById('btn-fetch');
+  btn.disabled = true;
+  btn.textContent = '⏳ 抓取中...';
+  statusEl.innerHTML = '<span style="color:#b86e00">① 正在访问网站获取内容...</span>';
   
   try {
     const res = await fetch('/api/fetch-company', {
@@ -344,78 +1079,291 @@ async function fetchCompanyInfo() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ url })
     });
+    if (!res.ok) { const err = await res.json().catch(() => ({})); throw new Error(err.error || `HTTP ${res.status}`); }
+    
     const result = await res.json();
-    if (result.error) {
-      statusEl.innerHTML = '<span style="color:#e24b4a">❌ ' + result.error + '</span>';
-      return;
-    }
+    if (!result.success) throw new Error('抓取失败');
     
     const d = result.data;
     let filled = [];
     
-    // Fill heuristic data
     if (d.name) {
       const hasChinese = /[\u4e00-\u9fa5]/.test(d.name);
-      if (hasChinese) {
-        document.getElementById('f-name').value = d.name;
-        filled.push('公司中文名');
-      } else {
-        document.getElementById('f-nameEn').value = d.name;
-        filled.push('公司英文名');
-      }
+      if (hasChinese) { document.getElementById('f-name').value = d.name; filled.push('公司中文名'); }
+      else { document.getElementById('f-nameEn').value = d.name; filled.push('公司英文名'); }
     }
-    if (d.nameEn && d.nameEn !== d.name) {
-      document.getElementById('f-nameEn').value = d.nameEn;
-      if (!filled.includes('公司英文名')) filled.push('公司英文名');
-    }
+    if (d.nameEn && d.nameEn !== d.name) { document.getElementById('f-nameEn').value = d.nameEn; if (!filled.includes('公司英文名')) filled.push('公司英文名'); }
     if (d.location) { document.getElementById('f-location').value = d.location; filled.push('所在地区'); }
     if (d.specialty) { document.getElementById('f-specialty').value = d.specialty; filled.push('主营业务'); }
     if (d.contact) { document.getElementById('f-contact').value = d.contact; filled.push('联系方式'); }
     if (d.email) { document.getElementById('f-email').value = d.email; filled.push('邮箱'); }
     
-    // If no webpage content (SPA/search result), skip AI summary
     if (!result.raw || !result.raw.textContent || result.raw.textContent.trim().length < 50) {
-      let statusMsg = filled.length > 0
-        ? '<span style="color:#148a4e">✓ 已填入: ' + filled.join('、') + '</span>'
-        : '<span style="color:#888">ℹ 未提取到有效信息</span>';
-      if (result.note) {
-        statusMsg += '<br><span style="font-size:11px;color:#b86e00">' + (result.note || '').replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</span>';
-      }
+      let statusMsg = filled.length > 0 ? '<span style="color:#148a4e">✓ 已填入：' + filled.join('、') + '</span>' : '<span style="color:#888">ℹ 未提取到有效信息</span>';
+      if (result.note) statusMsg += '<br><span style="font-size:11px;color:#b86e00">' + escHtml(result.note) + '</span>';
       statusEl.innerHTML = statusMsg;
     } else {
-    
-    // AI analysis
-    const aiRes = await fetch('/api/ai-summary', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        textContent: (result.raw.textContent || '').substring(0, 5000),
-        title: result.raw.title || '',
-        description: result.raw.description || '',
-        keywords: result.raw.keywords || '',
-        url: url
-      })
-    });
-    const aiResult = await aiRes.json();
-    
-    if (aiResult.success) {
-      if (aiResult.nameCn) { document.getElementById('f-name').value = aiResult.nameCn; filled.push('中文名(AI)'); }
-      if (aiResult.nameEn) { document.getElementById('f-nameEn').value = aiResult.nameEn; filled.push('英文名(AI)'); }
-      if (aiResult.location) { document.getElementById('f-location').value = aiResult.location; filled.push('地区(AI)'); }
-      if (aiResult.phones) { document.getElementById('f-contact').value = aiResult.phones; filled.push('电话(AI)'); }
-      if (aiResult.emails) { document.getElementById('f-email').value = aiResult.emails; filled.push('邮箱(AI)'); }
-      if (aiResult.specialty) { document.getElementById('f-specialty').value = aiResult.specialty; filled.push('产品(AI)'); }
-      if (aiResult.notes) { document.getElementById('f-notes').value = aiResult.notes; filled.push('备注(AI)'); }
-      
-      statusEl.innerHTML = '<span style="color:#148a4e">✓ 已重新抓取并覆盖：' + filled.join('、') + '</span><br><span style="font-size:11px;color:#6b21a8">🤖 AI已分析网页内容并生成总结</span>';
+      statusEl.innerHTML = '<span style="color:#b86e00">② AI正在分析网页内容，生成总结...</span>';
+      try {
+        const aiResult = await callAISummary({...result.raw, url});
+        if (aiResult.nameCn) { document.getElementById('f-name').value = aiResult.nameCn; filled.push('中文名(AI)'); }
+        if (aiResult.nameEn) { document.getElementById('f-nameEn').value = aiResult.nameEn; filled.push('英文名(AI)'); }
+        if (aiResult.location) { document.getElementById('f-location').value = aiResult.location; filled.push('地区(AI)'); }
+        if (aiResult.phones) { document.getElementById('f-contact').value = aiResult.phones; filled.push('电话(AI)'); }
+        if (aiResult.emails) { document.getElementById('f-email').value = aiResult.emails; filled.push('邮箱(AI)'); }
+        if (aiResult.specialty) { document.getElementById('f-specialty').value = aiResult.specialty; filled.push('产品(AI)'); }
+        if (aiResult.notes) { document.getElementById('f-notes').value = aiResult.notes; filled.push('备注(AI)'); }
+        statusEl.innerHTML = '<span style="color:#148a4e">✓ 已重新抓取并覆盖：' + filled.join('、') + '</span><br><span style="font-size:11px;color:#6b21a8">🤖 AI已分析网页内容并生成总结</span>';
+      } catch(aiErr) {
+        let statusMsg = filled.length > 0 ? '<span style="color:#148a4e">✓ 已填入基本信息：' + filled.join('、') + '</span>' : '';
+        statusMsg += '<br><span style="font-size:11px;color:#b86e00">⚠ AI分析失败</span>';
+        statusEl.innerHTML = statusMsg;
+      }
     }
-    } // end of else (has content to analyze)
   } catch(e) {
-    statusEl.innerHTML = '<span style="color:#e24b4a">❌ 抓取失败: ' + e.message + '</span>';
+    statusEl.innerHTML = '<span style="color:#e24b4a">⚠ 抓取失败：' + escHtml(e.message) + '</span>';
+  }
+  btn.disabled = false;
+  btn.textContent = '🤖 AI抓取';
+}
+
+async function callAISummary(rawData) {
+  const response = await fetch('/api/ai-summary', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      textContent: (rawData.textContent || '').substring(0, 5000),
+      title: rawData.title || '',
+      description: rawData.description || '',
+      keywords: rawData.keywords || '',
+      url: rawData.url || ''
+    })
+  });
+  if (!response.ok) { const err = await response.json().catch(() => ({})); throw new Error(err.error || `HTTP ${response.status}`); }
+  const data = await response.json();
+  if (!data.success) throw new Error('AI返回异常');
+  return { nameEn: data.nameEn || '', nameCn: data.nameCn || '', location: data.location || '', phones: data.phones || '', emails: data.emails || '', notes: data.notes || '', specialty: data.specialty || '' };
+}
+
+function saveSupplier(e) {
+  e.preventDefault();
+  const suppliers = getSuppliers();
+  const editId = document.getElementById('edit-id').value;
+
+  const data = {
+    url: document.getElementById('f-url').value.trim(),
+    name: document.getElementById('f-name').value.trim(),
+    nameEn: document.getElementById('f-nameEn').value.trim(),
+    location: document.getElementById('f-location').value.trim(),
+    specialty: document.getElementById('f-specialty').value.trim(),
+    contact: document.getElementById('f-contact').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    track: document.getElementById('f-track').value,
+    status: document.getElementById('f-status').value,
+    rating: document.getElementById('f-rating').value ? parseInt(document.getElementById('f-rating').value) : null,
+    notes: document.getElementById('f-notes').value.trim(),
+    updatedAt: Date.now()
+  };
+
+  if (editId) {
+    const idx = suppliers.findIndex(s => s.id === editId);
+    if (idx >= 0) suppliers[idx] = {...suppliers[idx], ...data};
+  } else {
+    suppliers.push({ id: genId(), ...data, logs: [], createdAt: Date.now() });
+  }
+
+  saveToStorage(suppliers);
+  closeModal();
+  renderList();
+}
+
+function editSupplier(id) {
+  const suppliers = getSuppliers();
+  const s = suppliers.find(x => x.id === id);
+  if (!s) return;
+
+  document.getElementById('modal-title').textContent = '编辑供应商';
+  document.getElementById('edit-id').value = s.id;
+  document.getElementById('f-url').value = s.url || '';
+  document.getElementById('f-name').value = s.name || '';
+  document.getElementById('f-nameEn').value = s.nameEn || '';
+  document.getElementById('f-location').value = s.location || '';
+  document.getElementById('f-specialty').value = s.specialty || '';
+  document.getElementById('f-contact').value = s.contact || '';
+  document.getElementById('f-email').value = s.email || '';
+  document.getElementById('f-track').value = s.track || '';
+  document.getElementById('f-status').value = s.status || 'new';
+  document.getElementById('f-rating').value = s.rating || '';
+  document.getElementById('f-notes').value = s.notes || '';
+  document.getElementById('modal-overlay').classList.add('show');
+}
+
+function changeStatus(id) {
+  const suppliers = getSuppliers();
+  const s = suppliers.find(x => x.id === id);
+  if (!s) return;
+
+  const statuses = ['new','contacted','replied','shortlisted','rejected'];
+  const labels = ['新发现','已联系','已回复','候选','不合适'];
+  const current = statuses.indexOf(s.status);
+  const choice = prompt('选择新状态（输入数字）：\n1. 新发现\n2. 已联系\n3. 已回复\n4. 候选\n5. 不合适\n\n当前：' + (labels[current]||'未知'));
+
+  const idx = parseInt(choice) - 1;
+  if (idx >= 0 && idx < statuses.length) {
+    s.status = statuses[idx];
+    s.updatedAt = Date.now();
+    s.logs = s.logs || [];
+    s.logs.push({time: Date.now(), text: `状态变更为「${labels[idx]}」`});
+    saveToStorage(suppliers);
+    renderList();
   }
 }
 
+function deleteSupplier(id) {
+  if (!confirm('确定删除此供应商？')) return;
+  const suppliers = getSuppliers().filter(s => s.id !== id);
+  saveToStorage(suppliers);
+  renderList();
+}
+
+function addLog(id) {
+  const input = document.getElementById('log-input-' + id);
+  const text = input.value.trim();
+  if (!text) return;
+  const suppliers = getSuppliers();
+  const s = suppliers.find(x => x.id === id);
+  if (!s) return;
+  s.logs = s.logs || [];
+  s.logs.push({time: Date.now(), text});
+  s.updatedAt = Date.now();
+  saveToStorage(suppliers);
+  input.value = '';
+  renderList();
+  setTimeout(() => { document.getElementById('body-' + id).classList.add('open'); }, 50);
+}
+
+function deleteLog(supplierId, logIndex) {
+  if (!confirm('删除这条记录？')) return;
+  const suppliers = getSuppliers();
+  const s = suppliers.find(x => x.id === supplierId);
+  if (!s || !s.logs) return;
+  s.logs.splice(logIndex, 1);
+  saveToStorage(suppliers);
+  renderList();
+  setTimeout(() => { document.getElementById('body-' + supplierId).classList.add('open'); }, 50);
+}
+
+// Profile management
+const PROFILE_KEY = 'modu_coordinator_profile';
+
+function getProfile() {
+  try { return JSON.parse(localStorage.getItem(PROFILE_KEY)) || {}; } catch { return {}; }
+}
+
+function toggleProfile() {
+  document.getElementById('profile-body').classList.toggle('open');
+  const icon = document.getElementById('profile-toggle-icon');
+  icon.textContent = document.getElementById('profile-body').classList.contains('open') ? '▲' : '▼';
+}
+
+function loadProfile() {
+  const p = getProfile();
+  document.getElementById('pf-name').value = p.name || '';
+  document.getElementById('pf-avatar').value = p.avatarUrl || '';
+  document.getElementById('pf-avatar-url').value = (p.avatarUrl && !p.avatarUrl.startsWith('data:')) ? p.avatarUrl : '';
+  document.getElementById('pf-phone').value = p.phone || '';
+  document.getElementById('pf-wechat').value = p.wechat || '';
+  document.getElementById('pf-whatsapp').value = p.whatsapp || '';
+  document.getElementById('pf-telegram').value = p.telegram || '';
+  document.getElementById('pf-city').value = p.city || '';
+  document.getElementById('pf-bio').value = p.bio || '';
+  updateProfilePreview(p);
+  updateAvatarPreview(p.avatarUrl);
+}
+
+function updateProfilePreview(p) {
+  const avatarEl = document.getElementById('profile-avatar-preview');
+  const nameEl = document.getElementById('profile-name-preview');
+  if (p.avatarUrl) {
+    avatarEl.innerHTML = '<img src="' + escHtml(p.avatarUrl) + '" alt="">';
+  } else {
+    avatarEl.textContent = (p.name || 'H').charAt(0).toUpperCase();
+  }
+  nameEl.textContent = p.name || '点击设置个人信息';
+}
+
+function updateAvatarPreview(url) {
+  const img = document.getElementById('avatar-preview-img');
+  const placeholder = document.getElementById('avatar-placeholder-text');
+  const area = document.getElementById('avatar-upload-area');
+  if (url) {
+    img.src = url;
+    img.style.display = 'block';
+    placeholder.style.display = 'none';
+    area.classList.add('has-image');
+  } else {
+    img.style.display = 'none';
+    placeholder.style.display = 'block';
+    area.classList.remove('has-image');
+  }
+}
+
+function handleAvatarUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const url = e.target.result;
+    document.getElementById('pf-avatar').value = url;
+    document.getElementById('pf-avatar-url').value = '';
+    updateAvatarPreview(url);
+  };
+  reader.readAsDataURL(file);
+}
+
+function handleAvatarUrl(url) {
+  document.getElementById('pf-avatar').value = url;
+  document.getElementById('pf-avatar-file').value = '';
+  updateAvatarPreview(url || '');
+}
+
+async function saveProfile() {
+  const profile = {
+    name: document.getElementById('pf-name').value.trim(),
+    avatarUrl: document.getElementById('pf-avatar').value,
+    phone: document.getElementById('pf-phone').value.trim(),
+    wechat: document.getElementById('pf-wechat').value.trim(),
+    whatsapp: document.getElementById('pf-whatsapp').value.trim(),
+    telegram: document.getElementById('pf-telegram').value.trim(),
+    city: document.getElementById('pf-city').value.trim(),
+    bio: document.getElementById('pf-bio').value.trim(),
+    updatedAt: Date.now()
+  };
+  localStorage.setItem(PROFILE_KEY, JSON.stringify(profile));
+  
+  // Sync to cloud
+  try {
+    let cloudData = {};
+    try {
+      const getRes = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
+      if (getRes.ok) cloudData = await getRes.json();
+    } catch(e) {}
+    cloudData.coordinatorProfile = profile;
+    if (dataSha) cloudData._sha = dataSha;
+    await fetch(CLOUD_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(cloudData)
+    });
+  } catch(e) { console.log('Profile sync failed:', e); }
+  
+  updateProfilePreview(profile);
+  document.getElementById('profile-save-status').innerHTML = '<span style="color:#148a4e">✓ 已保存</span>';
+  setTimeout(() => { document.getElementById('profile-save-status').innerHTML = ''; }, 2000);
+}
+
 function exportData() {
+  const suppliers = getSuppliers();
   const blob = new Blob([JSON.stringify({ suppliers }, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -424,7 +1372,29 @@ function exportData() {
 }
 
 // Init
-loadData();
+async function init() {
+  await loadFromCloud();
+  await forceReloadFromCloud();
+  renderList();
+  loadProfile();
+  execWhenVisible(function() { loadEditHistory(); });
+}
+
+function execWhenVisible(fn) {
+  if (document.getElementById('edit-history-list').offsetParent) {
+    fn();
+  } else {
+    // Wait for edit history to be opened
+    const observer = new MutationObserver(() => {
+      if (document.getElementById('edit-history-list').offsetParent) {
+        observer.disconnect();
+        fn();
+      }
+    });
+  }
+}
+
+init();
 </script>
 </body>
 </html>
