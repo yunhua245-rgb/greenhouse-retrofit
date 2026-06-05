@@ -45,28 +45,6 @@
       "updatedAt": "2026-06-05T10:11:30.385Z"
     },
     {
-      "id": "ewi3jhbul7td",
-      "name": "东莞市德盛塑胶玩具有限公司",
-      "nameEn": "Dongguan Desheng Plastic Toys Co., Ltd.",
-      "website": "https://deshengtoys.1688.com/",
-      "platformUrl": "https://deshengtoys.1688.com/",
-      "location": "广东东莞",
-      "specialty": "注塑模具开发与玩具代工一体化，支持复杂结构设计",
-      "contact": "",
-      "email": "",
-      "export": "unknown",
-      "status": "pending",
-      "notes": "主营: 注塑模具开发与玩具代工一体化，支持复杂结构设计",
-      "logs": [
-        {
-          "time": "2026-06-05T10:11:30.385Z",
-          "text": "已添加供应商"
-        }
-      ],
-      "createdAt": "2026-06-05T10:11:30.385Z",
-      "updatedAt": "2026-06-05T10:11:30.385Z"
-    },
-    {
       "id": "0s062jrvl7td",
       "name": "汕头市澄海区嘉盛玩具厂",
       "nameEn": "Shantou Chenghai Jiasheng Toys Factory",
@@ -222,5 +200,5 @@
     }
   ],
   "projectInfo": {},
-  "_sha": ""
+  "lastUpdated": 1780654355128
 }
