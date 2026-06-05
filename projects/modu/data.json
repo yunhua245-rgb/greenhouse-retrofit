@@ -45,28 +45,6 @@
       "updatedAt": "2026-06-05T10:11:30.385Z"
     },
     {
-      "id": "hxv630dhl7td",
-      "name": "汕头市澄海区恒达玩具厂",
-      "nameEn": "Shantou Chenghai Hengda Toys Factory",
-      "website": "https://hengdatoy.cn.made-in-china.com/",
-      "platformUrl": "https://hengdatoy.cn.made-in-china.com/",
-      "location": "广东汕头",
-      "specialty": "中国制造网认证供应商，注塑玩具代工，可提供模具设计与制造",
-      "contact": "",
-      "email": "",
-      "export": "unknown",
-      "status": "pending",
-      "notes": "主营: 中国制造网认证供应商，注塑玩具代工，可提供模具设计与制造",
-      "logs": [
-        {
-          "time": "2026-06-05T10:11:30.385Z",
-          "text": "已添加供应商"
-        }
-      ],
-      "createdAt": "2026-06-05T10:11:30.385Z",
-      "updatedAt": "2026-06-05T10:11:30.385Z"
-    },
-    {
       "id": "tp56a973l7td",
       "name": "浙江金马玩具有限公司",
       "nameEn": "Zhejiang Jinma Toys Co., Ltd.",
@@ -90,5 +68,5 @@
     }
   ],
   "projectInfo": {},
-  "lastUpdated": 1780654368348
+  "lastUpdated": 1780654370655
 }
