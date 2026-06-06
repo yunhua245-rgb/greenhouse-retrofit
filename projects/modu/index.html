@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MODU Toy Manufacturing — China Sourcing</title>
+<title>模块化玩具 — 中国制造寻源</title>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
@@ -103,6 +103,8 @@
   .update-bar{background:#fff;border:1px solid #e8eaed;border-radius:10px;padding:12px 18px;margin-top:22px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#888}
   .update-bar .dot{width:7px;height:7px;background:#4caf50;border-radius:50%;display:inline-block;margin-right:6px}
   .footer{text-align:center;padding:30px 20px;font-size:11px;color:#bbb}
+  .client-edit-link{display:block;text-align:center;margin-top:20px;padding:14px;background:#f7f8fa;border:1px dashed #ccc;border-radius:12px;text-decoration:none;color:#555;font-size:14px;transition:all 0.2s}
+  .client-edit-link:hover{background:#fff3e0;border-color:#e65100;color:#bf360c}
   
   @media(max-width:600px){
     .hero h1{font-size:22px}
@@ -118,8 +120,8 @@
 <body>
 
 <div class="hero">
-  <h1 id="hero-title">MODU Modular Toys — China Manufacturing Sourcing</h1>
-  <p class="hero-sub" id="hero-desc">Sourcing Chinese injection molding factories, equipment suppliers, and mold makers for Danish MODU brand</p>
+  <h1 id="hero-title">模块化玩具 — 中国制造寻源</h1>
+  <p class="hero-sub" id="hero-desc">寻找中国注塑代工厂、设备供应商和模具制造商</p>
   <span class="hero-badge"><span class="dot"></span><span id="badge-phase">Project Kickoff Phase</span></span>
 </div>
 
@@ -286,6 +288,8 @@
     </div>
   </div>
 
+  <a href="/client-edit.html" class="client-edit-link" data-i18n="edit-link">📝 更新项目信息（需求、备注、联系方式）</a>
+
   <div class="update-bar">
     <div><span class="dot"></span><span data-i18n="update-text">每个节点更新</span></div>
     <div data-i18n="update-time">2026年6月4日</div>
@@ -293,13 +297,13 @@
 
 </div>
 
-<div class="footer">MODU China Sourcing Project © 2026</div>
+<div class="footer">模块化玩具 — 中国制造寻源 © 2026</div>
 
 <script>
 const i18n = {
   zh: {
-    "hero-title": "MODU 模块化玩具 — 中国制造寻源",
-    "hero-desc": "为丹麦 MODU 品牌寻找中国注塑代工厂、设备供应商和模具制造商",
+    "hero-title": "模块化玩具 — 中国制造寻源",
+    "hero-desc": "寻找中国注塑代工厂、设备供应商和模具制造商",
     "badge-phase": "项目启动阶段",
     "s1-title": "项目状态",
     "s1-type-l": "项目类型", "s1-type-v": "代工寻源",
@@ -324,11 +328,12 @@ const i18n = {
     "col-a-title": "方向A · 代工", "col-b-title": "方向B · 设备", "col-c-title": "方向C · 模具", "col-empty": "暂无",
     "s5-title": "你的协调人",
     "s5-r1": "供应商筛选", "s5-r2": "价格谈判", "s5-r3": "项目协调", "s5-r4": "质量保障",
-    "update-text": "每个节点更新", "update-time": "2026年6月4日"
+    "update-text": "每个节点更新", "update-time": "2026年6月4日",
+    "edit-link": "📝 更新项目信息（需求、备注、联系方式）"
   },
   en: {
-    "hero-title": "MODU Modular Toys — China Manufacturing Sourcing",
-    "hero-desc": "Sourcing Chinese injection molding factories, equipment suppliers, and mold makers for Danish MODU brand",
+    "hero-title": "Modular Toys — China Manufacturing Sourcing",
+    "hero-desc": "Sourcing Chinese injection molding factories, equipment suppliers, and mold makers for modular toy production",
     "badge-phase": "Project Kickoff Phase",
     "s1-title": "Project Status",
     "s1-type-l": "Project Type", "s1-type-v": "OEM Sourcing",
@@ -353,11 +358,12 @@ const i18n = {
     "col-a-title": "Track A · OEM", "col-b-title": "Track B · Equipment", "col-c-title": "Track C · Molds", "col-empty": "None yet",
     "s5-title": "Your Coordinator",
     "s5-r1": "Supplier screening", "s5-r2": "Price negotiation", "s5-r3": "Project coordination", "s5-r4": "Quality assurance",
-    "update-text": "Page updated at every milestone", "update-time": "Jun 4, 2026"
+    "update-text": "Page updated at every milestone", "update-time": "Jun 4, 2026",
+    "edit-link": "📝 Update project details (requirements, notes, contact)"
   },
   ru: {
-    "hero-title": "MODU модульные игрушки — Производство в Китае",
-    "hero-desc": "Поиск китайских заводов для литья под давлением, поставщиков оборудования и изготовителей пресс-форм для бренда MODU",
+    "hero-title": "Модульные игрушки — Производство в Китае",
+    "hero-desc": "Поиск китайских заводов для литья под давлением, поставщиков оборудования и изготовителей пресс-форм для производства модульных игрушек",
     "badge-phase": "Этап запуска проекта",
     "s1-title": "Статус проекта",
     "s1-type-l": "Тип проекта", "s1-type-v": "Поиск OEM",
@@ -382,7 +388,8 @@ const i18n = {
     "col-a-title": "Направление A · OEM", "col-b-title": "Направление B · Оборудование", "col-c-title": "Направление C · Пресс-формы", "col-empty": "Пока нет",
     "s5-title": "Ваш координатор",
     "s5-r1": "Отбор поставщиков", "s5-r2": "Переговоры о цене", "s5-r3": "Координация проекта", "s5-r4": "Гарантия качества",
-    "update-text": "Обновляется на каждом этапе", "update-time": "4 июня 2026"
+    "update-text": "Обновляется на каждом этапе", "update-time": "4 июня 2026",
+    "edit-link": "📝 Обновить данные проекта (требования, заметки, контакты)"
   }
 };
 
@@ -413,6 +420,9 @@ function switchLang(lang) {
   renderCoordinator();
   renderDynamicProjectInfo();
   renderDisplayContent();
+  setTimeout(translateUserContent, 200);
+  const editLink = document.querySelector('.client-edit-link');
+  if (editLink) editLink.href = '/client-edit.html?lang=' + lang;
 }
 
 // Cloud data
@@ -479,9 +489,9 @@ function renderSuppliers() {
       const stLabel = (stLabels[currentLang]||stLabels.zh)[s.status]||s.status||'new';
       const badgeCls = s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':s.status==='shortlisted'?'badge-green':'badge-amber';
       return `<div class="sup-item">
-        <div style="font-weight:600;font-size:13px;color:#1a1a1a;margin-bottom:4px">${escHtml(s.name||s.displayName||s.nameEn||s.nameCn||'')}</div>
+        <div data-translate data-original="${escHtml(s.name||s.displayName||s.nameEn||s.nameCn||'')}" style="font-weight:600;font-size:13px;color:#1a1a1a;margin-bottom:4px">${escHtml(s.name||s.displayName||s.nameEn||s.nameCn||'')}</div>
         <div style="font-size:11px;color:#999;margin-bottom:4px">${escHtml(s.track||'')} · #${escHtml(s.id||'')}</div>
-        ${s.specialty||s.location ? '<div class="sup-detail">'+escHtml(s.location||'')+( s.specialty?' · '+escHtml(s.specialty):'')+'</div>' : ''}
+        ${s.specialty||s.location ? '<div data-translate data-original="'+escHtml(s.location||'')+(s.specialty?' · '+escHtml(s.specialty):'')+'" class="sup-detail">'+escHtml(s.location||'')+( s.specialty?' · '+escHtml(s.specialty):'')+'</div>' : ''}
         <div class="sup-status"><span class="badge ${badgeCls}">${stLabel}</span></div>
       </div>`;
     }).join('');
@@ -534,6 +544,35 @@ function renderCoordinator() {
 }
 
 function escHtml(str) { const d=document.createElement('div'); d.textContent=str||''; return d.innerHTML; }
+
+// Translation via MyMemory API
+const translateCache = {};
+async function translateText(text, targetLang) {
+  if (!text || text.length < 2 || targetLang === 'zh') return text;
+  const cacheKey = text.substring(0, 200) + '|' + targetLang;
+  if (translateCache[cacheKey]) return translateCache[cacheKey];
+  try {
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.substring(0, 500))}&langpair=zh|${targetLang}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.responseData && data.responseData.translatedText) {
+      const translated = data.responseData.translatedText;
+      translateCache[cacheKey] = translated;
+      return translated;
+    }
+  } catch(e) { console.log('translate error:', e.message); }
+  return text;
+}
+async function translateUserContent() {
+  if (currentLang === 'zh') return;
+  const els = document.querySelectorAll('[data-translate]');
+  for (const el of els) {
+    const original = el.getAttribute('data-original');
+    if (!original) continue;
+    const translated = await translateText(original, currentLang);
+    el.textContent = translated;
+  }
+}
 
 // Dynamic project info
 function renderDynamicProjectInfo() {

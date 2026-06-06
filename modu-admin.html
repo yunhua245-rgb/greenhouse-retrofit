@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>供应商管理后台 — MODU 玩具制造寻源</title>
+<title>供应商管理后台 — 模块化玩具 中国制造寻源</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.6}
@@ -114,12 +114,24 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
   .stats-bar{grid-template-columns:1fr 1fr}
   .modal{padding:20px}
 }
+.edit-modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+.edit-modal{background:#fff;border-radius:14px;max-width:600px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,0.3)}
+.edit-modal-header{padding:20px 24px;border-bottom:1px solid #e8eaed;display:flex;justify-content:space-between;align-items:center}
+.edit-modal-header h3{margin:0;font-size:17px}
+.edit-modal-body{padding:20px 24px;max-height:60vh;overflow-y:auto}
+.edit-modal-body .card{background:#f9fafb;border:1px solid #e8eaed;border-radius:10px;padding:16px;margin-bottom:12px}
+.edit-modal-body .card-title{font-size:13px;font-weight:600;color:#555;margin-bottom:10px}
+.edit-modal-body .form-row{margin-bottom:10px}
+.edit-modal-body .form-row label{display:block;font-size:11px;color:#888;margin-bottom:3px}
+.edit-modal-body .form-row input,.edit-modal-body .form-row textarea{width:100%;padding:8px 10px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit}
+.edit-modal-body .form-row textarea{min-height:50px;resize:vertical}
+.edit-modal-footer{padding:16px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;gap:10px}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <h1>🧸 MODU 玩具制造 — 供应商管理</h1>
+  <h1>🧸 模块化玩具 — 供应商管理</h1>
   <div style="display:flex;align-items:center;gap:16px">
     <span id="sync-status" style="font-size:12px;color:#888">⟳ 连接中...</span>
     <a href="/projects/modu/index.html" class="back-link">← 查看展示页面</a>
@@ -140,6 +152,7 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
         </div>
       </div>
       <span style="font-size:18px;color:#aaa" id="history-toggle-icon">▼</span>
+      <button class="btn btn-sm btn-outline" onclick="openEditClientInfo()" style="margin-left:8px">✏️ 编辑</button>
     </div>
     <div class="profile-body" id="edit-history-body">
       <div id="edit-history-list" style="font-size:13px;color:#555">加载中...</div>
@@ -340,6 +353,7 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 </div>
 
 <script>
+<script src="/shared/fields.js"></script>
 const STORAGE_KEY = 'modu_suppliers';
 const CLOUD_URL = '/api/modu-data';
 let syncStatus = 'idle';
@@ -680,36 +694,10 @@ async function loadEditHistory() {
 }
 
 function renderProjectInfoCard(info, label) {
-  const fieldGroups = [
-    { title: '👤 客户基本信息', fields: [
-      {key:'clientCompany', label:'公司名称'}, {key:'contactPerson', label:'联系人'},
-      {key:'contactMethod', label:'联系方式'}, {key:'location', label:'国家/城市'},
-      {key:'companyType', label:'公司类型'}, {key:'companyScale', label:'公司规模'},
-    ]},
-    { title: '📦 产品需求', fields: [
-      {key:'productName', label:'产品名称/类别'}, {key:'productUsage', label:'用途/场景'},
-      {key:'specifications', label:'规格参数'}, {key:'quantity', label:'采购数量'},
-      {key:'certifications', label:'认证要求'}, {key:'sampleDrawing', label:'样品/图纸'},
-      {key:'packagingReq', label:'包装要求'},
-    ]},
-    { title: '💰 价格与预算', fields: [
-      {key:'budget', label:'目标价格/预算'}, {key:'currency', label:'币种'},
-      {key:'tradeTerms', label:'贸易条款'}, {key:'paymentTerms', label:'付款方式'},
-    ]},
-    { title: '🚚 物流与交期', fields: [
-      {key:'destination', label:'目的港/收货地'}, {key:'timeline', label:'期望交期'},
-      {key:'shippingMethod', label:'运输方式'}, {key:'customsClearance', label:'清关协助'},
-    ]},
-    { title: '🏭 供应商要求', fields: [
-      {key:'supplierType', label:'供应商类型'}, {key:'supplierRegion', label:'地区偏好'},
-      {key:'factoryAudit', label:'验厂需求'}, {key:'sampleNeeded', label:'打样需求'},
-      {key:'oemOdm', label:'OEM/ODM'},
-    ]},
-    { title: '🔧 售后与其他', fields: [
-      {key:'warranty', label:'质保要求'}, {key:'afterSales', label:'售后支持'},
-      {key:'cooperationIntent', label:'合作意向'},
-    ]},
-  ];
+  const fieldGroups = FIELD_GROUPS.map(g => ({
+    title: g.icon + ' ' + g.titleZh,
+    fields: g.fields.map(f => ({key: f.key, label: f.labelZh}))
+  }));
 
   let html = `<div style="padding:16px;background:#f7f8fa;border-radius:10px;border:1px solid #e8eaed;margin-bottom:12px">
     <div style="font-size:12px;color:#e65100;font-weight:600;margin-bottom:12px">${escHtml(label)}</div>`;
@@ -739,6 +727,75 @@ function renderProjectInfoCard(info, label) {
   }
   html += '</div>';
   return html;
+}
+
+// === Inline Edit Client Project Info ===
+const editFieldGroups = FIELD_GROUPS;
+
+let _editCurrentInfo = {};
+
+async function openEditClientInfo(){
+  const res=await fetch(CLOUD_URL,{headers:{'Accept':'application/json'}});
+  if(!res.ok) return alert('加载失败');
+  const data=await res.json();
+  _editCurrentInfo=data.projectInfo||{};
+
+  let groupsHtml='';
+  editFieldGroups.forEach(g=>{
+    let fieldsHtml='';
+    g.fields.forEach(f=>{
+      const val=_editCurrentInfo[f.key]||'';
+      const input=f.type==='textarea'
+        ?`<textarea id="edit-f-${f.key}" style="width:100%;padding:8px 10px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit;min-height:50px;resize:vertical">${escHtml(val)}</textarea>`
+        :`<input id="edit-f-${f.key}" value="${escHtml(val)}" style="width:100%;padding:8px 10px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;font-family:inherit">`;
+      fieldsHtml+=`<div class="form-row"><label>${f.labelZh}</label>${input}</div>`;
+    });
+    groupsHtml+=`<div class="card"><div class="card-title">${g.icon} ${g.titleZh}</div>${fieldsHtml}</div>`;
+  });
+
+  const overlay=document.createElement('div');
+  overlay.className='edit-modal-overlay'; overlay.id='edit-modal-overlay';
+  overlay.innerHTML=`<div class="edit-modal">
+    <div class="edit-modal-header"><h3>✏️ 编辑客户项目信息</h3><button onclick="document.getElementById('edit-modal-overlay').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#aaa">&times;</button></div>
+    <div class="edit-modal-body">${groupsHtml}</div>
+    <div class="edit-modal-footer">
+      <button class="btn btn-outline btn-sm" onclick="document.getElementById('edit-modal-overlay').remove()">取消</button>
+      <button class="btn btn-primary btn-sm" onclick="saveEditClientInfo()">💾 保存</button>
+    </div>
+  </div>`;
+  overlay.onclick=function(e){if(e.target===overlay) overlay.remove();};
+  document.body.appendChild(overlay);
+}
+
+async function saveEditClientInfo(){
+  const res=await fetch(CLOUD_URL,{headers:{'Accept':'application/json'}});
+  if(!res.ok) return alert('读取数据失败');
+  const data=await res.json();
+  const oldInfo=data.projectInfo||{};
+
+  const newInfo={};
+  editFieldGroups.forEach(g=>g.fields.forEach(f=>{
+    const el=document.getElementById('edit-f-'+f.key);
+    if(el) newInfo[f.key]=el.value.trim();
+  }));
+
+  const merged={...oldInfo};
+  Object.keys(newInfo).forEach(k=>{merged[k]=newInfo[k]});
+
+  const history=data.editHistory||[];
+  const changed=Object.keys(newInfo).some(k=>(newInfo[k]||'')!==(oldInfo[k]||''));
+  if(changed) history.push({time:Date.now(),previous:{...oldInfo},summary:'手动编辑客户项目信息'});
+
+  data.projectInfo=merged; data.editHistory=history; data.lastUpdated=Date.now();
+
+  const putRes=await fetch(CLOUD_URL,{method:'PUT',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(data)});
+  if(putRes.ok){
+    document.getElementById('edit-modal-overlay').remove();
+    alert('✓ 已保存');
+    loadEditHistory();
+  }else{
+    alert('保存失败');
+  }
 }
 
 // === Search Suppliers Functionality ===

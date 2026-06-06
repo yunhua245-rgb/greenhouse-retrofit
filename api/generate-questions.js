@@ -18,15 +18,49 @@ module.exports = async function handler(req, res) {
   const AI_API_KEY = process.env.AI_API_KEY || 'sk-f2a6af8a39d848a5ade70105fb27c208';
   const AI_MODEL = process.env.AI_MODEL || 'deepseek-chat';
 
-  // Map slot keys to human-readable descriptions
+  // Map slot keys to human-readable descriptions (27-field architecture + legacy)
   const slotDescriptions = {
+    // 👤 客户基本信息
+    clientCompany: { zh: '公司名称', en: 'Company name', ru: 'Название компании' },
+    contactPerson: { zh: '联系人', en: 'Contact person', ru: 'Контактное лицо' },
+    contactMethod: { zh: '联系方式', en: 'Contact method', ru: 'Способ связи' },
+    location: { zh: '所在国家/城市', en: 'Country/City', ru: 'Страна/Город' },
+    companyType: { zh: '公司类型', en: 'Company type', ru: 'Тип компании' },
+    companyScale: { zh: '公司规模', en: 'Company scale', ru: 'Масштаб компании' },
+    // 📦 产品需求
+    productName: { zh: '产品名称/类别', en: 'Product name', ru: 'Название продукта' },
+    productUsage: { zh: '用途/应用场景', en: 'Usage/Application', ru: 'Назначение' },
+    specifications: { zh: '规格参数', en: 'Specifications', ru: 'Характеристики' },
+    quantity: { zh: '采购数量', en: 'Quantity', ru: 'Количество' },
+    certifications: { zh: '认证要求', en: 'Certifications', ru: 'Сертификация' },
+    sampleDrawing: { zh: '样品/图纸', en: 'Samples/Drawings', ru: 'Образцы/Чертежи' },
+    packagingReq: { zh: '包装要求', en: 'Packaging requirements', ru: 'Требования к упаковке' },
+    // 💰 价格与预算
+    budget: { zh: '目标价格/预算', en: 'Target price/Budget', ru: 'Бюджет' },
+    currency: { zh: '币种', en: 'Currency', ru: 'Валюта' },
+    tradeTerms: { zh: '贸易条款', en: 'Trade terms', ru: 'Условия торговли' },
+    paymentTerms: { zh: '付款方式', en: 'Payment terms', ru: 'Условия оплаты' },
+    // 🚚 物流与交期
+    destination: { zh: '目的港/收货地', en: 'Destination port', ru: 'Порт назначения' },
+    timeline: { zh: '期望交期', en: 'Expected timeline', ru: 'Сроки' },
+    shippingMethod: { zh: '运输方式', en: 'Shipping method', ru: 'Способ доставки' },
+    customsClearance: { zh: '清关协助', en: 'Customs clearance', ru: 'Таможенное оформление' },
+    // 🏭 供应商要求
+    supplierType: { zh: '供应商类型', en: 'Supplier type', ru: 'Тип поставщика' },
+    supplierRegion: { zh: '地区偏好', en: 'Preferred region', ru: 'Предпочтительный регион' },
+    factoryAudit: { zh: '验厂需求', en: 'Factory audit', ru: 'Аудит фабрики' },
+    sampleNeeded: { zh: '打样需求', en: 'Sample needed', ru: 'Образцы нужны' },
+    oemOdm: { zh: 'OEM/ODM模式', en: 'OEM/ODM mode', ru: 'OEM/ODM режим' },
+    // 🔧 售后与其他
+    warranty: { zh: '质保要求', en: 'Warranty', ru: 'Гарантия' },
+    afterSales: { zh: '售后支持', en: 'After-sales support', ru: 'Послепродажное обслуживание' },
+    cooperationIntent: { zh: '合作意向', en: 'Cooperation intent', ru: 'Намерения о сотрудничестве' },
+    // 🌿 温室项目专属 (legacy)
     area: { zh: '温室面积', en: 'Greenhouse area', ru: 'Площадь теплицы' },
     structureType: { zh: '温室结构类型', en: 'Greenhouse structure type', ru: 'Тип конструкции' },
     infrastructure: { zh: '现有基础设施', en: 'Existing infrastructure', ru: 'Существующая инфраструктура' },
     crops: { zh: '种植作物', en: 'Current crops', ru: 'Выращиваемые культуры' },
     scope: { zh: '需要自动化的系统', en: 'Systems to automate', ru: 'Системы для автоматизации' },
-    budget: { zh: '预算范围', en: 'Budget range', ru: 'Диапазон бюджета' },
-    timeline: { zh: '期望完成时间', en: 'Preferred timeline', ru: 'Желаемые сроки' }
   };
 
   const langName = { en: 'English', ru: 'Russian', zh: 'Chinese' }[lang] || 'English';

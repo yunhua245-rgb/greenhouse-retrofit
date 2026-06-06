@@ -3,351 +3,266 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Update Project Details</title>
+<title>更新项目信息</title>
 <style>
-  *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
-  .header{background:#fff;border-bottom:1px solid #e8eaed;padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
-  .header h1{font-size:18px;font-weight:700}
-  .back-link{color:#148a4e;text-decoration:none;font-size:13px;font-weight:500}
-  .container{max-width:640px;margin:0 auto;padding:24px 20px 80px}
-  
-  .lang-switch{display:flex;gap:8px;margin-bottom:20px}
-  .lang-btn{padding:5px 12px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:12px;cursor:pointer}
-  .lang-btn.active{border-color:#148a4e;background:#e8f5ee;color:#0a6e3a;font-weight:600}
-  
-  .card{background:#fff;border-radius:14px;border:1px solid #e8eaed;padding:24px;margin-bottom:20px}
-  .card-title{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-  
-  .form-group{margin-bottom:16px}
-  .form-group label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.3px}
-  .form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit;transition:border-color 0.2s}
-  .form-group input:focus,.form-group textarea:focus{outline:none;border-color:#148a4e}
-  .form-group textarea{min-height:80px;resize:vertical}
-  .form-group .hint{font-size:11px;color:#888;margin-top:4px}
-  
-  .btn{padding:12px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
-  .btn-primary{background:#148a4e;color:#fff}
-  .btn-primary:hover{background:#0e6e3a}
-  .btn-outline{background:#fff;color:#555;border:1.5px solid #d0d5dd}
-  .btn-outline:hover{border-color:#148a4e;color:#0a6e3a}
-  
-  .save-bar{display:flex;align-items:center;gap:12px;margin-top:20px}
-  .save-status{font-size:12px;color:#888}
-  .save-status.success{color:#148a4e}
-  .save-status.error{color:#e24b4a}
-  
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
+.header{background:#fff;border-bottom:1px solid #e8eaed;padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
+.header h1{font-size:18px;font-weight:700}
+.back-link{color:#148a4e;text-decoration:none;font-size:13px;font-weight:500}
+.container{max-width:640px;margin:0 auto;padding:24px 20px 80px}
+.lang-switch{display:flex;gap:8px;margin-bottom:20px}
+.lang-btn{padding:5px 12px;border:1.5px solid #d0d5dd;border-radius:8px;background:#fff;font-size:12px;cursor:pointer}
+.lang-btn.active{border-color:#148a4e;background:#e8f5ee;color:#0a6e3a;font-weight:600}
+.card{background:#fff;border-radius:14px;border:1px solid #e8eaed;padding:24px;margin-bottom:20px}
+.card-title{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:4px}
+.form-group input,.form-group textarea{width:100%;padding:10px 14px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit;transition:border-color 0.2s}
+.form-group input:focus,.form-group textarea:focus{outline:none;border-color:#148a4e}
+.form-group textarea{min-height:60px;resize:vertical}
+.form-group .hint{font-size:11px;color:#888;margin-top:4px}
+.btn{padding:12px 24px;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s}
+.btn-primary{background:#148a4e;color:#fff;width:100%}
+.btn-primary:hover{background:#0e6e3a}
+.save-bar{margin-top:20px}
+.save-status{display:block;text-align:center;font-size:12px;color:#888;margin-top:8px}
+.save-status.success{color:#148a4e}
+.save-status.error{color:#e24b4a}
+#coord-name{color:#148a4e;font-weight:600}
 </style>
 </head>
 <body>
-
 <div class="header">
-  <h1 id="page-title">📝 Update Project Details</h1>
-  <a href="/projects/greenhouse/index.html" class="back-link" id="back-link">← Back to project page</a>
+<h1 id="page-title">更新项目信息</h1>
+<a href="/projects/greenhouse/index.html" class="back-link" id="back-link">&larr; 返回项目页面</a>
 </div>
-
 <div class="container">
-
-  <div class="lang-switch">
-    <button class="lang-btn active" onclick="switchLang('en')">English</button>
-    <button class="lang-btn" onclick="switchLang('ru')">Русский</button>
-    <button class="lang-btn" onclick="switchLang('zh')">中文</button>
-  </div>
-
-  <div class="card">
-    <div class="card-title">🌿 <span id="lbl-greenhouse">Greenhouse Information</span></div>
-    <div class="form-group">
-      <label id="lbl-location">Location</label>
-      <input type="text" id="field-location" placeholder="e.g., Moscow, Russia">
-      <div class="hint" id="hint-location">Where is the greenhouse located</div>
-    </div>
-    <div class="form-group">
-      <label id="lbl-area">Greenhouse Area</label>
-      <input type="text" id="field-area" placeholder="e.g., 2000 ㎡">
-      <div class="hint" id="hint-area">Total area of the greenhouse to be retrofitted</div>
-    </div>
-    <div class="form-group">
-      <label id="lbl-struct">Structure Type</label>
-      <input type="text" id="field-struct" placeholder="e.g., glass greenhouse, film greenhouse, polycarbonate">
-      <div class="hint" id="hint-struct">What type of greenhouse structure exists currently</div>
-    </div>
-    <div class="form-group">
-      <label id="lbl-infra">Existing Infrastructure</label>
-      <textarea id="field-infra" placeholder="e.g., has water pipes, has heating system, no automation currently..."></textarea>
-      <div class="hint" id="hint-infra">What pipes, wiring, systems are already in place</div>
-    </div>
-    <div class="form-group">
-      <label id="lbl-crops">Current Crops</label>
-      <input type="text" id="field-crops" placeholder="e.g., tomatoes, cucumbers, flowers">
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">🎯 <span id="lbl-requirements">Requirements & Goals</span></div>
-    <div class="form-group">
-      <label id="lbl-scope">What needs to be automated?</label>
-      <textarea id="field-scope" placeholder="e.g., irrigation, climate control, monitoring robots, harvesting..."></textarea>
-      <div class="hint" id="hint-scope">Which systems or processes should be automated in this retrofit</div>
-    </div>
-    <div class="form-group">
-      <label id="lbl-budget">Budget Range (optional)</label>
-      <input type="text" id="field-budget" placeholder="e.g., $50,000 - $100,000">
-    </div>
-    <div class="form-group">
-      <label id="lbl-timeline">Preferred Timeline (optional)</label>
-      <input type="text" id="field-timeline" placeholder="e.g., complete by August 2026">
-    </div>
-  </div>
-
-  <div class="card">
-    <div class="card-title">💬 <span id="lbl-notes-title">Notes & Questions</span></div>
-    <div class="form-group">
-      <label id="lbl-notes">Additional notes for HUA</label>
-      <textarea id="field-notes" placeholder="Any other details, questions, or special requirements..."></textarea>
-    </div>
-  </div>
-
-  <div class="save-bar">
-    <button class="btn btn-primary" onclick="saveData()" id="btn-save">Save & Update</button>
-    <span class="save-status" id="save-status"></span>
-  </div>
-
-
+<div class="lang-switch">
+<button class="lang-btn" onclick="switchLang('en')">English</button>
+<button class="lang-btn" onclick="switchLang('ru')">Русский</button>
+<button class="lang-btn active" onclick="switchLang('zh')">中文</button>
 </div>
 
-<script>
-const CLOUD_URL = '/api/data';
-let cloudData = {};
-let currentLang = 'en';
-let coordName = 'HUA';
+<!-- Groups defined in JS, rendered dynamically -->
 
-const labels = {
-  en: {
-    pageTitle: "📝 Update Project Details",
-    backLink: "← Back to project page",
-    greenhouse: "Greenhouse Information",
-    location: "Location", locationHint: "Where is the greenhouse located",
-    locationPh: "e.g., Moscow, Russia",
-    area: "Greenhouse Area", areaHint: "Total area of the greenhouse to be retrofitted",
-    areaPh: "e.g., 2000 ㎡",
-    struct: "Structure Type", structHint: "What type of greenhouse structure exists currently",
-    structPh: "e.g., glass greenhouse, film greenhouse, polycarbonate",
-    infra: "Existing Infrastructure", infraHint: "What pipes, wiring, systems are already in place",
-    infraPh: "e.g., has water pipes, has heating system, no automation currently...",
-    crops: "Current Crops",
-    cropsPh: "e.g., tomatoes, cucumbers, flowers",
-    requirements: "Requirements & Goals",
-    scope: "What needs to be automated?", scopeHint: "Which systems or processes should be automated",
-    scopePh: "e.g., irrigation, climate control, monitoring robots, harvesting...",
-    budget: "Budget Range (optional)",
-    budgetPh: "e.g., $50,000 - $100,000",
-    timeline: "Preferred Timeline (optional)",
-    timelinePh: "e.g., complete by August 2026",
-    notesTitle: "Notes & Questions",
-    notes: "Additional notes for {name}",
-    notesPh: "Any other details, questions, or special requirements...",
-    save: "Save & Update",
-    saving: "Saving...", saved: "✓ Saved successfully", error: "⚠ Save failed — please try again"
-  },
-  ru: {
-    pageTitle: "📝 Обновить данные проекта",
-    backLink: "← Назад к проекту",
-    greenhouse: "Информация о теплице",
-    location: "Расположение", locationHint: "Где находится теплица",
-    locationPh: "напр., Москва, Россия",
-    area: "Площадь теплицы", areaHint: "Общая площадь теплицы для модернизации",
-    areaPh: "напр., 2000 ㎡",
-    struct: "Тип конструкции", structHint: "Какой тип конструкции теплицы сейчас",
-    structPh: "напр., стеклянная, плёночная, поликарбонат",
-    infra: "Существующая инфраструктура", infraHint: "Какие трубы, проводка, системы уже есть",
-    infraPh: "напр., водопровод есть, отопление есть, автоматики нет...",
-    crops: "Текущие культуры",
-    cropsPh: "напр., помидоры, огурцы, цветы",
-    requirements: "Требования и цели",
-    scope: "Что нужно автоматизировать?", scopeHint: "Какие системы или процессы нужно автоматизировать",
-    scopePh: "напр., полив, климат-контроль, мониторинг, сбор урожая...",
-    budget: "Бюджет (необязательно)",
-    budgetPh: "напр., $50,000 - $100,000",
-    timeline: "Желаемые сроки (необязательно)",
-    timelinePh: "напр., завершить к августу 2026",
-    notesTitle: "Заметки и вопросы",
-    notes: "Дополнительные заметки для {name}",
-    notesPh: "Любые другие детали, вопросы или особые требования...",
-    save: "Сохранить",
-    saving: "Сохранение...", saved: "✓ Сохранено", error: "⚠ Ошибка — попробуйте ещё раз"
-  },
-  zh: {
-    pageTitle: "📝 更新项目信息",
-    backLink: "← 返回项目页面",
-    greenhouse: "温室基本信息",
-    location: "所在地", locationHint: "温室所在的地理位置",
-    locationPh: "例如：莫斯科，俄罗斯",
-    area: "温室面积", areaHint: "需要改造的温室总面积",
-    areaPh: "例如：2000 ㎡",
-    struct: "结构类型", structHint: "现有温室是什么结构",
-    structPh: "例如：玻璃温室、薄膜温室、聚碳酸酯板",
-    infra: "现有基础设施", infraHint: "已有哪些管道、线路、系统",
-    infraPh: "例如：有水管、有供暖系统、目前无自动化设备...",
-    crops: "当前种植作物",
-    cropsPh: "例如：番茄、黄瓜、花卉",
-    requirements: "需求与目标",
-    scope: "需要自动化哪些环节？", scopeHint: "希望改造后实现哪些自动化",
-    scopePh: "例如：灌溉、气候控制、监控机器人、采摘...",
-    budget: "预算范围（选填）",
-    budgetPh: "例如：$50,000 - $100,000",
-    timeline: "期望时间（选填）",
-    timelinePh: "例如：2026年8月前完成",
-    notesTitle: "备注与问题",
-    notes: "其他想告诉{name}的信息",
-    notesPh: "任何其他细节、问题或特殊要求...",
-    save: "保存更新",
-    saving: "保存中...", saved: "✓ 已保存", error: "⚠ 保存失败，请重试"
-  }
+<div class="save-bar">
+<button class="btn btn-primary" onclick="saveData()" id="btn-save">保存更新</button>
+<span class="save-status" id="save-status"></span>
+</div>
+</div>
+<script>
+<script src="/shared/fields.js"></script>
+const CLOUD_URL = '/api/data';
+let cloudData = {}, currentLang = 'zh', coordName = 'HUA';
+
+const fieldGroups = FIELD_GROUPS;
+
+const i18n = {
+zh: {
+pageTitle:'更新项目信息', backLink:'← 返回项目页面',
+save:'保存更新', saving:'保存中...', saved:'✓ 已保存', error:'⚠ 保存失败，请重试',
+groups:{
+client:'客户基本信息', product:'产品需求', budget:'价格与预算',
+logistics:'物流与交期', supplier:'供应商要求', aftersale:'售后与其他'
+},
+labels:{
+clientCompany:'公司名称', contactPerson:'联系人', contactMethod:'联系方式',
+location:'国家/城市', companyType:'公司类型', companyScale:'公司规模',
+productName:'产品名称/类别', productUsage:'用途/场景', specifications:'规格参数',
+quantity:'采购数量', certifications:'认证要求', sampleDrawing:'样品/图纸',
+packagingReq:'包装要求', budget:'目标价格/预算', currency:'币种',
+tradeTerms:'贸易条款', paymentTerms:'付款方式', destination:'目的港/收货地',
+timeline:'期望交期', shippingMethod:'运输方式', customsClearance:'清关协助',
+supplierType:'供应商类型', supplierRegion:'地区偏好', factoryAudit:'验厂需求',
+sampleNeeded:'打样需求', oemOdm:'OEM/ODM模式', warranty:'质保要求',
+afterSales:'售后支持', cooperationIntent:'合作意向'
+},
+hints:{
+clientCompany:'', contactPerson:'', contactMethod:'电话/微信/邮箱',
+location:'货物发往的国家或城市', companyType:'客户公司的业务类型', companyScale:'客户公司规模',
+productName:'产品名称或类别', productUsage:'产品的具体用途或应用场景', specifications:'关键规格参数或技术要求',
+quantity:'计划采购的大致数量', certifications:'所需认证标准', sampleDrawing:'是否有样品、3D图纸或设计文件',
+packagingReq:'包装方式、标签等要求', budget:'期望的价格范围或预算', currency:'报价币种',
+tradeTerms:'贸易条款', paymentTerms:'付款方式',
+destination:'目的港或最终收货地', timeline:'期望的交货时间', shippingMethod:'海运/空运/铁路等',
+customsClearance:'进口清关是否需要协助', supplierType:'制造商/贸易商/代工厂等', supplierRegion:'对供应商所在地区的偏好',
+factoryAudit:'是否需要实地考察工厂', sampleNeeded:'是否需要先打样再下单', oemOdm:'代工模式：OEM还是ODM',
+warranty:'产品质保期要求', afterSales:'售后支持、维修、培训等需求', cooperationIntent:'合作的整体意向或补充说明'
+}
+},
+en: {
+pageTitle:'Update Project Info', backLink:'← Back to project',
+save:'Save', saving:'Saving...', saved:'✓ Saved', error:'⚠ Failed, please retry',
+groups:{
+client:'Client Info', product:'Product Requirements', budget:'Pricing & Budget',
+logistics:'Logistics & Delivery', supplier:'Supplier Requirements', aftersale:'After-sales & Other'
+},
+labels:{
+clientCompany:'Company Name', contactPerson:'Contact Person', contactMethod:'Contact Method',
+location:'Country/City', companyType:'Company Type', companyScale:'Company Scale',
+productName:'Product Name', productUsage:'Usage/Application', specifications:'Specifications',
+quantity:'Quantity', certifications:'Certifications', sampleDrawing:'Samples/Drawings',
+packagingReq:'Packaging Req.', budget:'Target Price/Budget', currency:'Currency',
+tradeTerms:'Trade Terms', paymentTerms:'Payment Terms', destination:'Destination Port',
+timeline:'Timeline', shippingMethod:'Shipping Method', customsClearance:'Customs Clearance',
+supplierType:'Supplier Type', supplierRegion:'Preferred Region', factoryAudit:'Factory Audit',
+sampleNeeded:'Sample Needed', oemOdm:'OEM/ODM', warranty:'Warranty',
+afterSales:'After-sales Support', cooperationIntent:'Cooperation Intent'
+},
+hints:{
+clientCompany:'', contactPerson:'', contactMethod:'Phone/WeChat/Email',
+location:'Country or city where goods are shipped', companyType:'', companyScale:'',
+productName:'', productUsage:'', specifications:'',
+quantity:'', certifications:'CE, ISO, UL etc.', sampleDrawing:'',
+packagingReq:'', budget:'e.g. $50,000-$100,000', currency:'USD/CNY/RUB etc.',
+tradeTerms:'FOB/CIF/EXW etc.', paymentTerms:'T/T, L/C etc.', destination:'',
+timeline:'e.g. by August 2026', shippingMethod:'Sea/Air/Rail', customsClearance:'',
+supplierType:'Manufacturer/Trader/OEM', supplierRegion:'e.g. Guangdong, Yangtze Delta', factoryAudit:'',
+sampleNeeded:'', oemOdm:'OEM or ODM', warranty:'',
+afterSales:'', cooperationIntent:''
+}
+},
+ru: {
+pageTitle:'Обновить проект', backLink:'← Назад к проекту',
+save:'Сохранить', saving:'Сохранение...', saved:'✓ Сохранено', error:'⚠ Ошибка',
+groups:{
+client:'Информация о клиенте', product:'Требования к продукту', budget:'Цена и бюджет',
+logistics:'Логистика', supplier:'Требования к поставщику', aftersale:'Послепродажное обслуживание'
+},
+labels:{
+clientCompany:'Компания', contactPerson:'Контактное лицо', contactMethod:'Способ связи',
+location:'Страна/Город', companyType:'Тип компании', companyScale:'Масштаб',
+productName:'Продукт', productUsage:'Назначение', specifications:'Характеристики',
+quantity:'Количество', certifications:'Сертификация', sampleDrawing:'Образцы/Чертежи',
+packagingReq:'Упаковка', budget:'Бюджет', currency:'Валюта',
+tradeTerms:'Условия торговли', paymentTerms:'Оплата', destination:'Порт назначения',
+timeline:'Сроки', shippingMethod:'Доставка', customsClearance:'Таможня',
+supplierType:'Тип поставщика', supplierRegion:'Регион', factoryAudit:'Аудит фабрики',
+sampleNeeded:'Образцы', oemOdm:'OEM/ODM', warranty:'Гарантия',
+afterSales:'Поддержка', cooperationIntent:'Намерения'
+},
+hints:{
+clientCompany:'', contactPerson:'', contactMethod:'Телефон/WeChat/Email',
+location:'', companyType:'', companyScale:'',
+productName:'', productUsage:'', specifications:'',
+quantity:'', certifications:'', sampleDrawing:'',
+packagingReq:'', budget:'', currency:'',
+tradeTerms:'', paymentTerms:'', destination:'',
+timeline:'', shippingMethod:'', customsClearance:'',
+supplierType:'', supplierRegion:'', factoryAudit:'',
+sampleNeeded:'', oemOdm:'', warranty:'',
+afterSales:'', cooperationIntent:''
+}
+}
 };
 
-function switchLang(lang) {
-  currentLang = lang;
-  document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.classList.toggle('active', btn.textContent.trim() === {en:'English',ru:'Русский',zh:'中文'}[lang]);
-  });
-  const L = labels[lang];
-  document.getElementById('page-title').textContent = L.pageTitle;
-  document.getElementById('back-link').textContent = L.backLink;
-  document.getElementById('back-link').href = '/projects/greenhouse/index.html?lang=' + lang;
-  document.getElementById('lbl-greenhouse').textContent = L.greenhouse;
-  document.getElementById('lbl-location').textContent = L.location;
-  document.getElementById('hint-location').textContent = L.locationHint;
-  document.getElementById('lbl-area').textContent = L.area;
-  document.getElementById('hint-area').textContent = L.areaHint;
-  document.getElementById('lbl-struct').textContent = L.struct;
-  document.getElementById('hint-struct').textContent = L.structHint;
-  document.getElementById('lbl-infra').textContent = L.infra;
-  document.getElementById('hint-infra').textContent = L.infraHint;
-  document.getElementById('lbl-crops').textContent = L.crops;
-  document.getElementById('lbl-requirements').textContent = L.requirements;
-  document.getElementById('lbl-scope').textContent = L.scope;
-  document.getElementById('hint-scope').textContent = L.scopeHint;
-  document.getElementById('lbl-budget').textContent = L.budget;
-  document.getElementById('lbl-timeline').textContent = L.timeline;
-  document.getElementById('lbl-notes-title').textContent = L.notesTitle;
-  document.getElementById('lbl-notes').textContent = L.notes.replace('{name}', coordName || 'HUA');
-  document.getElementById('btn-save').textContent = L.save;
-  // Update placeholders
-  document.getElementById('field-location').placeholder = L.locationPh;
-  document.getElementById('field-area').placeholder = L.areaPh;
-  document.getElementById('field-struct').placeholder = L.structPh;
-  document.getElementById('field-infra').placeholder = L.infraPh;
-  document.getElementById('field-crops').placeholder = L.cropsPh;
-  document.getElementById('field-scope').placeholder = L.scopePh;
-  document.getElementById('field-budget').placeholder = L.budgetPh;
-  document.getElementById('field-timeline').placeholder = L.timelinePh;
-  document.getElementById('field-notes').placeholder = L.notesPh;
+function escHtml(s){const d=document.createElement('div');d.textContent=s||'';return d.innerHTML}
+
+// Render all form cards
+function renderCards(){
+const container=document.querySelector('.container');
+const L=i18n[currentLang];
+// Remove old cards (keep lang-switch and save-bar)
+container.querySelectorAll('.card').forEach(c=>c.remove());
+
+fieldGroups.forEach(g=>{
+const card=document.createElement('div'); card.className='card';
+let html=`<div class="card-title">${g.icon} ${L.groups[g.id]}</div>`;
+g.fields.forEach(f=>{
+const val=(cloudData.projectInfo||{})[f.key]||'';
+const tag=f.type==='textarea'?'<textarea id="f-'+f.key+'" placeholder="">'+escHtml(val)+'</textarea>'
+  :'<input type="text" id="f-'+f.key+'" placeholder="" value="'+escHtml(val)+'">';
+html+=`<div class="form-group"><label>${L.labels[f.key]}</label>${tag}`;
+const hint=L.hints[f.key];
+if(hint) html+=`<div class="hint">${hint}</div>`;
+html+='</div>';
+});
+card.innerHTML=html;
+// Insert before save-bar
+const saveBar=container.querySelector('.save-bar');
+container.insertBefore(card, saveBar);
+});
 }
 
-async function loadData() {
-  try {
-    const res = await fetch(CLOUD_URL, {headers:{'Accept':'application/json'}});
-    if (res.ok) {
-      cloudData = await res.json();
-      const info = cloudData.projectInfo || {};
-      // Read coordinator name
-      const cp = cloudData.coordinatorProfile || {};
-      coordName = cp.name || 'HUA';
-      // Update notes label with actual coordinator name
-      const L = labels[currentLang];
-      document.getElementById('lbl-notes').textContent = L.notes.replace('{name}', coordName);
-      // Fill form fields
-      document.getElementById('field-location').value = info.location || '';
-      document.getElementById('field-area').value = info.area || '';
-      document.getElementById('field-struct').value = info.structureType || '';
-      document.getElementById('field-infra').value = info.infrastructure || '';
-      document.getElementById('field-crops').value = info.crops || '';
-      document.getElementById('field-scope').value = info.scope || '';
-      document.getElementById('field-budget').value = info.budget || '';
-      document.getElementById('field-timeline').value = info.timeline || '';
-      document.getElementById('field-notes').value = info.notes || '';
-    }
-  } catch(e) { console.log('Load failed:', e); }
+function switchLang(lang){
+currentLang=lang;
+document.querySelectorAll('.lang-btn').forEach(btn=>{
+btn.classList.toggle('active',btn.textContent.trim()==={en:'English',ru:'Русский',zh:'中文'}[lang]);
+});
+const L=i18n[lang];
+document.getElementById('page-title').textContent=L.pageTitle;
+document.getElementById('back-link').textContent=L.backLink;
+document.getElementById('back-link').href='/projects/greenhouse/index.html?lang='+lang;
+document.getElementById('btn-save').textContent=L.save;
+renderCards();
 }
 
-async function saveData() {
-  const L = labels[currentLang];
-  const statusEl = document.getElementById('save-status');
-  statusEl.textContent = L.saving;
-  statusEl.className = 'save-status';
-  
-  const newInfo = {
-    location: document.getElementById('field-location').value.trim(),
-    area: document.getElementById('field-area').value.trim(),
-    structureType: document.getElementById('field-struct').value.trim(),
-    infrastructure: document.getElementById('field-infra').value.trim(),
-    crops: document.getElementById('field-crops').value.trim(),
-    scope: document.getElementById('field-scope').value.trim(),
-    budget: document.getElementById('field-budget').value.trim(),
-    timeline: document.getElementById('field-timeline').value.trim(),
-    notes: document.getElementById('field-notes').value.trim()
-  };
-  
-  // Create history entry (backup old data)
-  const history = cloudData.editHistory || [];
-  const oldInfo = cloudData.projectInfo || {};
-  
-  // Only add history if something changed
-  const changed = Object.keys(newInfo).some(k => (newInfo[k]||'') !== (oldInfo[k]||''));
-  if (changed) {
-    history.push({
-      time: Date.now(),
-      previous: {...oldInfo},
-      summary: generateChangeSummary(oldInfo, newInfo)
-    });
-  }
-  
-  cloudData.projectInfo = newInfo;
-  cloudData.editHistory = history;
-  cloudData.lastUpdated = Date.now();
-  
-  try {
-    const res = await fetch(CLOUD_URL, {
-      method: 'PUT',
-      headers: {'Content-Type':'application/json','Accept':'application/json'},
-      body: JSON.stringify(cloudData)
-    });
-    if (res.ok) {
-      statusEl.textContent = L.saved;
-      statusEl.className = 'save-status success';
-    } else {
-      statusEl.textContent = L.error;
-      statusEl.className = 'save-status error';
-    }
-  } catch(e) {
-    statusEl.textContent = L.error;
-    statusEl.className = 'save-status error';
-  }
+async function loadData(){
+try{
+const res=await fetch(CLOUD_URL,{headers:{'Accept':'application/json'}});
+if(res.ok){
+cloudData=await res.json();
+const cp=cloudData.coordinatorProfile||{}; coordName=cp.name||'HUA';
+renderCards();
+}
+}catch(e){console.log('Load failed:',e)}
 }
 
-function generateChangeSummary(oldInfo, newInfo) {
-  const fields = {location:'location',area:'area',structureType:'structure',infrastructure:'infrastructure',crops:'crops',scope:'scope',budget:'budget',timeline:'timeline',notes:'notes'};
-  const changes = [];
-  for (const [k,label] of Object.entries(fields)) {
-    if ((newInfo[k]||'') !== (oldInfo[k]||'')) {
-      if (!oldInfo[k] && newInfo[k]) changes.push(`added ${label}`);
-      else if (oldInfo[k] && !newInfo[k]) changes.push(`removed ${label}`);
-      else changes.push(`updated ${label}`);
-    }
-  }
-  return changes.join(', ') || 'no changes';
+async function saveData(){
+const L=i18n[currentLang];
+const statusEl=document.getElementById('save-status');
+statusEl.textContent=L.saving; statusEl.className='save-status';
+
+const newInfo={};
+fieldGroups.forEach(g=>g.fields.forEach(f=>{
+const el=document.getElementById('f-'+f.key);
+if(el) newInfo[f.key]=el.value.trim();
+}));
+
+// Merge with existing (preserve non-form fields like legacy and freeformNote)
+const oldInfo=cloudData.projectInfo||{};
+const merged={...oldInfo};
+Object.keys(newInfo).forEach(k=>{merged[k]=newInfo[k]});
+
+// Create history
+const history=cloudData.editHistory||[];
+const changed=Object.keys(newInfo).some(k=>(newInfo[k]||'')!==(oldInfo[k]||''));
+if(changed){
+history.push({time:Date.now(),previous:{...oldInfo},summary:generateSummary(oldInfo,newInfo)});
 }
 
-// Read language from URL parameter (passed from index.html)
-(function initLangFromUrl() {
-  const params = new URLSearchParams(window.location.search);
-  const urlLang = params.get('lang');
-  if (urlLang && ['en', 'ru', 'zh'].includes(urlLang)) {
-    switchLang(urlLang);
-  }
-})();
+cloudData.projectInfo=merged;
+cloudData.editHistory=history; cloudData.lastUpdated=Date.now();
 
+try{
+const res=await fetch(CLOUD_URL,{method:'PUT',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(cloudData)});
+if(res.ok){statusEl.textContent=L.saved;statusEl.className='save-status success';}
+else{statusEl.textContent=L.error;statusEl.className='save-status error';}
+}catch(e){statusEl.textContent=L.error;statusEl.className='save-status error';}
+}
+
+function generateSummary(oldInfo,newInfo){
+const L=i18n[currentLang];
+const changes=[];
+Object.keys(newInfo).forEach(k=>{
+if((newInfo[k]||'')!==(oldInfo[k]||'')){
+const label=L.labels[k]||k;
+if(!oldInfo[k]&&newInfo[k]) changes.push('added '+label);
+else if(oldInfo[k]&&!newInfo[k]) changes.push('removed '+label);
+else changes.push('updated '+label);
+}
+});
+return changes.join(', ')||'no changes';
+}
+
+(function init(){
+const params=new URLSearchParams(window.location.search);
+const urlLang=params.get('lang');
+if(urlLang&&['en','ru','zh'].includes(urlLang)){currentLang=urlLang;}
+switchLang(currentLang);
 loadData();
+})();
 </script>
 </body>
 </html>
