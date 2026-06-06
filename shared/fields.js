@@ -42,6 +42,13 @@ const FIELD_GROUPS = [
 {key:'afterSales',         labelZh:'售后支持',   labelEn:'After-sales Support',   labelRu:'Поддержка',               type:'text'},
 {key:'cooperationIntent',  labelZh:'合作意向',   labelEn:'Cooperation Intent',    labelRu:'Намерения',               type:'textarea'},
 ]},
+{id:'projectDetail', icon:'📋', titleZh:'项目详情', titleEn:'Project Details', titleRu:'Детали проекта', fields:[
+{key:'area',               labelZh:'温室面积',   labelEn:'Greenhouse Area',       labelRu:'Площадь теплицы',         type:'text'},
+{key:'structureType',      labelZh:'结构类型',   labelEn:'Structure Type',        labelRu:'Тип конструкции',         type:'text'},
+{key:'infrastructure',     labelZh:'现有设施',   labelEn:'Infrastructure',        labelRu:'Инфраструктура',          type:'text'},
+{key:'crops',              labelZh:'种植作物',   labelEn:'Crops',                 labelRu:'Культуры',                type:'text'},
+{key:'scope',              labelZh:'项目范围',   labelEn:'Project Scope',         labelRu:'Объем проекта',           type:'textarea'},
+]},
 ];
 
 // Helper: get label for a field key in current language
