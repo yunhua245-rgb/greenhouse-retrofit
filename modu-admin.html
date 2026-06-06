@@ -637,7 +637,7 @@ function renderList() {
           <button class="btn btn-outline btn-sm" onclick="changeStatus('${s.id}')">更改状态</button>
           <button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')">删除</button>
         </div>
-        ${supUrl ? `<a href="${supUrl}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;word-break:break-all;display:block;margin-top:2px">🔗 ${supUrl.length > 50 ? supUrl.substring(0, 50) + '...' : supUrl}</a>` : ''}
+        ${(s.website || s.url) ? `<a href="${escHtml(s.website || s.url)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;word-break:break-all;display:block;margin-top:2px">🔗 ${escHtml((s.website || s.url).length > 50 ? (s.website || s.url).substring(0, 50) + '...' : (s.website || s.url))}</a>` : ''}
       </div>
     </div>`;
   }).join('');
