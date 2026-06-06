@@ -1,4 +1,4 @@
-<![CDATA[<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -198,6 +198,22 @@
       <div class="info-item">
         <div class="info-label" data-i18n="s2-infra-l">Existing Infrastructure</div>
         <div class="info-value tbd" id="info-infra" data-i18n="s2-infra-v">To be provided</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label" id="info-crops-label">Crops</div>
+        <div class="info-value tbd" id="info-crops">To be provided</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label" id="info-scope-label">Project Scope</div>
+        <div class="info-value tbd" id="info-scope">To be provided</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label" id="info-budget-label">Budget</div>
+        <div class="info-value tbd" id="info-budget">To be provided</div>
+      </div>
+      <div class="info-item">
+        <div class="info-label" id="info-timeline-label">Timeline</div>
+        <div class="info-value tbd" id="info-timeline">To be provided</div>
       </div>
     </div>
   </div>
@@ -411,6 +427,10 @@ let currentLang = 'en';
   const urlLang = params.get('lang');
   if (urlLang && ['en', 'ru', 'zh'].includes(urlLang)) {
     currentLang = urlLang;
+    // Update button active state immediately
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.textContent.trim() === {en:'English',ru:'Русский',zh:'中文'}[urlLang]);
+    });
   }
 })();
 
@@ -453,12 +473,15 @@ async function fetchData() {
       phasesData = data.phases || [];
     }
   } catch (e) { console.log('Cloud fetch failed'); }
-  renderSuppliers();
-  renderProjectInfo();
-  renderCoordinator();
-  renderPhases();
-  translateUserContent();
-  if (currentLang !== 'en') switchLang(currentLang);
+  if (currentLang === 'en') {
+    renderSuppliers();
+    renderProjectInfo();
+    renderCoordinator();
+    renderPhases();
+    translateUserContent();
+  } else {
+    switchLang(currentLang);
+  }
   const editLink = document.querySelector('.client-edit-link');
   if (editLink) editLink.href = '/client-edit.html?lang=' + currentLang;
 }
@@ -482,6 +505,22 @@ function renderProjectInfo() {
   
   if (projectInfo.infrastructure) { infraEl.textContent = projectInfo.infrastructure; infraEl.classList.remove('tbd'); infraEl.setAttribute('data-translate',''); infraEl.setAttribute('data-original', projectInfo.infrastructure); }
   else { infraEl.textContent = tbdText; infraEl.classList.add('tbd'); infraEl.removeAttribute('data-translate'); }
+
+  const cropsEl = document.getElementById('info-crops');
+  if (projectInfo.crops) { cropsEl.textContent = projectInfo.crops; cropsEl.classList.remove('tbd'); cropsEl.setAttribute('data-translate',''); cropsEl.setAttribute('data-original', projectInfo.crops); }
+  else { cropsEl.textContent = tbdText; cropsEl.classList.add('tbd'); cropsEl.removeAttribute('data-translate'); }
+
+  const scopeEl = document.getElementById('info-scope');
+  if (projectInfo.scope) { scopeEl.textContent = projectInfo.scope; scopeEl.classList.remove('tbd'); scopeEl.setAttribute('data-translate',''); scopeEl.setAttribute('data-original', projectInfo.scope); }
+  else { scopeEl.textContent = tbdText; scopeEl.classList.add('tbd'); scopeEl.removeAttribute('data-translate'); }
+
+  const budgetEl = document.getElementById('info-budget');
+  if (projectInfo.budget) { budgetEl.textContent = projectInfo.budget; budgetEl.classList.remove('tbd'); budgetEl.setAttribute('data-translate',''); budgetEl.setAttribute('data-original', projectInfo.budget); }
+  else { budgetEl.textContent = tbdText; budgetEl.classList.add('tbd'); budgetEl.removeAttribute('data-translate'); }
+
+  const timelineEl = document.getElementById('info-timeline');
+  if (projectInfo.timeline) { timelineEl.textContent = projectInfo.timeline; timelineEl.classList.remove('tbd'); timelineEl.setAttribute('data-translate',''); timelineEl.setAttribute('data-original', projectInfo.timeline); }
+  else { timelineEl.textContent = tbdText; timelineEl.classList.add('tbd'); timelineEl.removeAttribute('data-translate'); }
 
   // Apply custom display content from admin (override i18n)
   if (projectInfo.projectType) {
@@ -805,13 +844,13 @@ function refreshQuizLang() {
   document.getElementById('quiz-title').textContent = t.title;
   document.getElementById('quiz-subtitle').textContent = t.subtitle;
   const singleEl = document.getElementById('quiz-single');
-  if (singleEl.style.display !== 'none' && quizQuestions.length > 0) {
+  if (singleEl && singleEl.style.display !== 'none' && quizQuestions.length > 0) {
     document.getElementById('quiz-skip-text').textContent = t.skip;
     const missing = getMissingSlots();
     if (missing.length > 0) loadQuestions(missing);
   }
   const freeformEl = document.getElementById('quiz-freeform');
-  if (freeformEl.style.display !== 'none') {
+  if (freeformEl && freeformEl.style.display !== 'none') {
     document.getElementById('quiz-freeform-label').textContent = t.freeform;
     document.getElementById('quiz-freeform-input').placeholder = t.freeformPlaceholder;
     document.getElementById('quiz-freeform-submit').textContent = t.send;
@@ -819,4 +858,4 @@ function refreshQuizLang() {
 }
 </script>
 </body>
-</html>]]>
+</html>

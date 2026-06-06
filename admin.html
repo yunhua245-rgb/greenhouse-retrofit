@@ -846,7 +846,7 @@ function renderSearchResults(data) {
           ${s.location ? `<span>📍 ${escHtml(s.location)}</span>` : ''}
           ${s.specialty ? `<span>⚡ ${escHtml(s.specialty.substring(0, 30))}</span>` : ''}
         </div>
-        ${supplierUrl ? `<a href="${escHtml(supplierUrl)}" target="_blank" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block;word-break:break-all">🔗 ${escHtml(supplierUrl.length > 50 ? supplierUrl.substring(0, 50) + '...' : supplierUrl)}</a><span style="font-size:11px;color:${urlStatusColor};margin-left:4px">${urlStatusIcon}</span>` : ''}
+        ${supplierUrl ? `<a href="${supplierUrl}" target="_blank" rel="noopener" style="font-size:11px;color:#185fa5;text-decoration:none;margin-top:2px;display:inline-block;word-break:break-all">🔗 ${escHtml(supplierUrl.length > 50 ? supplierUrl.substring(0, 50) + '...' : supplierUrl)}</a><span style="font-size:11px;color:${urlStatusColor};margin-left:4px">${urlStatusIcon}</span>` : ''}
       </div>
     </div>`;
   });
@@ -890,7 +890,7 @@ async function batchAddSuppliers() {
     const res = await fetch('/api/batch-add-suppliers', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ suppliers: enriched })
+      body: JSON.stringify({ suppliers: enriched, dataFile: 'projects/greenhouse/data.json' })
     });
     const data = await res.json();
 
@@ -942,10 +942,12 @@ async function enrichSuppliersWithWebsite(suppliers, statusEl) {
       if (!companyName) return enrichedItem;
 
       try {
+        const searchTarget = await findOfficialWebsite(companyName, s.website || s.url || s.homepage || s.link);
+        if (!searchTarget) return enrichedItem;
         const searchRes = await fetch('/api/fetch-company', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url: await findOfficialWebsite(companyName, s.url) })
+          body: JSON.stringify({ url: searchTarget })
         });
 
         if (searchRes.ok) {

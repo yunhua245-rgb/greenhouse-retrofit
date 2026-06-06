@@ -448,11 +448,14 @@ async function fetchData() {
     }
   } catch(e) { console.log('Coordinator fetch failed'); }
   
-  renderSuppliers();
-  renderCoordinator();
-  renderDynamicProjectInfo();
-  renderDisplayContent();
-  switchLang(currentLang);
+  if (currentLang === 'en') {
+    renderSuppliers();
+    renderCoordinator();
+    renderDynamicProjectInfo();
+    renderDisplayContent();
+  } else {
+    switchLang(currentLang);
+  }
 }
 
 function renderSuppliers() {
@@ -467,18 +470,18 @@ function renderSuppliers() {
   document.getElementById('stat-suppliers').textContent = suppliers.filter(s => s.status !== 'rejected').length;
   
   const stLabels = {
-    zh: {new:'新增',pending:'评估中',contacting:'沟通中',quoted:'已报价',selected:'已选定',shortlisted:'候选'},
-    en: {new:'New',pending:'Under review',contacting:'In discussion',quoted:'Quoted',selected:'Selected',shortlisted:'Shortlisted'},
-    ru: {new:'Новый',pending:'На рассмотрении',contacting:'В обсуждении',quoted:'КП получено',selected:'Выбран',shortlisted:'В шорт-листе'}
+    zh: {new:'新增',pending:'评估中',contacting:'沟通中',contacted:'已联系',replied:'已回复',quoted:'已报价',selected:'已选定',shortlisted:'候选',rejected:'已淘汰'},
+    en: {new:'New',pending:'Under review',contacting:'In discussion',contacted:'Contacted',replied:'Replied',quoted:'Quoted',selected:'Selected',shortlisted:'Shortlisted',rejected:'Rejected'},
+    ru: {new:'Новый',pending:'На рассмотрении',contacting:'В обсуждении',contacted:'Связались',replied:'Ответили',quoted:'КП получено',selected:'Выбран',shortlisted:'В шорт-листе',rejected:'Отклонен'}
   };
   
   const emptyText = i18n[currentLang]['col-empty'] || '暂无';
   
-  // Categorize suppliers by track (exact match first, then pattern, mutually exclusive)
-  const trackA = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'A' || s.track === 'a' || /代工|OEM|contract/i.test(s.track||'')));
-  const trackB = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'B' || s.track === 'b' || /设备|机器|machine/i.test(s.track||'')));
-  const trackC = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'C' || s.track === 'c' || /模具|mold|mould/i.test(s.track||'')));
-  // Unclassified go to track A
+  // Categorize suppliers by track (match admin track values: "A-代工", "B-设备", "C-模具", "包装")
+  const trackA = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'A' || s.track === 'a' || /^A[-_]|代工|OEM|contract/i.test(s.track||'')));
+  const trackB = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'B' || s.track === 'b' || /^B[-_]|设备|机器|machine/i.test(s.track||'')));
+  const trackC = suppliers.filter(s => s.status !== 'rejected' && (s.track === 'C' || s.track === 'c' || /^C[-_]|模具|mold|mould/i.test(s.track||'')));
+  // "包装" goes to track A; anything unclassified also goes to track A
   const classifiedIds = new Set([...trackA, ...trackB, ...trackC].map(s => s.id));
   const unclassified = suppliers.filter(s => s.status !== 'rejected' && !classifiedIds.has(s.id));
   trackA.push(...unclassified);
