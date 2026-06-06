@@ -6,7 +6,7 @@ export default async function handler(req, res) {
 
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -57,6 +57,48 @@ export default async function handler(req, res) {
       const content = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
       const putBody = {
         message: `Update MODU supplier data [${new Date().toISOString()}]`,
+        content,
+        branch: 'main'
+      };
+      if (sha) putBody.sha = sha;
+
+      const putRes = await fetch(apiUrl, {
+        method: 'PUT',
+        headers: { ...headers, 'Content-Type': 'application/json' },
+        body: JSON.stringify(putBody)
+      });
+
+      if (!putRes.ok) {
+        const err = await putRes.json();
+        return res.status(putRes.status).json({ error: err.message || 'Save failed' });
+      }
+
+      const result = await putRes.json();
+      return res.status(200).json({ success: true, _sha: result.content.sha });
+    } catch (e) {
+      return res.status(500).json({ error: e.message });
+    }
+  }
+
+  if (req.method === 'PUT') {
+    try {
+      const body = req.body;
+      const data = body._sha ? (({ _sha, ...d }) => d)(body) : body;
+      
+      let sha = body._sha;
+      if (!sha) {
+        try {
+          const getRes = await fetch(apiUrl, { headers });
+          if (getRes.ok) {
+            const file = await getRes.json();
+            sha = file.sha;
+          }
+        } catch(e) {}
+      }
+
+      const content = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
+      const putBody = {
+        message: `Update MODU data (PUT) [${new Date().toISOString()}]`,
         content,
         branch: 'main'
       };
