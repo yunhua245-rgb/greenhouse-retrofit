@@ -336,6 +336,43 @@
       "createdAt": 1780667907301
     }
   ],
-  "projectInfo": {},
-  "lastUpdated": 1780667907978
+  "projectInfo": {
+    "clientCompany": "",
+    "contactPerson": "Anna Chudinova",
+    "contactMethod": "",
+    "location": "",
+    "companyType": "",
+    "companyScale": "",
+    "productName": "",
+    "productUsage": "",
+    "specifications": "",
+    "quantity": "",
+    "certifications": "",
+    "sampleDrawing": "",
+    "packagingReq": "",
+    "budget": "",
+    "currency": "",
+    "tradeTerms": "",
+    "paymentTerms": "",
+    "destination": "",
+    "timeline": "",
+    "shippingMethod": "",
+    "customsClearance": "",
+    "supplierType": "",
+    "supplierRegion": "",
+    "factoryAudit": "",
+    "sampleNeeded": "",
+    "oemOdm": "",
+    "warranty": "",
+    "afterSales": "",
+    "cooperationIntent": ""
+  },
+  "lastUpdated": 1780730304766,
+  "editHistory": [
+    {
+      "time": 1780730304766,
+      "previous": {},
+      "summary": "手动编辑客户项目信息"
+    }
+  ]
 }
