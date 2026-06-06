@@ -2,7 +2,7 @@
 // Merges a single slot answer into projectInfo in data.json
 
 const GITHUB_REPO = 'yunhua245-rgb/greenhouse-retrofit';
-const GITHUB_FILE = 'data.json';
+const GITHUB_FILE = 'projects/greenhouse/data.json';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 module.exports = async function handler(req, res) {
