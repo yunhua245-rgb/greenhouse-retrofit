@@ -33,40 +33,44 @@ function showLoginForm() {
   overlay.innerHTML = `
     <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center">
       <div style="background:#fff;border-radius:16px;padding:40px 32px;max-width:400px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
-        <h2 style="font-size:18px;margin-bottom:8px;color:#1a1a2e">管理后台登录</h2>
-        <p style="font-size:13px;color:#888;margin-bottom:24px">输入邮箱，我们将发送登录链接</p>
-        <input id="auth-email" type="email" placeholder="admin@example.com"
+        <h2 style="font-size:18px;margin-bottom:24px;color:#1a1a2e">管理后台登录</h2>
+        <input id="auth-email" type="text" placeholder="账号"
           style="width:100%;padding:12px 16px;border:1.5px solid #d0d5dd;border-radius:10px;font-size:14px;margin-bottom:12px;outline:none;box-sizing:border-box">
+        <input id="auth-password" type="password" placeholder="密码"
+          style="width:100%;padding:12px 16px;border:1.5px solid #d0d5dd;border-radius:10px;font-size:14px;margin-bottom:16px;outline:none;box-sizing:border-box">
         <button id="auth-submit"
           style="width:100%;padding:12px;background:#148a4e;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer">
-          发送登录链接
+          登录
         </button>
-        <p id="auth-msg" style="margin-top:12px;font-size:13px;color:#148a4e;display:none"></p>
+        <p id="auth-msg" style="margin-top:12px;font-size:13px;color:#e24b4a;display:none"></p>
         <p style="font-size:11px;color:#aaa;margin-top:16px">仅限管理员使用</p>
       </div>
     </div>
   `;
   document.body.appendChild(overlay);
 
-  document.getElementById('auth-submit').onclick = async () => {
+  const doLogin = async () => {
     const email = document.getElementById('auth-email').value.trim();
-    if (!email) return;
+    const password = document.getElementById('auth-password').value;
+    if (!email || !password) return;
     const btn = document.getElementById('auth-submit');
     const msg = document.getElementById('auth-msg');
-    btn.disabled = true; btn.textContent = '发送中...';
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    btn.disabled = true; btn.textContent = '登录中...';
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) {
-      msg.textContent = '发送失败：' + error.message;
+      msg.textContent = '登录失败：' + (error.message||'账号或密码错误');
       msg.style.color = '#e24b4a';
       msg.style.display = 'block';
-      btn.disabled = false; btn.textContent = '发送登录链接';
+      btn.disabled = false; btn.textContent = '登录';
     } else {
-      msg.textContent = '已发送登录链接到 ' + email + '，请查收邮件';
-      msg.style.color = '#148a4e';
-      msg.style.display = 'block';
-      btn.textContent = '已发送';
+      document.getElementById('auth-overlay').remove();
+      location.reload();
     }
   };
+
+  document.getElementById('auth-submit').onclick = doLogin;
+  document.getElementById('auth-password').onkeydown = function(e) { if (e.key === 'Enter') doLogin(); };
+  document.getElementById('auth-email').onkeydown = function(e) { if (e.key === 'Enter') document.getElementById('auth-password').focus(); };
 }
 
 // Sign out
