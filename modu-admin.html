@@ -1416,7 +1416,23 @@ async function handleUploadDoc(supplierName) {
     if (!files.length) return;
     try {
       for (var i = 0; i < files.length; i++) {
-        await uploadSupplierDoc(supId, 'modu', files[i]);
+        var file = files[i];
+        var reader = new FileReader();
+        var base64 = await new Promise(function(resolve, reject) {
+          reader.onload = function() { resolve(reader.result.split(',')[1]); };
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+        var res = await fetch('/api/upload-doc', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            supplierId: supId, projectSlug: 'modu',
+            filename: file.name, fileBase64: base64
+          })
+        });
+        var data = await res.json();
+        if (!res.ok) throw new Error(data.error || 'Upload failed');
       }
       alert('文档上传成功！');
       renderList();
