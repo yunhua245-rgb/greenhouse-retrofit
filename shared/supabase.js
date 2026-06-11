@@ -4,10 +4,12 @@
 // ============================================================
 
 // ⚠️ Replace these with your Supabase project values
-const SUPABASE_URL = 'https://iwbkscwtlluziexacjta.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3YmtzY3d0bGx1emlleGFjanRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNTczNzYsImV4cCI6MjA5NjczMzM3Nn0.s2YsQeLVIRTOy3V8bSsU4HVASY6bQox_rm9_QAN7m3E';
+var SUPABASE_URL = 'https://iwbkscwtlluziexacjta.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3YmtzY3d0bGx1emlleGFjanRhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODExNTczNzYsImV4cCI6MjA5NjczMzM3Nn0.s2YsQeLVIRTOy3V8bSsU4HVASY6bQox_rm9_QAN7m3E';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// NOTE: CDN script declares global `var supabase = {...}`, so we must NOT use `const supabase` here.
+// Instead, we reassign the global variable to the client instance.
+var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ============================================================
 // Auth helpers
@@ -78,7 +80,7 @@ async function signOut() {
 // ============================================================
 
 // Cache project ID lookup
-const _projectIdCache = {};
+var _projectIdCache = {};
 
 async function getProjectId(slug) {
   if (_projectIdCache[slug]) return _projectIdCache[slug];
