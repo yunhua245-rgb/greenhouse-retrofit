@@ -1,126 +1,110 @@
-export default async function handler(req, res) {
-  const GITHUB_OWNER = 'yunhua245-rgb';
-  const GITHUB_REPO = 'greenhouse-retrofit';
-  const GITHUB_FILE = 'projects/modu/data.json';
-  const GITHUB_TOKEN = process.env.GITHUB_TOKEN || '';
+// Vercel Serverless Function — MODU data store via Supabase
 
-  // CORS
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+const supabaseHeaders = () => ({
+  'apikey': SUPABASE_SERVICE_KEY,
+  'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+});
+
+module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  const headers = {
-    'Accept': 'application/vnd.github.v3+json',
-    'User-Agent': 'modu-sourcing-app'
-  };
-  if (GITHUB_TOKEN) headers['Authorization'] = `token ${GITHUB_TOKEN}`;
-
-  const apiUrl = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
+  const PROJECT_SLUG = 'modu';
 
   if (req.method === 'GET') {
     try {
-      const response = await fetch(apiUrl, { headers });
-      if (response.status === 404) {
-        // File doesn't exist yet, return empty data
-        return res.status(200).json({ suppliers: [], _sha: '' });
-      }
-      if (!response.ok) {
-        return res.status(response.status).json({ error: 'GitHub API error' });
-      }
-      const file = await response.json();
-      const content = JSON.parse(Buffer.from(file.content, 'base64').toString('utf8'));
-      content._sha = file.sha;
-      return res.status(200).json(content);
+      const data = await readFullData(PROJECT_SLUG);
+      return res.status(200).json(data);
     } catch (e) {
       return res.status(500).json({ error: e.message });
     }
   }
 
-  if (req.method === 'POST') {
+  if (req.method === 'PUT' || req.method === 'POST') {
     try {
-      const body = req.body;
+      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
       const { _sha, ...data } = body;
-      
-      // Get current sha if not provided
-      let sha = _sha;
-      if (!sha) {
-        try {
-          const getRes = await fetch(apiUrl, { headers });
-          if (getRes.ok) {
-            const file = await getRes.json();
-            sha = file.sha;
-          }
-        } catch(e) { /* file may not exist */ }
-      }
-
-      const content = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
-      const putBody = {
-        message: `Update MODU supplier data [${new Date().toISOString()}]`,
-        content,
-        branch: 'main'
-      };
-      if (sha) putBody.sha = sha;
-
-      const putRes = await fetch(apiUrl, {
-        method: 'PUT',
-        headers: { ...headers, 'Content-Type': 'application/json' },
-        body: JSON.stringify(putBody)
-      });
-
-      if (!putRes.ok) {
-        const err = await putRes.json();
-        return res.status(putRes.status).json({ error: err.message || 'Save failed' });
-      }
-
-      const result = await putRes.json();
-      return res.status(200).json({ success: true, _sha: result.content.sha });
-    } catch (e) {
-      return res.status(500).json({ error: e.message });
-    }
-  }
-
-  if (req.method === 'PUT') {
-    try {
-      const body = req.body;
-      const data = body._sha ? (({ _sha, ...d }) => d)(body) : body;
-      
-      let sha = body._sha;
-      if (!sha) {
-        try {
-          const getRes = await fetch(apiUrl, { headers });
-          if (getRes.ok) {
-            const file = await getRes.json();
-            sha = file.sha;
-          }
-        } catch(e) {}
-      }
-
-      const content = Buffer.from(JSON.stringify(data, null, 2)).toString('base64');
-      const putBody = {
-        message: `Update MODU data (PUT) [${new Date().toISOString()}]`,
-        content,
-        branch: 'main'
-      };
-      if (sha) putBody.sha = sha;
-
-      const putRes = await fetch(apiUrl, {
-        method: 'PUT',
-        headers: { ...headers, 'Content-Type': 'application/json' },
-        body: JSON.stringify(putBody)
-      });
-
-      if (!putRes.ok) {
-        const err = await putRes.json();
-        return res.status(putRes.status).json({ error: err.message || 'Save failed' });
-      }
-
-      const result = await putRes.json();
-      return res.status(200).json({ success: true, _sha: result.content.sha });
+      await writeFullData(PROJECT_SLUG, data);
+      return res.status(200).json({ success: true });
     } catch (e) {
       return res.status(500).json({ error: e.message });
     }
   }
 
   return res.status(405).json({ error: 'Method not allowed' });
+};
+
+async function supabaseFetch(path, method, body) {
+  const url = `${SUPABASE_URL}/rest/v1/${path}`;
+  const opts = { method, headers: supabaseHeaders() };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (!r.ok) {
+    const err = await r.text().catch(() => '');
+    throw new Error(`Supabase ${method} ${path}: ${r.status} ${err}`);
+  }
+  if (method === 'GET' || opts.headers['Prefer'] === 'return=representation') {
+    return { data: await r.json().catch(() => []) };
+  }
+  return { data: [] };
 }
+
+async function readFullData(slug) {
+  const project = await supabaseFetch(`projects?slug=eq.${slug}&limit=1`, 'GET');
+  const projectId = project?.data?.[0]?.id;
+  if (!projectId) throw new Error('Project not found: ' + slug);
+
+  const [suppliers, infoRows, editHistory] = await Promise.all([
+    supabaseFetch(`suppliers?project_id=eq.${projectId}&order=created_at.desc`, 'GET'),
+    supabaseFetch(`project_info?project_id=eq.${projectId}`, 'GET'),
+    supabaseFetch(`edit_history?project_id=eq.${projectId}&order=created_at.desc`, 'GET')
+  ]);
+
+  const projectInfo = {};
+  (infoRows?.data || []).forEach(row => { projectInfo[row.key] = row.value; });
+
+  return {
+    suppliers: suppliers?.data || [],
+    projectInfo,
+    editHistory: editHistory?.data || [],
+    lastUpdated: Date.now()
+  };
+}
+
+async function writeFullData(slug, body) {
+  const project = await supabaseFetch(`projects?slug=eq.${slug}&limit=1`, 'GET');
+  const projectId = project?.data?.[0]?.id;
+  if (!projectId) throw new Error('Project not found: ' + slug);
+
+  const { suppliers, projectInfo, editHistory } = body;
+
+  if (suppliers) {
+    await supabaseFetch(`suppliers?project_id=eq.${projectId}`, 'DELETE');
+    for (const s of suppliers) {
+      const { id, ...row } = s;
+      await supabaseFetch('suppliers', 'POST', { ...row, project_id: projectId });
+    }
+  }
+
+  if (projectInfo) {
+    for (const [key, value] of Object.entries(projectInfo)) {
+      await supabaseFetch('project_info', 'POST', { project_id: projectId, key, value });
+    }
+  }
+
+  if (editHistory) {
+    for (const e of editHistory) {
+      const { id, ...row } = e;
+      await supabaseFetch('edit_history', 'POST', { ...row, project_id: projectId });
+    }
+  }
+}
+
+module.exports.config = { maxDuration: 30 };

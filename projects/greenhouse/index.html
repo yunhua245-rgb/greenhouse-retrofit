@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Greenhouse Automation Retrofit Project</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/supabase.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
   body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
@@ -456,7 +458,7 @@ function switchLang(lang) {
   if (editLink) editLink.href = '/client-edit.html?lang=' + lang;
 }
 
-const CLOUD_URL = '/api/data';
+const CLOUD_URL = '/projects/greenhouse/data.json';
 let suppliersData = [];
 let projectInfo = {};
 let coordinatorProfile = {};
@@ -464,15 +466,19 @@ let phasesData = [];
 
 async function fetchData() {
   try {
-    const res = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
-    if (res.ok) {
-      const data = await res.json();
-      suppliersData = data.suppliers || [];
-      projectInfo = data.projectInfo || {};
-      coordinatorProfile = data.coordinatorProfile || {};
-      phasesData = data.phases || [];
-    }
-  } catch (e) { console.log('Cloud fetch failed'); }
+    const [suppliers, info, coordinator, phases] = await Promise.all([
+      getSuppliers('greenhouse'),
+      getProjectInfo('greenhouse'),
+      getCoordinator(),
+      getPhases('greenhouse')
+    ]);
+    suppliersData = suppliers;
+    projectInfo = info;
+    coordinatorProfile = coordinator;
+    phasesData = phases;
+  } catch (e) { console.log('Supabase fetch failed'); showFallbackBanner(); }
+  const hasData = suppliersData.length > 0 || Object.keys(projectInfo).length > 0 || Object.keys(coordinatorProfile).length > 0;
+  if (!hasData && !document.querySelector('.fallback-banner')) { showFallbackBanner(); }
   if (currentLang === 'en') {
     renderSuppliers();
     renderProjectInfo();
@@ -484,6 +490,21 @@ async function fetchData() {
   }
   const editLink = document.querySelector('.client-edit-link');
   if (editLink) editLink.href = '/client-edit.html?lang=' + currentLang;
+}
+
+function showFallbackBanner() {
+  if (document.querySelector('.fallback-banner')) return;
+  const msgs = {en:'Unable to load project data.',ru:'Не удалось загрузить данные проекта.',zh:'项目数据加载失败'};
+  const refresh = {en:'Refresh page',ru:'Обновить страницу',zh:'刷新页面'};
+  const m = msgs[currentLang] || msgs.en;
+  const r = refresh[currentLang] || refresh.en;
+  const banner = document.createElement('div');
+  banner.className = 'fallback-banner';
+  banner.style.cssText = 'background:#fff3e0;border:1px solid #ff9800;border-radius:12px;padding:14px 22px;margin-bottom:20px;text-align:center;font-size:14px;color:#b86e00';
+  banner.innerHTML = m + ' <a href="javascript:location.reload()" style="color:#148a4e;font-weight:600;cursor:pointer">' + r + '</a>';
+  const container = document.querySelector('.container');
+  if (container) container.insertBefore(banner, container.firstChild);
+  else document.body.insertBefore(banner, document.body.firstChild);
 }
 
 function renderProjectInfo() {
@@ -700,7 +721,6 @@ function renderPhases() {
 fetchData();
 
 const QUIZ_API = '/api/generate-questions';
-const SAVE_ANSWER_API = '/api/save-quiz-answer';
 let quizAnswered = {};
 let quizQuestions = [];
 let quizIndex = 0;
@@ -779,15 +799,9 @@ async function selectQuizOption(el) {
   const feedback = document.getElementById('quiz-q-feedback');
   feedback.style.display = 'block'; feedback.style.color = '#148a4e'; feedback.textContent = t.saving;
   try {
-    const res = await fetch(SAVE_ANSWER_API, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slot, value })
-    });
-    const data = await res.json();
-    if (data.success) {
-      feedback.textContent = t.saved; quizAnswered[slot] = value; projectInfo[slot] = value; renderProjectInfo();
-      setTimeout(() => { quizIndex++; quizIndex >= quizQuestions.length ? showFreeform() : showCurrentQuestion(); }, 600);
-    } else { feedback.textContent = t.errSave; feedback.style.color = '#b86e00'; }
+    await saveQuizAnswer('greenhouse', slot, value);
+    feedback.textContent = t.saved; quizAnswered[slot] = value; projectInfo[slot] = value; renderProjectInfo();
+    setTimeout(() => { quizIndex++; quizIndex >= quizQuestions.length ? showFreeform() : showCurrentQuestion(); }, 600);
   } catch (e) { feedback.textContent = t.errNetwork; feedback.style.color = '#b86e00'; }
 }
 
@@ -819,19 +833,13 @@ async function submitFreeform() {
   const feedback = document.getElementById('quiz-freeform-feedback');
   feedback.style.display = 'block'; feedback.style.color = '#148a4e'; feedback.textContent = t.saving;
   try {
-    const res = await fetch(SAVE_ANSWER_API, {
-      method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ slot: 'freeformNote', value: text })
-    });
-    const data = await res.json();
-    if (data.success) {
-      feedback.textContent = t.freeformSaved; input.value = '';
-      setTimeout(() => {
-        document.getElementById('quiz-freeform').style.display = 'none';
-        document.getElementById('quiz-alldone').style.display = 'block';
-        document.getElementById('quiz-done-text').textContent = t.done;
-      }, 1000);
-    } else { feedback.textContent = t.errSave; feedback.style.color = '#b86e00'; }
+    await saveQuizAnswer('greenhouse', 'freeformNote', text);
+    feedback.textContent = t.freeformSaved; input.value = '';
+    setTimeout(() => {
+      document.getElementById('quiz-freeform').style.display = 'none';
+      document.getElementById('quiz-alldone').style.display = 'block';
+      document.getElementById('quiz-done-text').textContent = t.done;
+    }, 1000);
   } catch(e) { feedback.textContent = t.errNetwork; feedback.style.color = '#b86e00'; }
 }
 

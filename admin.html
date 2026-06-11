@@ -137,8 +137,14 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 .edit-modal-body .form-row textarea{min-height:50px;resize:vertical}
 .edit-modal-footer{padding:16px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;gap:10px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/supabase.js"></script>
 </head>
 <body>
+<div id="auth-banner" style="display:none;background:#e8f5ee;border-bottom:1px solid #c8e6c9;padding:8px 24px;justify-content:space-between;align-items:center;font-size:13px;color:#0a6e3a">
+  <span>✓ 已登录</span>
+  <button onclick="signOut()" style="background:none;border:1px solid #0a6e3a;color:#0a6e3a;padding:4px 14px;border-radius:6px;cursor:pointer;font-size:12px">退出</button>
+</div>
 
 <div class="header">
   <h1>🌿 供应商管理后台</h1>
@@ -1773,12 +1779,21 @@ async function saveDisplaySettings() {
 
 // Initialize
 async function init() {
+  const session = await requireAuth();
+  if (!session) return;
+  document.getElementById('auth-banner').style.display = 'flex';
   await loadFromCloud();
   renderList();
   loadEditHistory();
   loadPhases();
   loadDisplaySettings();
 }
+
+// Listen for auth state changes (magic link callback)
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN') location.reload();
+});
+
 init();
 </script>
 

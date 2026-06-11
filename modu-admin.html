@@ -127,8 +127,14 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 .edit-modal-body .form-row textarea{min-height:50px;resize:vertical}
 .edit-modal-footer{padding:16px 24px;border-top:1px solid #e8eaed;display:flex;justify-content:flex-end;gap:10px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/supabase.js"></script>
 </head>
 <body>
+<div id="auth-banner" style="display:none;background:#fff3e0;border-bottom:1px solid #ffcc80;padding:8px 24px;justify-content:space-between;align-items:center;font-size:13px;color:#e65100">
+  <span>✓ 已登录</span>
+  <button onclick="signOut()" style="background:none;border:1px solid #e65100;color:#e65100;padding:4px 14px;border-radius:6px;cursor:pointer;font-size:12px">退出</button>
+</div>
 
 <div class="header">
   <h1>🧸 模块化玩具 — 供应商管理</h1>
@@ -1370,6 +1376,9 @@ async function saveDisplaySettings() {
 
 // Init
 async function init() {
+  const session = await requireAuth();
+  if (!session) return;
+  document.getElementById('auth-banner').style.display = 'flex';
   await loadFromCloud();
   await forceReloadFromCloud();
   renderList();
@@ -1392,6 +1401,10 @@ function execWhenVisible(fn) {
     observer.observe(container, { attributes: true, attributeFilter: ['class'] });
   }
 }
+
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN') location.reload();
+});
 
 init();
 </script>

@@ -116,6 +116,8 @@
     .section{padding:20px}
   }
 </style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="/shared/supabase.js"></script>
 </head>
 <body>
 
@@ -432,21 +434,18 @@ let projectInfo = {};
 
 async function fetchData() {
   try {
-    const moduRes = await fetch('/api/modu-data');
-    if (moduRes.ok) {
-      const moduData = await moduRes.json();
-      suppliersData = moduData.suppliers || [];
-      projectInfo = moduData.projectInfo || {};
-    }
-  } catch(e) { console.log('MODU data fetch failed'); }
+    const [suppliers, info, coordinator] = await Promise.all([
+      getSuppliers('modu'),
+      getProjectInfo('modu'),
+      getCoordinator()
+    ]);
+    suppliersData = suppliers;
+    projectInfo = info;
+    coordinatorProfile = coordinator;
+  } catch(e) { console.log('Supabase fetch failed'); showFallbackBannerModu(); }
   
-  try {
-    const res = await fetch('/api/data');
-    if (res.ok) {
-      const data = await res.json();
-      coordinatorProfile = data.coordinatorProfile || {};
-    }
-  } catch(e) { console.log('Coordinator fetch failed'); }
+  const hasData = suppliersData.length > 0 || Object.keys(projectInfo).length > 0 || Object.keys(coordinatorProfile).length > 0;
+  if (!hasData && !document.querySelector('.fallback-banner')) { showFallbackBannerModu(); }
   
   if (currentLang === 'en') {
     renderSuppliers();
@@ -456,6 +455,21 @@ async function fetchData() {
   } else {
     switchLang(currentLang);
   }
+}
+
+function showFallbackBannerModu() {
+  if (document.querySelector('.fallback-banner')) return;
+  const msgs = {en:'Unable to load project data.',ru:'Не удалось загрузить данные проекта.',zh:'项目数据加载失败'};
+  const refresh = {en:'Refresh page',ru:'Обновить страницу',zh:'刷新页面'};
+  const m = msgs[currentLang] || msgs.en;
+  const r = refresh[currentLang] || refresh.en;
+  const banner = document.createElement('div');
+  banner.className = 'fallback-banner';
+  banner.style.cssText = 'background:#fff3e0;border:1px solid #ff9800;border-radius:12px;padding:14px 22px;margin-bottom:20px;text-align:center;font-size:14px;color:#b86e00';
+  banner.innerHTML = m + ' <a href="javascript:location.reload()" style="color:#e65100;font-weight:600;cursor:pointer">' + r + '</a>';
+  const container = document.querySelector('.container');
+  if (container) container.insertBefore(banner, container.firstChild);
+  else document.body.insertBefore(banner, document.body.firstChild);
 }
 
 function renderSuppliers() {

@@ -1,38 +1,30 @@
-// Vercel Serverless Function — JSON data store via GitHub API
-// Data persisted in GitHub repo file: data.json
+// Vercel Serverless Function — Greenhouse data store via Supabase
+// Data persisted in Supabase PostgreSQL
 
-const GITHUB_REPO = 'yunhua245-rgb/greenhouse-retrofit';
-const GITHUB_FILE = 'projects/greenhouse/data.json';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+const supabaseHeaders = () => ({
+  'apikey': SUPABASE_SERVICE_KEY,
+  'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+});
 
 module.exports = async function handler(req, res) {
-  // CORS headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, PUT, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
-  
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
-  }
+  res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
 
-  const apiBase = `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`;
-  const headers = {
-    'Authorization': `token ${GITHUB_TOKEN}`,
-    'Accept': 'application/vnd.github.v3+json',
-    'User-Agent': 'greenhouse-retrofit-app'
-  };
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const PROJECT_SLUG = 'greenhouse';
 
   if (req.method === 'GET') {
     try {
-      const response = await fetch(apiBase, { headers });
-      if (response.ok) {
-        const fileData = await response.json();
-        const content = Buffer.from(fileData.content, 'base64').toString('utf8');
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-        return res.status(200).send(content);
-      }
-      return res.status(404).json({ error: 'Data not found' });
+      const data = await readFullData(PROJECT_SLUG);
+      return res.status(200).json(data);
     } catch (e) {
       return res.status(500).json({ error: 'Failed to read data', detail: e.message });
     }
@@ -40,77 +32,29 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'PUT') {
     try {
-      // First get current file SHA
-      const getRes = await fetch(apiBase, { headers });
-      let sha = null;
-      if (getRes.ok) {
-        const fileData = await getRes.json();
-        sha = fileData.sha;
-      }
-
-      const body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
-      const content = Buffer.from(body).toString('base64');
-
-      const putBody = {
-        message: 'Update data ' + new Date().toISOString(),
-        content: content,
-        ...(sha && { sha })
-      };
-
-      const putRes = await fetch(apiBase, {
-        method: 'PUT',
-        headers: { ...headers, 'Content-Type': 'application/json' },
-        body: JSON.stringify(putBody)
-      });
-
-      if (putRes.ok) {
-        res.setHeader('Content-Type', 'application/json');
-        return res.status(200).json({ success: true });
-      } else {
-        const errData = await putRes.json();
-        return res.status(500).json({ error: 'Failed to save', detail: errData });
-      }
+      const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
+      await writeFullData(PROJECT_SLUG, body);
+      return res.status(200).json({ success: true });
     } catch (e) {
       return res.status(500).json({ error: 'Failed to write data', detail: e.message });
     }
   }
 
   if (req.method === 'POST') {
-    // Partial update actions
     try {
-      const { action, profile } = req.body || {};
-      
-      // Get current data
-      const getRes = await fetch(apiBase, { headers });
-      if (!getRes.ok) return res.status(500).json({ error: 'Failed to read current data' });
-      const fileData = await getRes.json();
-      const sha = fileData.sha;
-      const currentData = JSON.parse(Buffer.from(fileData.content, 'base64').toString('utf8'));
-      
+      const { action, profile } = (typeof req.body === 'string' ? JSON.parse(req.body) : req.body) || {};
       if (action === 'updateProfile' && profile) {
-        currentData.coordinatorProfile = profile;
-      } else {
-        return res.status(400).json({ error: 'Unknown action' });
-      }
-      
-      // Save back
-      const content = Buffer.from(JSON.stringify(currentData, null, 2)).toString('base64');
-      const putRes = await fetch(apiBase, {
-        method: 'PUT',
-        headers: { ...headers, 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: 'Update profile ' + new Date().toISOString(),
-          content,
-          sha
-        })
-      });
-      
-      if (putRes.ok) {
+        await supabaseFetch('coordinator_profiles?limit=1', 'GET');
+        // Use upsert on the first coordinator profile
+        const { data: existing } = await supabaseFetch('coordinator_profiles?limit=1', 'GET');
+        if (existing && existing.length > 0) {
+          await supabaseFetch(`coordinator_profiles?id=eq.${existing[0].id}`, 'PATCH', { ...profile, updated_at: new Date().toISOString() });
+        } else {
+          await supabaseFetch('coordinator_profiles', 'POST', profile);
+        }
         return res.status(200).json({ success: true });
-      } else {
-        const errData = await putRes.json();
-        return res.status(500).json({ error: 'Failed to save', detail: errData });
       }
+      return res.status(400).json({ error: 'Unknown action' });
     } catch (e) {
       return res.status(500).json({ error: 'Failed to update', detail: e.message });
     }
@@ -119,6 +63,97 @@ module.exports = async function handler(req, res) {
   return res.status(405).json({ error: 'Method not allowed' });
 };
 
-module.exports.config = {
-  maxDuration: 30
-};
+// Helper: call Supabase REST API
+async function supabaseFetch(path, method, body) {
+  const url = `${SUPABASE_URL}/rest/v1/${path}`;
+  const opts = { method, headers: supabaseHeaders() };
+  if (body) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  if (!r.ok) {
+    const err = await r.text().catch(() => '');
+    throw new Error(`Supabase ${method} ${path}: ${r.status} ${err}`);
+  }
+  if (method === 'GET' || opts.headers['Prefer'] === 'return=representation') {
+    return { data: await r.json().catch(() => []) };
+  }
+  return { data: [] };
+}
+
+// Read all data for a project, returning the legacy format
+async function readFullData(slug) {
+  const project = await supabaseFetch(`projects?slug=eq.${slug}&limit=1`, 'GET');
+  const projectId = project?.data?.[0]?.id;
+  if (!projectId) throw new Error('Project not found: ' + slug);
+
+  const [suppliers, infoRows, coordinator, phases, editHistory, quizHistory] = await Promise.all([
+    supabaseFetch(`suppliers?project_id=eq.${projectId}&order=created_at.desc`, 'GET'),
+    supabaseFetch(`project_info?project_id=eq.${projectId}`, 'GET'),
+    supabaseFetch('coordinator_profiles?limit=1', 'GET'),
+    supabaseFetch(`phases?project_id=eq.${projectId}&order=sort_order.asc`, 'GET'),
+    supabaseFetch(`edit_history?project_id=eq.${projectId}&order=created_at.desc`, 'GET'),
+    supabaseFetch(`quiz_history?project_id=eq.${projectId}&order=created_at.desc`, 'GET')
+  ]);
+
+  const projectInfo = {};
+  (infoRows?.data || []).forEach(row => { projectInfo[row.key] = row.value; });
+
+  return {
+    suppliers: suppliers?.data || [],
+    projectInfo,
+    coordinatorProfile: coordinator?.data?.[0] || {},
+    phases: phases?.data || [],
+    editHistory: editHistory?.data || [],
+    quizHistory: quizHistory?.data || [],
+    lastUpdated: Date.now()
+  };
+}
+
+// Write full data for a project (legacy format)
+async function writeFullData(slug, body) {
+  const project = await supabaseFetch(`projects?slug=eq.${slug}&limit=1`, 'GET');
+  const projectId = project?.data?.[0]?.id;
+  if (!projectId) throw new Error('Project not found: ' + slug);
+
+  const { suppliers, projectInfo, coordinatorProfile, phases, editHistory } = body;
+
+  if (suppliers) {
+    // Delete existing suppliers and re-insert (simplest for full sync)
+    await supabaseFetch(`suppliers?project_id=eq.${projectId}`, 'DELETE');
+    for (const s of suppliers) {
+      const { id, ...row } = s;
+      await supabaseFetch('suppliers', 'POST', { ...row, project_id: projectId });
+    }
+  }
+
+  if (projectInfo) {
+    for (const [key, value] of Object.entries(projectInfo)) {
+      await supabaseFetch('project_info', 'POST', { project_id: projectId, key, value });
+    }
+  }
+
+  if (coordinatorProfile) {
+    const { data: existing } = await supabaseFetch('coordinator_profiles?limit=1', 'GET');
+    if (existing && existing.length > 0) {
+      await supabaseFetch(`coordinator_profiles?id=eq.${existing[0].id}`, 'PATCH', { ...coordinatorProfile, updated_at: new Date().toISOString() });
+    } else {
+      await supabaseFetch('coordinator_profiles', 'POST', coordinatorProfile);
+    }
+  }
+
+  if (phases) {
+    await supabaseFetch(`phases?project_id=eq.${projectId}`, 'DELETE');
+    for (const p of phases) {
+      const { id, ...row } = p;
+      await supabaseFetch('phases', 'POST', { ...row, project_id: projectId });
+    }
+  }
+
+  if (editHistory) {
+    for (const e of editHistory) {
+      const { id, ...row } = e;
+      await supabaseFetch('edit_history', 'POST', { ...row, project_id: projectId });
+    }
+  }
+}
+
+module.exports.config = { maxDuration: 30 };
