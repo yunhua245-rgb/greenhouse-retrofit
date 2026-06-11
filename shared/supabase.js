@@ -34,7 +34,7 @@ function showLoginForm() {
     <div style="position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9999;display:flex;align-items:center;justify-content:center">
       <div style="background:#fff;border-radius:16px;padding:40px 32px;max-width:400px;width:90%;text-align:center;box-shadow:0 8px 32px rgba(0,0,0,0.15)">
         <h2 style="font-size:18px;margin-bottom:24px;color:#1a1a2e">管理后台登录</h2>
-        <input id="auth-email" type="text" placeholder="账号"
+        <input id="auth-email" type="text" placeholder="admin" value="admin"
           style="width:100%;padding:12px 16px;border:1.5px solid #d0d5dd;border-radius:10px;font-size:14px;margin-bottom:12px;outline:none;box-sizing:border-box">
         <input id="auth-password" type="password" placeholder="密码"
           style="width:100%;padding:12px 16px;border:1.5px solid #d0d5dd;border-radius:10px;font-size:14px;margin-bottom:16px;outline:none;box-sizing:border-box">
@@ -43,14 +43,16 @@ function showLoginForm() {
           登录
         </button>
         <p id="auth-msg" style="margin-top:12px;font-size:13px;color:#e24b4a;display:none"></p>
-        <p style="font-size:11px;color:#aaa;margin-top:16px">仅限管理员使用</p>
+        <p style="font-size:11px;color:#aaa;margin-top:16px">仅限管理员使用 · 账号 admin</p>
       </div>
     </div>
   `;
   document.body.appendChild(overlay);
 
   const doLogin = async () => {
-    const email = document.getElementById('auth-email').value.trim();
+    var email = document.getElementById('auth-email').value.trim();
+    // Auto-append domain if just "admin" was entered
+    if (email && !email.includes('@')) email = email + '@greenhouse.local';
     const password = document.getElementById('auth-password').value;
     if (!email || !password) return;
     const btn = document.getElementById('auth-submit');
