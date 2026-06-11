@@ -477,8 +477,9 @@ async function fetchData() {
     projectInfo = info;
     coordinatorProfile = coordinator;
     phasesData = phases;
-    supplierDocs = await getAllProjectDocuments('greenhouse');
   } catch (e) { console.log('Supabase fetch failed'); showFallbackBanner(); }
+  // Load documents separately so they don't block the page
+  try { supplierDocs = await getAllProjectDocuments('greenhouse'); } catch(e) {}
   const hasData = suppliersData.length > 0 || Object.keys(projectInfo).length > 0 || Object.keys(coordinatorProfile).length > 0;
   if (!hasData && !document.querySelector('.fallback-banner')) { showFallbackBanner(); }
   if (currentLang === 'en') {

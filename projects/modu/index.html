@@ -443,8 +443,8 @@ async function fetchData() {
     suppliersData = suppliers;
     projectInfo = info;
     coordinatorProfile = coordinator;
-    supplierDocs = await getAllProjectDocuments('modu');
   } catch(e) { console.log('Supabase fetch failed'); showFallbackBannerModu(); }
+  try { supplierDocs = await getAllProjectDocuments('modu'); } catch(e) {}
   
   const hasData = suppliersData.length > 0 || Object.keys(projectInfo).length > 0 || Object.keys(coordinatorProfile).length > 0;
   if (!hasData && !document.querySelector('.fallback-banner')) { showFallbackBannerModu(); }
