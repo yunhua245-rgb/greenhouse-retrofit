@@ -17,7 +17,6 @@
     "api/extract-requirements.js": { "maxDuration": 30 },
     "api/create-project.js": { "maxDuration": 30 },
     "api/generate-questions.js": { "maxDuration": 30 },
-    "api/save-quiz-answer.js": { "maxDuration": 30 },
-    "api/upload-doc.js": { "maxDuration": 30 }
+    "api/save-quiz-answer.js": { "maxDuration": 30 }
   }
 }
