@@ -643,8 +643,10 @@ function renderList() {
       </div>
     `).reverse().join('');
 
+    // Use supplier name as lookup key for Supabase UUID (localStorage IDs don't match Supabase)
+    var supLookupKey = (s.name || '').replace(/'/g, "\\'");
     return `
-    <div class="supplier-card" id="card-${s.id}">
+    <div class="supplier-card" id="card-${s.id}" data-sup-name="${escHtml(s.name)}">
       <div class="supplier-header" onclick="toggleCard('${s.id}')">
         <div class="supplier-info">
           <div class="supplier-avatar">${(s.name||s.nameEn||'?').charAt(0)}</div>
@@ -678,13 +680,17 @@ function renderList() {
         <div class="supplier-actions">
           <button class="btn btn-outline btn-sm" onclick="editSupplier('${s.id}')">编辑信息</button>
           <button class="btn btn-outline btn-sm" onclick="changeStatus('${s.id}')">更改状态</button>
+          <button class="btn btn-outline btn-sm" onclick="handleUploadDoc('${escHtml(s.name)}')">上传文档</button>
           <button class="btn btn-danger btn-sm" onclick="deleteSupplier('${s.id}')">删除</button>
         </div>
+        <div id="docs-${s.id}" style="margin-top:12px;font-size:12px;color:#888;display:none"></div>
       </div>
     </div>`;
   }).join('');
 
   updateStats();
+  // Load documents for all suppliers (async, non-blocking)
+  loadAllSupplierDocs(suppliers);
 }
 
 function escHtml(str) {
@@ -1787,6 +1793,56 @@ async function init() {
   loadEditHistory();
   loadPhases();
   loadDisplaySettings();
+}
+
+// --- Document Upload ---
+async function handleUploadDoc(supplierName) {
+  var supId = await findSupplierByName('greenhouse', supplierName);
+  if (!supId) { alert('Supplier not found in Supabase: ' + supplierName); return; }
+  var input = document.createElement('input');
+  input.type = 'file'; input.multiple = true;
+  input.onchange = async function() {
+    var files = input.files;
+    if (!files.length) return;
+    try {
+      for (var i = 0; i < files.length; i++) {
+        await uploadSupplierDoc(supId, 'greenhouse', files[i]);
+      }
+      alert('文档上传成功！');
+      renderList();
+    } catch(e) { alert('上传失败: ' + (e.message || e)); }
+  };
+  input.click();
+}
+
+async function loadSupplierDocs(supplierId) {
+  var docs = await getSupplierDocuments(supplierId);
+  var el = document.getElementById('docs-' + supplierId);
+  if (!el) return;
+  if (docs.length === 0) { el.style.display = 'none'; el.innerHTML = ''; return; }
+  el.style.display = 'block';
+  el.innerHTML = '<div style="font-weight:600;margin-bottom:4px">已上传文档 (' + docs.length + ')</div>' + docs.map(function(d) {
+    var url = getDocPublicUrl(d.storage_path);
+    var icon = /\.(jpg|jpeg|png|gif|svg|webp)$/i.test(d.filename) ? '🖼️' : /\.pdf$/i.test(d.filename) ? '📄' : '📎';
+    return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0"><span>' + icon + '</span><a href="' + url + '" target="_blank" style="color:#148a4e;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.filename + '</a><button onclick="handleDeleteDoc(\'' + d.id + '\')" style="color:#e24b4a;background:none;border:none;cursor:pointer;font-size:14px" title="删除">×</button></div>';
+  }).join('');
+}
+
+async function loadAllSupplierDocs(suppliers) {
+  // Build name→localId mapping; query Supabase for UUIDs and load docs
+  for (var i = 0; i < suppliers.length; i++) {
+    var s = suppliers[i];
+    var supId = await findSupplierByName('greenhouse', s.name);
+    if (supId && document.getElementById('docs-' + s.id)) {
+      await loadSupplierDocs(supId);
+    }
+  }
+}
+
+async function handleDeleteDoc(docId) {
+  if (!confirm('确定删除此文档？')) return;
+  try { await deleteSupplierDoc(docId); alert('已删除'); renderList(); }
+  catch(e) { alert('删除失败: ' + (e.message || e)); }
 }
 
 // Listen for auth state changes (magic link callback)

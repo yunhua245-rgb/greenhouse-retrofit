@@ -163,3 +163,71 @@ async function saveQuizAnswer(projectSlug, slot, value) {
   if (error) throw error;
   return await setProjectInfo(projectSlug, slot, value);
 }
+
+// ============================================================
+// Document management (for supplier files)
+// ============================================================
+
+// Get documents for a supplier
+async function getSupplierDocuments(supplierId) {
+  if (!supplierId) return [];
+  var _a = await supabase.from('supplier_documents').select('*').eq('supplier_id', supplierId).order('created_at', { ascending: false });
+  if (_a.error) { console.error('getSupplierDocuments error:', _a.error); return []; }
+  return _a.data || [];
+}
+
+// Get documents for all suppliers in a project (keyed by supplier_id)
+async function getAllProjectDocuments(projectSlug) {
+  var projectId = await getProjectId(projectSlug);
+  if (!projectId) return {};
+  var _a = await supabase.from('supplier_documents').select('*').eq('project_id', projectId).order('created_at', { ascending: false });
+  if (_a.error) return {};
+  var map = {};
+  (_a.data || []).forEach(function(d) { if (!map[d.supplier_id]) map[d.supplier_id] = []; map[d.supplier_id].push(d); });
+  return map;
+}
+
+// Upload a document (requires auth)
+async function uploadSupplierDoc(supplierId, projectSlug, file) {
+  var session = await requireAuth();
+  if (!session) throw new Error('Not authenticated');
+  var projectId = await getProjectId(projectSlug);
+  if (!projectId) throw new Error('Project not found');
+  var path = projectSlug + '/' + supplierId + '/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
+  var _a = await supabase.storage.from('supplier-docs').upload(path, file, { cacheControl: '3600', upsert: false });
+  if (_a.error) throw _a.error;
+  var _b = await supabase.from('supplier_documents').insert({
+    supplier_id: supplierId, project_id: projectId,
+    filename: file.name, storage_path: _a.data.path,
+    file_size: file.size, mime_type: file.type
+  });
+  if (_b.error) throw _b.error;
+  return _b.data;
+}
+
+// Get public URL for a document
+function getDocPublicUrl(storagePath) {
+  return SUPABASE_URL + '/storage/v1/object/public/' + storagePath;
+}
+
+// Delete a document (requires auth)
+async function deleteSupplierDoc(docId) {
+  var session = await requireAuth();
+  if (!session) throw new Error('Not authenticated');
+  var _a = await supabase.from('supplier_documents').select('storage_path').eq('id', docId).single();
+  if (_a.error) throw _a.error;
+  if (_a.data && _a.data.storage_path) {
+    await supabase.storage.from('supplier-docs').remove([_a.data.storage_path]);
+  }
+  var _b = await supabase.from('supplier_documents').delete().eq('id', docId);
+  if (_b.error) throw _b.error;
+}
+
+// Find supplier UUID by name (for admin pages that use localStorage)
+async function findSupplierByName(projectSlug, name) {
+  var projectId = await getProjectId(projectSlug);
+  if (!projectId) return null;
+  var _a = await supabase.from('suppliers').select('id').eq('project_id', projectId).eq('name', name).limit(1);
+  if (_a.error || !_a.data || _a.data.length === 0) return null;
+  return _a.data[0].id;
+}

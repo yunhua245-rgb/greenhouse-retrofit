@@ -431,6 +431,7 @@ function switchLang(lang) {
 let suppliersData = [];
 let coordinatorProfile = {};
 let projectInfo = {};
+let supplierDocs = {};
 
 async function fetchData() {
   try {
@@ -442,6 +443,7 @@ async function fetchData() {
     suppliersData = suppliers;
     projectInfo = info;
     coordinatorProfile = coordinator;
+    supplierDocs = await getAllProjectDocuments('modu');
   } catch(e) { console.log('Supabase fetch failed'); showFallbackBannerModu(); }
   
   const hasData = suppliersData.length > 0 || Object.keys(projectInfo).length > 0 || Object.keys(coordinatorProfile).length > 0;
@@ -505,11 +507,20 @@ function renderSuppliers() {
     return items.map(s => {
       const stLabel = (stLabels[currentLang]||stLabels.zh)[s.status]||s.status||'new';
       const badgeCls = s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':s.status==='shortlisted'?'badge-green':'badge-amber';
+      var docs = supplierDocs[s.id] || [];
+      var docsHtml = docs.length > 0 ? '<div style="margin-top:6px;border-top:1px solid #e0e0e0;padding-top:4px;font-size:10px;color:#888">' + ({en:'Docs',zh:'文档'}[currentLang]||'Docs') + ': ' + docs.map(function(d) {
+        var ext = (d.filename || '').split('.').pop().toLowerCase();
+        var isImg = ['jpg','jpeg','png','gif','svg','webp'].indexOf(ext) >= 0;
+        var isPdf = ext === 'pdf';
+        var url = getDocPublicUrl(d.storage_path);
+        return '<a href="' + url + '" target="_blank" style="color:#e65100;margin-left:4px;text-decoration:none" title="' + escHtml(d.filename) + '">' + (isImg ? '🖼️' : isPdf ? '📄' : '📎') + '</a>';
+      }).join('') + '</div>' : '';
       return `<div class="sup-item">
         <div data-translate data-original="${escHtml(s.name||s.displayName||s.nameEn||s.nameCn||'')}" style="font-weight:600;font-size:13px;color:#1a1a1a;margin-bottom:4px">${escHtml(s.name||s.displayName||s.nameEn||s.nameCn||'')}</div>
         <div style="font-size:11px;color:#999;margin-bottom:4px">${escHtml(s.track||'')} · #${escHtml(s.id||'')}</div>
         ${s.specialty||s.location ? '<div data-translate data-original="'+escHtml(s.location||'')+(s.specialty?' · '+escHtml(s.specialty):'')+'" class="sup-detail">'+escHtml(s.location||'')+( s.specialty?' · '+escHtml(s.specialty):'')+'</div>' : ''}
         <div class="sup-status"><span class="badge ${badgeCls}">${stLabel}</span></div>
+        ${docsHtml}
       </div>`;
     }).join('');
   }
