@@ -661,19 +661,19 @@ function renderCoordinator() {
   const bioEl = document.getElementById('coord-bio');
   const contactGrid = document.getElementById('contact-grid');
 
-  if (p.avatarUrl) {
-    avatarEl.innerHTML = '<img src="' + escHtml(p.avatarUrl) + '" alt="">';
+  if (p.avatar_url) {
+    avatarEl.innerHTML = '<img src="' + escHtml(p.avatar_url) + '" alt="">';
   } else {
     avatarEl.textContent = (p.name || 'H').charAt(0).toUpperCase();
   }
 
   nameEl.textContent = p.name || 'HUA';
-  cityEl.textContent = p.city || 'Beijing, China';
-  bioEl.textContent = p.bio || '';
-  bioEl.style.display = p.bio ? 'block' : 'none';
-  if (p.bio) {
+  cityEl.textContent = p.description || 'Beijing, China';
+  bioEl.textContent = p.title || '';
+  bioEl.style.display = p.title ? 'block' : 'none';
+  if (p.title) {
     bioEl.setAttribute('data-translate', '');
-    bioEl.setAttribute('data-original', p.bio);
+    bioEl.setAttribute('data-original', p.title);
   }
 
   const contacts = [];

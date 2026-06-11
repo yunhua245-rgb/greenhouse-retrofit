@@ -528,17 +528,17 @@ function renderCoordinator() {
   const contactGrid = document.getElementById('contact-grid');
 
   // Avatar
-  if (p.avatarUrl) {
-    avatarEl.innerHTML = '<img src="' + escHtml(p.avatarUrl) + '" alt="">';
+  if (p.avatar_url) {
+    avatarEl.innerHTML = '<img src="' + escHtml(p.avatar_url) + '" alt="">';
   } else {
     avatarEl.textContent = (p.name || 'A').charAt(0).toUpperCase();
   }
 
   // Name & city
   nameEl.textContent = p.name || 'Amalia HOU';
-  cityEl.textContent = p.city || 'Beijing, China';
-  bioEl.textContent = p.bio || '';
-  bioEl.style.display = p.bio ? 'block' : 'none';
+  cityEl.textContent = p.description || 'Beijing, China';
+  bioEl.textContent = p.title || '';
+  bioEl.style.display = p.title ? 'block' : 'none';
 
   // Contact chips
   const contacts = [];
