@@ -1813,26 +1813,59 @@ async function handleUploadDoc(supplierName) {
       for (var i = 0; i < files.length; i++) {
         var file = files[i];
         if (file.size > 50 * 1024 * 1024) { alert('文件过大(最大50MB): ' + file.name); continue; }
-        var base64 = await new Promise(function(resolve) {
-          var reader = new FileReader();
-          reader.onload = function() { resolve(reader.result.split(',')[1]); };
-          reader.readAsDataURL(file);
-        });
 
-        var resp = await fetch('/api/upload-doc', {
+        // Step 1: Get upload URL from our API
+        var urlResp = await fetch('/api/upload-doc', {
           method: 'POST',
           headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            action: 'get-upload-url',
             supplier_id: supId,
             project_slug: 'greenhouse',
             filename: file.name,
-            mime_type: file.type,
-            file_base64: base64
+            mime_type: file.type
           })
         });
-        var result = await resp.json();
-        if (!resp.ok || !result.success) {
-          throw new Error(result.error || '上传失败');
+        var urlResult = await urlResp.json();
+        if (!urlResp.ok || !urlResult.success) {
+          throw new Error(urlResult.error || '获取上传地址失败');
+        }
+
+        // Step 2: Upload file directly to Supabase Storage (bypasses Vercel 4.5MB limit)
+        var uploadHeaders = { 'Content-Type': file.type || 'application/octet-stream', 'x-upsert': 'true' };
+        if (urlResult.method === 'signed' && urlResult.token) {
+          uploadHeaders['Authorization'] = 'Bearer ' + urlResult.token;
+        } else {
+          uploadHeaders['Authorization'] = 'Bearer ' + urlResult.token;
+          uploadHeaders['apikey'] = urlResult.token;
+        }
+        var uploadResp = await fetch(urlResult.uploadUrl, {
+          method: urlResult.method === 'signed' ? 'PUT' : 'POST',
+          headers: uploadHeaders,
+          body: file
+        });
+        if (!uploadResp.ok) {
+          var errText = await uploadResp.text();
+          throw new Error('文件上传失败: ' + errText.substring(0, 100));
+        }
+
+        // Step 3: Confirm upload - record in database
+        var confirmResp = await fetch('/api/upload-doc', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'confirm',
+            supplier_id: supId,
+            project_slug: 'greenhouse',
+            filename: file.name,
+            storage_path: urlResult.storagePath,
+            file_size: file.size,
+            mime_type: file.type
+          })
+        });
+        var confirmResult = await confirmResp.json();
+        if (!confirmResp.ok || !confirmResult.success) {
+          throw new Error(confirmResult.error || '记录保存失败');
         }
       }
       alert('文档上传成功！');
