@@ -1,5 +1,15 @@
-// Vercel Serverless Function — Generate smart questions for missing project info
-// Uses DeepSeek AI to create multiple-choice questions based on missing slots
+// Vercel Serverless Function — Quiz (merged: generate-questions + save-quiz-answer)
+// Dispatch by body.action: "generate" | "save-answer"
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_KEY;
+
+const supabaseHeaders = () => ({
+  'apikey': SUPABASE_SERVICE_KEY,
+  'Authorization': `Bearer ${SUPABASE_SERVICE_KEY}`,
+  'Content-Type': 'application/json',
+  'Prefer': 'return=representation'
+});
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -9,7 +19,19 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { missingSlots, existingInfo, lang } = req.body || {};
+  const body = (typeof req.body === 'string' ? JSON.parse(req.body) : req.body) || {};
+  const action = body.action || 'generate'; // default for backward compat
+
+  if (action === 'save-answer') {
+    return handleSaveAnswer(body, res);
+  }
+  // Default: generate questions
+  return handleGenerateQuestions(body, res);
+};
+
+// ======================== Generate Questions ========================
+async function handleGenerateQuestions(body, res) {
+  const { missingSlots, existingInfo, lang } = body;
   if (!missingSlots || missingSlots.length === 0) {
     return res.status(400).json({ error: 'No missing slots provided' });
   }
@@ -18,16 +40,13 @@ module.exports = async function handler(req, res) {
   const AI_API_KEY = process.env.AI_API_KEY || 'sk-f2a6af8a39d848a5ade70105fb27c208';
   const AI_MODEL = process.env.AI_MODEL || 'deepseek-chat';
 
-  // Map slot keys to human-readable descriptions (27-field architecture + legacy)
   const slotDescriptions = {
-    // 👤 客户基本信息
     clientCompany: { zh: '公司名称', en: 'Company name', ru: 'Название компании' },
     contactPerson: { zh: '联系人', en: 'Contact person', ru: 'Контактное лицо' },
     contactMethod: { zh: '联系方式', en: 'Contact method', ru: 'Способ связи' },
     location: { zh: '所在国家/城市', en: 'Country/City', ru: 'Страна/Город' },
     companyType: { zh: '公司类型', en: 'Company type', ru: 'Тип компании' },
     companyScale: { zh: '公司规模', en: 'Company scale', ru: 'Масштаб компании' },
-    // 📦 产品需求
     productName: { zh: '产品名称/类别', en: 'Product name', ru: 'Название продукта' },
     productUsage: { zh: '用途/应用场景', en: 'Usage/Application', ru: 'Назначение' },
     specifications: { zh: '规格参数', en: 'Specifications', ru: 'Характеристики' },
@@ -35,27 +54,22 @@ module.exports = async function handler(req, res) {
     certifications: { zh: '认证要求', en: 'Certifications', ru: 'Сертификация' },
     sampleDrawing: { zh: '样品/图纸', en: 'Samples/Drawings', ru: 'Образцы/Чертежи' },
     packagingReq: { zh: '包装要求', en: 'Packaging requirements', ru: 'Требования к упаковке' },
-    // 💰 价格与预算
     budget: { zh: '目标价格/预算', en: 'Target price/Budget', ru: 'Бюджет' },
     currency: { zh: '币种', en: 'Currency', ru: 'Валюта' },
     tradeTerms: { zh: '贸易条款', en: 'Trade terms', ru: 'Условия торговли' },
     paymentTerms: { zh: '付款方式', en: 'Payment terms', ru: 'Условия оплаты' },
-    // 🚚 物流与交期
     destination: { zh: '目的港/收货地', en: 'Destination port', ru: 'Порт назначения' },
     timeline: { zh: '期望交期', en: 'Expected timeline', ru: 'Сроки' },
     shippingMethod: { zh: '运输方式', en: 'Shipping method', ru: 'Способ доставки' },
     customsClearance: { zh: '清关协助', en: 'Customs clearance', ru: 'Таможенное оформление' },
-    // 🏭 供应商要求
     supplierType: { zh: '供应商类型', en: 'Supplier type', ru: 'Тип поставщика' },
     supplierRegion: { zh: '地区偏好', en: 'Preferred region', ru: 'Предпочтительный регион' },
     factoryAudit: { zh: '验厂需求', en: 'Factory audit', ru: 'Аудит фабрики' },
     sampleNeeded: { zh: '打样需求', en: 'Sample needed', ru: 'Образцы нужны' },
     oemOdm: { zh: 'OEM/ODM模式', en: 'OEM/ODM mode', ru: 'OEM/ODM режим' },
-    // 🔧 售后与其他
     warranty: { zh: '质保要求', en: 'Warranty', ru: 'Гарантия' },
     afterSales: { zh: '售后支持', en: 'After-sales support', ru: 'Послепродажное обслуживание' },
     cooperationIntent: { zh: '合作意向', en: 'Cooperation intent', ru: 'Намерения о сотрудничестве' },
-    // 🌿 温室项目专属 (legacy)
     area: { zh: '温室面积', en: 'Greenhouse area', ru: 'Площадь теплицы' },
     structureType: { zh: '温室结构类型', en: 'Greenhouse structure type', ru: 'Тип конструкции' },
     infrastructure: { zh: '现有基础设施', en: 'Existing infrastructure', ru: 'Существующая инфраструктура' },
@@ -65,7 +79,6 @@ module.exports = async function handler(req, res) {
 
   const langName = { en: 'English', ru: 'Russian', zh: 'Chinese' }[lang] || 'English';
 
-  // Build context about what we already know
   let contextStr = '';
   if (existingInfo && Object.keys(existingInfo).length > 0) {
     contextStr = '\n\nAlready known project info:\n' + Object.entries(existingInfo)
@@ -74,7 +87,6 @@ module.exports = async function handler(req, res) {
       .join('\n');
   }
 
-  // Only ask about first 2-3 missing slots at a time to not overwhelm
   const slotsToAsk = missingSlots.slice(0, 3);
 
   const systemPrompt = `You are helping a greenhouse owner provide project information for an automation retrofit. 
@@ -124,7 +136,6 @@ Rules:
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content || '';
 
-    // Parse JSON array from response
     const jsonMatch = content.match(/\[[\s\S]*\]/);
     if (jsonMatch) {
       try {
@@ -140,4 +151,53 @@ Rules:
   } catch (e) {
     return res.status(500).json({ error: 'AI call failed', detail: e.message || String(e) });
   }
-};
+}
+
+// ======================== Save Quiz Answer ========================
+async function handleSaveAnswer(body, res) {
+  const { slot, value, dataFile } = body;
+  const slug = (dataFile && dataFile.includes('modu')) ? 'modu' : 'greenhouse';
+
+  if (!slot || !value) {
+    return res.status(400).json({ error: 'slot and value are required' });
+  }
+
+  const allowedSlots = [
+    'clientCompany', 'contactPerson', 'contactMethod', 'location', 'companyType', 'companyScale',
+    'productName', 'productUsage', 'specifications', 'quantity', 'certifications', 'sampleDrawing', 'packagingReq',
+    'budget', 'currency', 'tradeTerms', 'paymentTerms',
+    'destination', 'timeline', 'shippingMethod', 'customsClearance',
+    'supplierType', 'supplierRegion', 'factoryAudit', 'sampleNeeded', 'oemOdm',
+    'warranty', 'afterSales', 'cooperationIntent', 'freeformNote',
+    'area', 'structureType', 'infrastructure', 'crops', 'scope'
+  ];
+  if (!allowedSlots.includes(slot)) {
+    return res.status(400).json({ error: 'Invalid slot: ' + slot });
+  }
+
+  try {
+    const project = await fetch(`${SUPABASE_URL}/rest/v1/projects?slug=eq.${slug}&limit=1`, {
+      headers: supabaseHeaders()
+    }).then(r => r.json());
+    const projectId = project?.[0]?.id;
+    if (!projectId) return res.status(500).json({ error: 'Project not found: ' + slug });
+
+    await fetch(`${SUPABASE_URL}/rest/v1/quiz_history`, {
+      method: 'POST',
+      headers: supabaseHeaders(),
+      body: JSON.stringify({ project_id: projectId, slot, value, created_at: new Date().toISOString() })
+    });
+
+    await fetch(`${SUPABASE_URL}/rest/v1/project_info`, {
+      method: 'POST',
+      headers: { ...supabaseHeaders(), 'Prefer': 'resolution=merge-duplicates' },
+      body: JSON.stringify({ project_id: projectId, key: slot, value, updated_at: new Date().toISOString() })
+    });
+
+    return res.status(200).json({ success: true, slot, value });
+  } catch (e) {
+    return res.status(500).json({ error: 'Server error', detail: e.message });
+  }
+}
+
+module.exports.config = { maxDuration: 30 };

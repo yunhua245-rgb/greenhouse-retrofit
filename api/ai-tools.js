@@ -1,6 +1,5 @@
-// Vercel Serverless Function — Extract project requirements from client text via DeepSeek AI
-// Input: raw text (email/chat message from client)
-// Output: structured project requirements
+// Vercel Serverless — AI Tools (merged: ai-keywords + extract-requirements)
+// Dispatch by body.action: "keywords" | "extract-requirements"
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -10,7 +9,84 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { text } = req.body || {};
+  const body = req.body || {};
+  const action = body.action || 'keywords'; // default to keywords for backward compat
+
+  if (action === 'extract-requirements') {
+    return handleExtractRequirements(body, res);
+  }
+  // Default: keywords
+  return handleKeywords(body, res);
+};
+
+// ======================== AI Keywords ========================
+async function handleKeywords(body, res) {
+  const { projectInfo } = body;
+  if (!projectInfo) {
+    return res.status(400).json({ error: 'Missing projectInfo' });
+  }
+
+  const DEEPSEEK_KEY = process.env.DEEPSEEK_API_KEY || process.env.AI_API_KEY || 'sk-f2a6af8a39d848a5ade70105fb27c208';
+  if (!DEEPSEEK_KEY) {
+    return res.status(500).json({ error: 'No API key' });
+  }
+
+  const infoStr = Object.entries(projectInfo)
+    .filter(([k, v]) => v && v.trim && v.trim())
+    .map(([k, v]) => `${k}: ${v}`)
+    .join('\n');
+
+  const prompt = `你是一个供应商寻源专家。根据以下客户项目信息，生成最适合在中国B2B平台（1688、阿里巴巴国际站、中国制造网）上搜索供应商的中文关键词。
+
+客户项目信息：
+${infoStr}
+
+要求：
+1. 输出6-10个中文搜索关键词，用空格分隔，供用户挑选
+2. 关键词分为两种格式混合输出：
+   - 短对格式："产品名 特点"（如"温室 自动化"、"注塑 代工"）
+   - 长复合词格式：完整产品名称（如"温室自动控制系统"、"LED植物生长灯"）
+3. 两种格式都要有，覆盖面要广，便于用户筛选不同精度供应商
+4. 关键词要精准对应客户需要采购的产品/设备/服务
+5. 使用中国供应商常用的产品名称（不要翻译腔）
+6. 从客户描述中提取核心需求，而不是简单翻译字段值
+7. 只输出关键词本身，不要任何解释或编号
+
+例如：
+- 温室自动化改造项目 → "温室 自动化 温室自动控制系统 温室 通风 温室通风设备 温室 灌溉 智能温室 连栋温室改造 农业物联网"
+- 注塑玩具代工项目 → "注塑 玩具 注塑加工厂 模具 丹麦 玩具注塑代工 小批量 代工 塑料模具 精密注塑"`;
+
+  try {
+    const response = await fetch('https://api.deepseek.com/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${DEEPSEEK_KEY}`
+      },
+      body: JSON.stringify({
+        model: 'deepseek-chat',
+        messages: [{ role: 'user', content: prompt }],
+        max_tokens: 100,
+        temperature: 0.3
+      })
+    });
+
+    const data = await response.json();
+    const keywords = data.choices?.[0]?.message?.content?.trim();
+
+    if (keywords) {
+      return res.status(200).json({ success: true, keywords });
+    } else {
+      return res.status(200).json({ success: false, error: 'No AI response' });
+    }
+  } catch (e) {
+    return res.status(500).json({ success: false, error: e.message });
+  }
+}
+
+// ======================== Extract Requirements ========================
+async function handleExtractRequirements(body, res) {
+  const { text } = body;
   if (!text || !text.trim()) {
     return res.status(400).json({ error: 'text is required' });
   }
@@ -79,7 +155,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 55000);
+    const timeout = setTimeout(() => controller.abort(), 25000);
 
     const response = await fetch(AI_BASE_URL + '/v1/chat/completions', {
       method: 'POST',
@@ -124,4 +200,6 @@ module.exports = async function handler(req, res) {
   } catch (e) {
     return res.status(500).json({ error: 'Server error', detail: e.message });
   }
-};
+}
+
+module.exports.config = { maxDuration: 30 };

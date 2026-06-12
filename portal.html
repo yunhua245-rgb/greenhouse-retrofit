@@ -459,10 +459,10 @@ async function extractRequirements() {
   errEl.style.display = 'none';
 
   try {
-    const res = await fetch('/api/extract-requirements', {
+    const res = await fetch('/api/ai-tools', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ text })
+      body: JSON.stringify({ action: 'extract-requirements', text })
     });
     const data = await res.json();
     

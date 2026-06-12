@@ -747,10 +747,10 @@ async function autoFillKeywords() {
       }
     }
 
-    const aiRes = await fetch('/api/ai-keywords', {
+    const aiRes = await fetch('/api/ai-tools', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ projectInfo: translatedInfo })
+      body: JSON.stringify({ action: 'keywords', projectInfo: translatedInfo })
     });
     const aiData = await aiRes.json();
 
@@ -1001,10 +1001,10 @@ async function findOfficialWebsite(companyName, platformUrl) {
     try {
       const u = new URL(platformUrl);
       if (u.hostname.includes('1688.com') || u.hostname.includes('alibaba.com') || u.hostname.includes('made-in-china.com')) {
-        const aiRes = await fetch('/api/search-official-website', {
+        const aiRes = await fetch('/api/search-suppliers', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ companyName })
+          body: JSON.stringify({ action: 'official-website', companyName })
         });
         if (aiRes.ok) {
           const data = await aiRes.json();
@@ -1795,18 +1795,45 @@ async function init() {
   loadDisplaySettings();
 }
 
-// --- Document Upload ---
+// --- Document Upload (via server-side API to bypass Storage RLS) ---
 async function handleUploadDoc(supplierName) {
   var supId = await findSupplierByName('greenhouse', supplierName);
   if (!supId) { alert('Supplier not found in Supabase: ' + supplierName); return; }
   var input = document.createElement('input');
   input.type = 'file'; input.multiple = true;
+  input.accept = '.pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.gif,.txt,.zip';
   input.onchange = async function() {
     var files = input.files;
     if (!files.length) return;
     try {
+      var { data: { session } } = await supabase.auth.getSession();
+      if (!session) { alert('请先登录'); return; }
+      var token = session.access_token;
+
       for (var i = 0; i < files.length; i++) {
-        await uploadSupplierDoc(supId, 'greenhouse', files[i]);
+        var file = files[i];
+        if (file.size > 50 * 1024 * 1024) { alert('文件过大(最大50MB): ' + file.name); continue; }
+        var base64 = await new Promise(function(resolve) {
+          var reader = new FileReader();
+          reader.onload = function() { resolve(reader.result.split(',')[1]); };
+          reader.readAsDataURL(file);
+        });
+
+        var resp = await fetch('/api/upload-doc', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            supplier_id: supId,
+            project_slug: 'greenhouse',
+            filename: file.name,
+            mime_type: file.type,
+            file_base64: base64
+          })
+        });
+        var result = await resp.json();
+        if (!resp.ok || !result.success) {
+          throw new Error(result.error || '上传失败');
+        }
       }
       alert('文档上传成功！');
       renderList();

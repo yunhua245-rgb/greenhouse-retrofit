@@ -11,12 +11,10 @@
     "api/fetch-company.js": { "maxDuration": 30 },
     "api/ai-summary.js": { "maxDuration": 30 },
     "api/search-suppliers.js": { "maxDuration": 30 },
-    "api/search-official-website.js": { "maxDuration": 30 },
-    "api/ai-keywords.js": { "maxDuration": 30 },
+    "api/ai-tools.js": { "maxDuration": 30 },
     "api/batch-add-suppliers.js": { "maxDuration": 30 },
-    "api/extract-requirements.js": { "maxDuration": 30 },
     "api/create-project.js": { "maxDuration": 30 },
-    "api/generate-questions.js": { "maxDuration": 30 },
-    "api/save-quiz-answer.js": { "maxDuration": 30 }
+    "api/quiz.js": { "maxDuration": 30 },
+    "api/upload-doc.js": { "maxDuration": 30 }
   }
 }
