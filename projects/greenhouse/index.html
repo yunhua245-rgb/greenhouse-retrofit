@@ -115,6 +115,17 @@
   .client-edit-link{display:block;text-align:center;margin-top:20px;padding:14px;background:#f7f8fa;border:1px dashed #ccc;border-radius:12px;text-decoration:none;color:#555;font-size:14px;transition:all 0.2s}
   .client-edit-link:hover{background:#e8f5ee;border-color:#148a4e;color:#0a6e3a}
   
+  /* Supplier document styles */
+  .supplier-docs-section{margin-top:10px;padding-top:8px;border-top:1px dashed #e0e0e0}
+  .supplier-docs-title{font-size:11px;font-weight:600;color:#555;margin-bottom:6px}
+  .supplier-doc-item{display:flex;align-items:center;gap:4px;padding:3px 0;font-size:11px}
+  .supplier-doc-item .doc-icon{flex-shrink:0;font-size:12px}
+  .supplier-doc-item .doc-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#1a73e8;text-decoration:none;transition:color 0.2s}
+  .supplier-doc-item .doc-name:hover{color:#0a4ea8;text-decoration:underline}
+  .supplier-doc-item .doc-size{color:#999;font-size:10px;flex-shrink:0}
+  .supplier-doc-item .doc-dl{color:#148a4e;text-decoration:none;font-size:13px;flex-shrink:0;padding:2px 4px;border-radius:4px;transition:background 0.2s}
+  .supplier-doc-item .doc-dl:hover{background:#e8f5ee}
+  
   .update-bar{background:#fff;border:1px solid #e8eaed;border-radius:10px;padding:12px 18px;margin-top:22px;display:flex;align-items:center;justify-content:space-between;font-size:12px;color:#888}
   .update-bar .dot{width:7px;height:7px;background:#4caf50;border-radius:50%;display:inline-block;margin-right:6px}
   .footer{text-align:center;padding:30px 20px;font-size:11px;color:#bbb}
@@ -598,12 +609,34 @@ function renderSuppliers() {
     const stLabel = (stLabels[currentLang]||stLabels.en)[s.status]||s.status;
     const displayLogs = (typeof s.logs === 'string' ? JSON.parse(s.logs) : (s.logs||[])).filter(l=>!/通过平台搜索|自动添加|已添加供应商/.test(l.text));
     const lastLog = displayLogs.length?displayLogs[displayLogs.length-1].text:'';
+    // Render documents attached to this supplier
+    const docs = supplierDocs[s.id] || [];
+    const docLabels = {en:'Documents',ru:'Документы',zh:'文档'};
+    const dlLabels = {en:'Download',ru:'Скачать',zh:'下载'};
+    let docsHtml = '';
+    if (docs.length > 0) {
+      docsHtml = '<div class="supplier-docs-section">' +
+        '<div class="supplier-docs-title">📎 ' + (docLabels[currentLang]||docLabels.en) + ' (' + docs.length + ')</div>' +
+        docs.map(d => {
+          const url = getDocPublicUrl(d.storage_path);
+          const icon = /\.(jpg|jpeg|png|gif|svg|webp)$/i.test(d.filename) ? '🖼️' : /\.pdf$/i.test(d.filename) ? '📄' : '📎';
+          const sizeStr = d.file_size ? (d.file_size > 1048576 ? (d.file_size/1048576).toFixed(1)+'MB' : (d.file_size/1024).toFixed(0)+'KB') : '';
+          return '<div class="supplier-doc-item">' +
+            '<span class="doc-icon">' + icon + '</span>' +
+            '<a href="' + url + '" target="_blank" rel="noopener" class="doc-name" title="' + escHtml(d.filename) + '">' + escHtml(d.filename) + '</a>' +
+            '<span class="doc-size">' + sizeStr + '</span>' +
+            '<a href="' + url + '" download="' + escHtml(d.filename) + '" class="doc-dl" title="' + (dlLabels[currentLang]||dlLabels.en) + '">⬇</a>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+    }
     return `<div class="scheme-card ${cls}">
       <div class="scheme-tag">${({en:'Solution ',ru:'Вариант ',zh:'方案'}[currentLang]||'Solution ')+code}</div>
       <div style="font-weight:600;font-size:14px;color:#1a1a1a;margin-bottom:4px">${escHtml(s.name||s.displayName||s.nameEn||s.nameCn||'')}</div>
       <div style="font-size:13px;color:#555"><strong data-translate data-original="${escHtml(s.specialty||'')}">${escHtml(s.specialty||'-')}</strong></div>
       <div style="margin-top:6px"><span class="badge ${s.status==='selected'?'badge-green':s.status==='quoted'?'badge-blue':'badge-amber'}">${stLabel}</span></div>
       ${lastLog?'<div style="margin-top:6px;font-size:11px;color:#666" data-translate data-original="'+escHtml(lastLog)+'">'+escHtml(lastLog)+'</div>':''}
+      ${docsHtml}
     </div>`;
   }).join('');
 }

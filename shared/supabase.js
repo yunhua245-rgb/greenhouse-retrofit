@@ -213,7 +213,7 @@ async function uploadSupplierDoc(supplierId, projectSlug, file) {
 
 // Get public URL for a document
 function getDocPublicUrl(storagePath) {
-  return SUPABASE_URL + '/storage/v1/object/public/' + storagePath;
+  return SUPABASE_URL + '/storage/v1/object/public/supplier-docs/' + storagePath;
 }
 
 // Delete a document (requires auth)

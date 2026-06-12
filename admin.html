@@ -1881,20 +1881,52 @@ async function loadSupplierDocs(supplierId) {
   if (!el) return;
   if (docs.length === 0) { el.style.display = 'none'; el.innerHTML = ''; return; }
   el.style.display = 'block';
-  el.innerHTML = '<div style="font-weight:600;margin-bottom:4px">已上传文档 (' + docs.length + ')</div>' + docs.map(function(d) {
+  el.innerHTML = '<div style="font-weight:600;margin-bottom:6px;font-size:13px;color:#333">📎 已上传文档 (' + docs.length + ')</div>' + docs.map(function(d) {
     var url = getDocPublicUrl(d.storage_path);
     var icon = /\.(jpg|jpeg|png|gif|svg|webp)$/i.test(d.filename) ? '🖼️' : /\.pdf$/i.test(d.filename) ? '📄' : '📎';
-    return '<div style="display:flex;align-items:center;gap:6px;padding:3px 0"><span>' + icon + '</span><a href="' + url + '" target="_blank" style="color:#148a4e;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + d.filename + '</a><button onclick="handleDeleteDoc(\'' + d.id + '\')" style="color:#e24b4a;background:none;border:none;cursor:pointer;font-size:14px" title="删除">×</button></div>';
+    var sizeStr = d.file_size ? (d.file_size > 1048576 ? (d.file_size/1048576).toFixed(1)+' MB' : (d.file_size/1024).toFixed(0)+' KB') : '';
+    var dateStr = d.created_at ? new Date(d.created_at).toLocaleDateString('zh-CN') : '';
+    return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#f8f9fa;border-radius:8px;margin-bottom:4px">' +
+      '<span style="font-size:16px">' + icon + '</span>' +
+      '<div style="flex:1;min-width:0">' +
+        '<div style="font-size:12px;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + d.filename + '">' + d.filename + '</div>' +
+        '<div style="font-size:10px;color:#999">' + sizeStr + (dateStr ? ' · ' + dateStr : '') + '</div>' +
+      '</div>' +
+      '<a href="' + url + '" target="_blank" style="color:#1a73e8;background:#e8f0fe;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;text-decoration:none;white-space:nowrap" title="预览文档">预览</a>' +
+      '<a href="' + url + '" download="' + d.filename + '" style="color:#148a4e;background:#e8f5ee;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;text-decoration:none;white-space:nowrap" title="下载文档">下载</a>' +
+      '<button onclick="handleDeleteDoc(\'' + d.id + '\')" style="color:#e24b4a;background:#fde8e8;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;white-space:nowrap" title="删除文档">删除</button>' +
+    '</div>';
   }).join('');
 }
 
 async function loadAllSupplierDocs(suppliers) {
-  // Build name→localId mapping; query Supabase for UUIDs and load docs
+  // Build name→localId mapping; query Supabase for UUIDs and load docs into the correct DOM element
   for (var i = 0; i < suppliers.length; i++) {
     var s = suppliers[i];
     var supId = await findSupplierByName('greenhouse', s.name);
-    if (supId && document.getElementById('docs-' + s.id)) {
-      await loadSupplierDocs(supId);
+    if (supId) {
+      // The DOM element uses local id (s.id), but docs are keyed by Supabase UUID (supId)
+      var docs = await getSupplierDocuments(supId);
+      var el = document.getElementById('docs-' + s.id);
+      if (!el) continue;
+      if (docs.length === 0) { el.style.display = 'none'; el.innerHTML = ''; continue; }
+      el.style.display = 'block';
+      el.innerHTML = '<div style="font-weight:600;margin-bottom:6px;font-size:13px;color:#333">📎 已上传文档 (' + docs.length + ')</div>' + docs.map(function(d) {
+        var url = getDocPublicUrl(d.storage_path);
+        var icon = /\.(jpg|jpeg|png|gif|svg|webp)$/i.test(d.filename) ? '🖼️' : /\.pdf$/i.test(d.filename) ? '📄' : '📎';
+        var sizeStr = d.file_size ? (d.file_size > 1048576 ? (d.file_size/1048576).toFixed(1)+' MB' : (d.file_size/1024).toFixed(0)+' KB') : '';
+        var dateStr = d.created_at ? new Date(d.created_at).toLocaleDateString('zh-CN') : '';
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#f8f9fa;border-radius:8px;margin-bottom:4px">' +
+          '<span style="font-size:16px">' + icon + '</span>' +
+          '<div style="flex:1;min-width:0">' +
+            '<div style="font-size:12px;color:#1a1a1a;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="' + d.filename + '">' + d.filename + '</div>' +
+            '<div style="font-size:10px;color:#999">' + sizeStr + (dateStr ? ' · ' + dateStr : '') + '</div>' +
+          '</div>' +
+          '<a href="' + url + '" target="_blank" style="color:#1a73e8;background:#e8f0fe;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;text-decoration:none;white-space:nowrap" title="预览文档">预览</a>' +
+          '<a href="' + url + '" download="' + d.filename + '" style="color:#148a4e;background:#e8f5ee;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;text-decoration:none;white-space:nowrap" title="下载文档">下载</a>' +
+          '<button onclick="handleDeleteDoc(\'' + d.id + '\')" style="color:#e24b4a;background:#fde8e8;border:none;border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;white-space:nowrap" title="删除文档">删除</button>' +
+        '</div>';
+      }).join('');
     }
   }
 }
