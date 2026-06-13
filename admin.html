@@ -7,7 +7,17 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.6}
-.header{background:#fff;border-bottom:1px solid #e8eaed;padding:16px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+/* Brand Nav */
+.brand-nav{background:#fff;border-bottom:1px solid #e8eaed;padding:10px 24px;display:flex;align-items:center;justify-content:space-between}
+.brand-logo-wrap{display:flex;align-items:center;gap:14px;text-decoration:none}
+.brand-logo{height:32px;width:auto}
+.brand-tagline{font-size:13px;font-weight:500;color:#444;letter-spacing:0.3px}
+.header{background:#fff;border-bottom:1px solid #e8eaed;padding:16px 24px;display:flex;align-items:center;justify-content:space-between}
+@media(max-width:600px){
+  .brand-nav{padding:10px 14px}
+  .brand-logo{height:26px}
+  .brand-tagline{font-size:11px}
+}
 .header h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px}
 .header .back-link{font-size:13px;color:#148a4e;text-decoration:none;display:flex;align-items:center;gap:4px}
 .header .back-link:hover{text-decoration:underline}
@@ -144,6 +154,14 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 <div id="auth-banner" style="display:none;background:#e8f5ee;border-bottom:1px solid #c8e6c9;padding:8px 24px;justify-content:space-between;align-items:center;font-size:13px;color:#0a6e3a">
   <span>✓ 已登录</span>
   <button onclick="signOut()" style="background:none;border:1px solid #0a6e3a;color:#0a6e3a;padding:4px 14px;border-radius:6px;cursor:pointer;font-size:12px">退出</button>
+</div>
+
+<!-- Brand Nav Bar -->
+<div class="brand-nav">
+  <a href="/" class="brand-logo-wrap">
+    <img src="/shared/logo.png" alt="H.U.A" class="brand-logo">
+    <span class="brand-tagline">Your Dedicated Cross-Border Supply Chain Partner</span>
+  </a>
 </div>
 
 <div class="header">

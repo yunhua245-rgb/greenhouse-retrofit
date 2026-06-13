@@ -8,6 +8,16 @@
 <script src="/shared/supabase.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box}
+  /* Brand Nav */
+  .brand-nav{background:#fff;border-bottom:1px solid #e8eaed;padding:10px 24px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+  .brand-logo-wrap{display:flex;align-items:center;gap:14px;text-decoration:none}
+  .brand-logo{height:32px;width:auto}
+  .brand-tagline{font-size:13px;font-weight:500;color:#444;letter-spacing:0.3px}
+  @media(max-width:600px){
+    .brand-nav{padding:10px 14px}
+    .brand-logo{height:26px}
+    .brand-tagline{font-size:11px}
+  }
   body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
   
   .hero{background:linear-gradient(135deg,#0a3d1f 0%,#0e5a33 40%,#148a4e 100%);color:#fff;padding:52px 24px 60px;text-align:center;position:relative;overflow:hidden}
@@ -142,6 +152,14 @@
 </style>
 </head>
 <body>
+
+<!-- Brand Nav Bar -->
+<div class="brand-nav">
+  <a href="/" class="brand-logo-wrap">
+    <img src="/shared/logo.png" alt="H.U.A" class="brand-logo">
+    <span class="brand-tagline">Your Dedicated Cross-Border Supply Chain Partner</span>
+  </a>
+</div>
 
 <div class="hero">
   <h1 id="hero-title">Greenhouse Automation Retrofit</h1>

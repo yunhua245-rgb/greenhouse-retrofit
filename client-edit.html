@@ -7,6 +7,16 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background:#f7f8fa;color:#1a1a2e;line-height:1.7}
+/* Brand Nav */
+.brand-nav{background:#fff;border-bottom:1px solid #e8eaed;padding:10px 24px;display:flex;align-items:center;justify-content:space-between}
+.brand-logo-wrap{display:flex;align-items:center;gap:14px;text-decoration:none}
+.brand-logo{height:32px;width:auto}
+.brand-tagline{font-size:13px;font-weight:500;color:#444;letter-spacing:0.3px}
+@media(max-width:600px){
+  .brand-nav{padding:10px 14px}
+  .brand-logo{height:26px}
+  .brand-tagline{font-size:11px}
+}
 .header{background:#fff;border-bottom:1px solid #e8eaed;padding:20px 24px;display:flex;align-items:center;justify-content:space-between}
 .header h1{font-size:18px;font-weight:700}
 .back-link{color:#148a4e;text-decoration:none;font-size:13px;font-weight:500}
@@ -33,6 +43,14 @@ body{font-family:'Inter','Segoe UI','Helvetica Neue',Arial,sans-serif;background
 </style>
 </head>
 <body>
+<!-- Brand Nav Bar -->
+<div class="brand-nav">
+  <a href="/" class="brand-logo-wrap">
+    <img src="/shared/logo.png" alt="H.U.A" class="brand-logo">
+    <span class="brand-tagline">Your Dedicated Cross-Border Supply Chain Partner</span>
+  </a>
+</div>
+
 <div class="header">
 <h1 id="page-title">更新项目信息</h1>
 <a href="/projects/greenhouse/index.html" class="back-link" id="back-link">&larr; 返回项目页面</a>
