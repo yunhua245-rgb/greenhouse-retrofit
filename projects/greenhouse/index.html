@@ -342,7 +342,7 @@
   </div>
 
   <!-- CLIENT EDIT LINK — absolute path from project subfolder -->
-  <a href="/client-edit.html" class="client-edit-link" data-i18n="edit-link">📝 Update project details (greenhouse info, requirements, notes)</a>
+  <a href="/client-edit.html?project=greenhouse" class="client-edit-link" data-i18n="edit-link">📝 Update project details (greenhouse info, requirements, notes)</a>
 
   <div class="update-bar">
     <div><span class="dot"></span><span data-i18n="update-text">Page updated at every milestone</span></div>
@@ -466,9 +466,7 @@ function switchLang(lang) {
   translateUserContent();
   refreshQuizLang();
   const editLink = document.querySelector('.client-edit-link');
-  if (editLink) editLink.href = '/client-edit.html?lang=' + lang;
-}
-
+  if (editLink) editLink.href = '/client-edit.html?project=greenhouse&lang=' + lang;
 const CLOUD_URL = '/projects/greenhouse/data.json';
 let suppliersData = [];
 let projectInfo = {};
@@ -503,7 +501,7 @@ async function fetchData() {
     switchLang(currentLang);
   }
   const editLink = document.querySelector('.client-edit-link');
-  if (editLink) editLink.href = '/client-edit.html?lang=' + currentLang;
+  if (editLink) editLink.href = '/client-edit.html?project=greenhouse&lang=' + currentLang;
 }
 
 function showFallbackBanner() {

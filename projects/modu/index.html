@@ -290,7 +290,7 @@
     </div>
   </div>
 
-  <a href="/client-edit.html" class="client-edit-link" data-i18n="edit-link">📝 更新项目信息（需求、备注、联系方式）</a>
+  <a href="/client-edit.html?project=modu" class="client-edit-link" data-i18n="edit-link">📝 更新项目信息（需求、备注、联系方式）</a>
 
   <div class="update-bar">
     <div><span class="dot"></span><span data-i18n="update-text">每个节点更新</span></div>
@@ -424,7 +424,7 @@ function switchLang(lang) {
   renderDisplayContent();
   setTimeout(translateUserContent, 200);
   const editLink = document.querySelector('.client-edit-link');
-  if (editLink) editLink.href = '/client-edit.html?lang=' + lang;
+  if (editLink) editLink.href = '/client-edit.html?project=modu&lang=' + lang;
 }
 
 // Cloud data
