@@ -116,7 +116,8 @@ async function writeFullData(slug, body) {
 
   const { suppliers, projectInfo, coordinatorProfile, phases, editHistory } = body;
 
-  if (suppliers) {
+  // Only sync suppliers if explicitly provided and non-empty (safety: prevent accidental mass deletion)
+  if (Array.isArray(suppliers) && suppliers.length > 0) {
     // Delete existing suppliers and re-insert (simplest for full sync)
     await supabaseFetch(`suppliers?project_id=eq.${projectId}`, 'DELETE');
     for (const s of suppliers) {

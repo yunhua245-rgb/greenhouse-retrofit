@@ -525,6 +525,13 @@ function saveToStorage(suppliers) {
 
 // Cloud sync functions
 async function syncToCloud(suppliers) {
+  // Safety: never sync empty supplier list (prevents accidental mass deletion)
+  if (!suppliers || suppliers.length === 0) {
+    console.warn('syncToCloud skipped: empty suppliers array');
+    syncStatus = 'idle';
+    updateSyncIndicator();
+    return;
+  }
   syncStatus = 'syncing';
   updateSyncIndicator();
   try {
