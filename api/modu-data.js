@@ -101,8 +101,11 @@ async function writeFullData(slug, body) {
   if (syncSuppliers && Array.isArray(suppliers) && suppliers.length > 0) {
     await supabaseFetch(`suppliers?project_id=eq.${projectId}`, 'DELETE');
     for (const s of suppliers) {
-      const { id, ...row } = s;
-      await supabaseFetch('suppliers', 'POST', { ...row, project_id: projectId });
+      const { id, createdAt, updatedAt, ...rest } = s;
+      const row = { ...rest, project_id: projectId };
+      if (createdAt) row.created_at = typeof createdAt === 'number' ? new Date(createdAt).toISOString() : createdAt;
+      if (updatedAt) row.updated_at = typeof updatedAt === 'number' ? new Date(updatedAt).toISOString() : updatedAt;
+      await supabaseFetch('suppliers', 'POST', row);
     }
   }
 

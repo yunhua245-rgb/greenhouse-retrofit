@@ -594,10 +594,15 @@ async function loadFromCloud() {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
         }
       }
+      syncStatus = 'idle';
+    } else {
+      syncStatus = 'error';
     }
   } catch (e) {
     console.error('Failed to load from cloud:', e);
+    syncStatus = 'error';
   }
+  updateSyncIndicator();
 }
 
 function updateSyncIndicator() {
