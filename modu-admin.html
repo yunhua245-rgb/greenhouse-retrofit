@@ -507,11 +507,27 @@ async function loadFromCloud() {
       if (data.suppliers && data.suppliers.length > 0) {
         const local = getSuppliers();
         if (local.length === 0) {
+          // 本地为空，直接使用云端数据
           localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
+        } else {
+          // 合并模式：云端状态覆盖本地 + 新增本地缺失的供应商
+          const localMap = {};
+          local.forEach(s => { localMap[s.name] = s; });
+          data.suppliers.forEach(cs => {
+            if (localMap[cs.name]) {
+              // 云端有的，用云端状态覆盖本地
+              localMap[cs.name].status = cs.status || localMap[cs.name].status;
+            } else {
+              // 本地没有的，从云端添加
+              local.push(cs);
+            }
+          });
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(local));
         }
       }
     }
   } catch(e) { console.error('Failed to load from cloud:', e); }
+  updateSyncIndicator();
 }
 
 async function forceReloadFromCloud() {
@@ -1384,8 +1400,13 @@ async function init() {
   if (!session) return;
   document.getElementById('auth-banner').style.display = 'flex';
   await loadFromCloud();
-  await forceReloadFromCloud();
   renderList();
+  // After loading, push local data to cloud to catch up any status changes
+  // that were made before the syncSuppliers fix was deployed
+  const localSuppliers = getSuppliers();
+  if (localSuppliers.length > 0) {
+    syncToCloud(localSuppliers);
+  }
   execWhenVisible(function() { loadEditHistory(); });
   loadDisplaySettings();
 }
