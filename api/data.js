@@ -64,8 +64,9 @@ module.exports = async function handler(req, res) {
 };
 
 // Helper: UPSERT via Supabase REST API (merge-duplicates on unique constraint)
-async function supabaseFetchUpsert(table, body) {
-  const url = `${SUPABASE_URL}/rest/v1/${table}`;
+async function supabaseFetchUpsert(table, body, onConflict) {
+  let url = `${SUPABASE_URL}/rest/v1/${table}`;
+  if (onConflict) url += `?on_conflict=${onConflict}`;
   const headers = supabaseHeaders();
   headers['Prefer'] = 'resolution=merge-duplicates,return=representation';
   const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
@@ -161,7 +162,7 @@ async function writeFullData(slug, body) {
   if (projectInfo) {
     for (const [key, value] of Object.entries(projectInfo)) {
       // UPSERT: update if (project_id, key) exists, insert otherwise
-      await supabaseFetchUpsert('project_info', { project_id: projectId, key, value, updated_at: new Date().toISOString() });
+      await supabaseFetchUpsert('project_info', { project_id: projectId, key, value, updated_at: new Date().toISOString() }, 'project_id,key');
     }
   }
 

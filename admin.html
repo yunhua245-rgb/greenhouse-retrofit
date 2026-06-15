@@ -558,7 +558,7 @@ async function syncToCloud(suppliers) {
     try {
       const getRes = await fetch(CLOUD_URL, {headers: {'Accept': 'application/json'}});
       if (getRes.ok) cloudData = await getRes.json();
-    } catch(e) {}
+    } catch(e) { console.warn('syncToCloud: GET failed', e); }
     
     cloudData.suppliers = suppliers;
     cloudData.lastUpdated = Date.now();
@@ -571,7 +571,10 @@ async function syncToCloud(suppliers) {
     });
     if (res.ok) {
       syncStatus = 'idle';
+      console.log('syncToCloud SUCCESS: ' + suppliers.length + ' suppliers synced');
     } else {
+      const errText = await res.text().catch(() => '');
+      console.error('syncToCloud FAILED: HTTP ' + res.status, errText);
       syncStatus = 'error';
     }
   } catch (e) {
