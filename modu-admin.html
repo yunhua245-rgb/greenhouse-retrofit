@@ -476,6 +476,7 @@ async function syncToCloud(suppliers) {
     
     cloudData.suppliers = suppliers;
     cloudData.lastUpdated = Date.now();
+    cloudData.syncSuppliers = true; // Explicit opt-in for supplier sync to Supabase
     if (dataSha) cloudData._sha = dataSha;
     
     const res = await fetch(CLOUD_URL, {
