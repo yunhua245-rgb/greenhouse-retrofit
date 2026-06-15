@@ -63,6 +63,19 @@ module.exports = async function handler(req, res) {
   return res.status(405).json({ error: 'Method not allowed' });
 };
 
+// Helper: UPSERT via Supabase REST API (merge-duplicates on unique constraint)
+async function supabaseFetchUpsert(table, body) {
+  const url = `${SUPABASE_URL}/rest/v1/${table}`;
+  const headers = supabaseHeaders();
+  headers['Prefer'] = 'resolution=merge-duplicates,return=representation';
+  const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+  if (!r.ok) {
+    const err = await r.text().catch(() => '');
+    throw new Error(`Supabase UPSERT ${table}: ${r.status} ${err}`);
+  }
+  return { data: await r.json().catch(() => []) };
+}
+
 // Helper: call Supabase REST API
 async function supabaseFetch(path, method, body) {
   const url = `${SUPABASE_URL}/rest/v1/${path}`;
@@ -128,7 +141,8 @@ async function writeFullData(slug, body) {
 
   if (projectInfo) {
     for (const [key, value] of Object.entries(projectInfo)) {
-      await supabaseFetch('project_info', 'POST', { project_id: projectId, key, value });
+      // UPSERT: update if (project_id, key) exists, insert otherwise
+      await supabaseFetchUpsert('project_info', { project_id: projectId, key, value, updated_at: new Date().toISOString() });
     }
   }
 
