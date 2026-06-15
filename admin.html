@@ -595,27 +595,18 @@ async function loadFromCloud() {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
           renderList();
         } else {
-          // Merge cloud status updates into local data (cloud is source of truth for status)
-          const cloudByName = {};
-          data.suppliers.forEach(s => { cloudByName[s.name] = s; });
+          // Merge: only add suppliers that exist in cloud but not locally
+          // DO NOT overwrite local status with cloud — local is the editing source of truth
+          // The correct flow is: local edit → syncToCloud → DB
           let changed = false;
-          const merged = local.map(s => {
-            const cloud = cloudByName[s.name];
-            if (cloud && cloud.status !== s.status) {
-              changed = true;
-              return {...s, status: cloud.status};
-            }
-            return s;
-          });
-          // Add any suppliers that exist in cloud but not locally
           data.suppliers.forEach(cs => {
             if (!local.find(ls => ls.name === cs.name)) {
-              merged.push({id: genId(), ...cs, createdAt: Date.now(), updatedAt: Date.now()});
+              local.push({id: genId(), ...cs, createdAt: Date.now(), updatedAt: Date.now()});
               changed = true;
             }
           });
           if (changed) {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(local));
             renderList();
           }
         }
@@ -1847,6 +1838,11 @@ async function init() {
   document.getElementById('auth-banner').style.display = 'flex';
   await loadFromCloud();
   renderList();
+  // After loading, push local data to cloud to persist any pending local changes
+  const localSuppliers = getSuppliers();
+  if (localSuppliers.length > 0) {
+    syncToCloud(localSuppliers);
+  }
   loadEditHistory();
   loadPhases();
   loadDisplaySettings();
