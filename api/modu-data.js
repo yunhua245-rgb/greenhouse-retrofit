@@ -106,8 +106,10 @@ async function writeFullData(slug, body) {
     (existing || []).forEach(s => { existingMap[s.name] = s.id; });
 
     for (const s of suppliers) {
-      const { id, createdAt, updatedAt, created_at, updated_at, project_id: _pid, ...rest } = s;
+      const { id, createdAt, updatedAt, created_at, updated_at, project_id: _pid, nameEn, ...rest } = s;
       const row = { ...rest, project_id: projectId };
+      // Map camelCase fields to snake_case
+      if (nameEn !== undefined) row.name_en = nameEn;
       if (createdAt) row.updated_at = typeof createdAt === 'number' ? new Date(createdAt).toISOString() : createdAt;
       if (updatedAt) row.updated_at = typeof updatedAt === 'number' ? new Date(updatedAt).toISOString() : updatedAt;
       Object.keys(row).forEach(k => { if (row[k] === undefined) delete row[k]; });
