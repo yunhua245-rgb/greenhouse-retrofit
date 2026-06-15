@@ -114,11 +114,11 @@ async function writeFullData(slug, body) {
   const projectId = project?.data?.[0]?.id;
   if (!projectId) throw new Error('Project not found: ' + slug);
 
-  const { suppliers, projectInfo, coordinatorProfile, phases, editHistory } = body;
+  const { suppliers, projectInfo, coordinatorProfile, phases, editHistory, syncSuppliers } = body;
 
-  // Only sync suppliers if explicitly provided and non-empty (safety: prevent accidental mass deletion)
-  if (Array.isArray(suppliers) && suppliers.length > 0) {
-    // Delete existing suppliers and re-insert (simplest for full sync)
+  // Suppliers: only sync when explicitly opted-in via syncSuppliers flag
+  // This prevents accidental mass deletion from client-edit or other PUT calls
+  if (syncSuppliers && Array.isArray(suppliers) && suppliers.length > 0) {
     await supabaseFetch(`suppliers?project_id=eq.${projectId}`, 'DELETE');
     for (const s of suppliers) {
       const { id, ...row } = s;

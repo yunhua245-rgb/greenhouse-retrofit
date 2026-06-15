@@ -83,9 +83,10 @@ async function writeFullData(slug, body) {
   const projectId = project?.data?.[0]?.id;
   if (!projectId) throw new Error('Project not found: ' + slug);
 
-  const { suppliers, projectInfo, editHistory } = body;
+  const { suppliers, projectInfo, editHistory, syncSuppliers } = body;
 
-  if (suppliers) {
+  // Suppliers: only sync when explicitly opted-in via syncSuppliers flag
+  if (syncSuppliers && Array.isArray(suppliers) && suppliers.length > 0) {
     await supabaseFetch(`suppliers?project_id=eq.${projectId}`, 'DELETE');
     for (const s of suppliers) {
       const { id, ...row } = s;

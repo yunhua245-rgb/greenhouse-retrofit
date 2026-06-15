@@ -562,6 +562,7 @@ async function syncToCloud(suppliers) {
     
     cloudData.suppliers = suppliers;
     cloudData.lastUpdated = Date.now();
+    cloudData.syncSuppliers = true; // Explicit opt-in for supplier sync
     
     const res = await fetch(CLOUD_URL, {
       method: 'PUT',
