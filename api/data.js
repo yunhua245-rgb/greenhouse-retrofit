@@ -130,16 +130,31 @@ async function writeFullData(slug, body) {
   const { suppliers, projectInfo, coordinatorProfile, phases, editHistory, syncSuppliers } = body;
 
   // Suppliers: only sync when explicitly opted-in via syncSuppliers flag
-  // This prevents accidental mass deletion from client-edit or other PUT calls
+  // Uses UPSERT by name: existing suppliers get updated, new ones get inserted
+  // This preserves UUIDs (important for document associations)
   if (syncSuppliers && Array.isArray(suppliers) && suppliers.length > 0) {
-    await supabaseFetch(`suppliers?project_id=eq.${projectId}`, 'DELETE');
+    // Get existing suppliers for this project to match by name
+    const { data: existing } = await supabaseFetch(`suppliers?project_id=eq.${projectId}&select=id,name`, 'GET');
+    const existingMap = {};
+    (existing || []).forEach(s => { existingMap[s.name] = s.id; });
+
     for (const s of suppliers) {
-      const { id, createdAt, updatedAt, ...rest } = s;
+      const { id, createdAt, updatedAt, created_at, updated_at, project_id: _pid, ...rest } = s;
       const row = { ...rest, project_id: projectId };
       // Map camelCase timestamps to snake_case if present
-      if (createdAt) row.created_at = typeof createdAt === 'number' ? new Date(createdAt).toISOString() : createdAt;
+      if (createdAt) row.updated_at = typeof createdAt === 'number' ? new Date(createdAt).toISOString() : createdAt;
       if (updatedAt) row.updated_at = typeof updatedAt === 'number' ? new Date(updatedAt).toISOString() : updatedAt;
-      await supabaseFetch('suppliers', 'POST', row);
+      // Remove any undefined/null noise
+      Object.keys(row).forEach(k => { if (row[k] === undefined) delete row[k]; });
+
+      const existingId = existingMap[s.name];
+      if (existingId) {
+        // UPDATE existing supplier (preserves UUID)
+        await supabaseFetch(`suppliers?id=eq.${existingId}`, 'PATCH', row);
+      } else {
+        // INSERT new supplier
+        await supabaseFetch('suppliers', 'POST', row);
+      }
     }
   }
 

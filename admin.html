@@ -591,7 +591,33 @@ async function loadFromCloud() {
       if (data.suppliers && data.suppliers.length > 0) {
         const local = getSuppliers();
         if (local.length === 0) {
+          // Local is empty: load cloud data as initial state
           localStorage.setItem(STORAGE_KEY, JSON.stringify(data.suppliers));
+          renderList();
+        } else {
+          // Merge cloud status updates into local data (cloud is source of truth for status)
+          const cloudByName = {};
+          data.suppliers.forEach(s => { cloudByName[s.name] = s; });
+          let changed = false;
+          const merged = local.map(s => {
+            const cloud = cloudByName[s.name];
+            if (cloud && cloud.status !== s.status) {
+              changed = true;
+              return {...s, status: cloud.status};
+            }
+            return s;
+          });
+          // Add any suppliers that exist in cloud but not locally
+          data.suppliers.forEach(cs => {
+            if (!local.find(ls => ls.name === cs.name)) {
+              merged.push({id: genId(), ...cs, createdAt: Date.now(), updatedAt: Date.now()});
+              changed = true;
+            }
+          });
+          if (changed) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
+            renderList();
+          }
         }
       }
       syncStatus = 'idle';
